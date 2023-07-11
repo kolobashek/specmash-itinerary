@@ -1,7 +1,7 @@
 import React from "react";
 import { StyleSheet, View, Text, ScrollView } from "react-native";
 
-const HomeScreen = () => {
+const TableScreen = () => {
   return (
     <ScrollView style={styles.container}>
       <Text style={styles.title}>Таблица пользователей</Text>
@@ -49,4 +49,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export { HomeScreen };
+export { TableScreen };
