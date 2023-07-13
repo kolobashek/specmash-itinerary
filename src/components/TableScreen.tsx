@@ -1,5 +1,17 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { StyleSheet, View, Text, ScrollView } from "react-native";
+import { getUsers } from "../services/api/user";
+
+const [users, setUsers] = useState([]);
+
+useEffect(() => {
+  const fetchUsers = async () => {
+    const data = await getUsers();
+    setUsers(data);
+  };
+
+  fetchUsers();
+}, []);
 
 const TableScreen = () => {
   return (

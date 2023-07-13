@@ -4,14 +4,12 @@ import { observer } from "mobx-react-lite";
 import { NavigationContainer, StackActions } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import store from "./src/store";
-import { RegisterScreen, LoginScreen, TableScreen } from "./screens";
+import { RegisterScreen, LoginScreen, TableScreen } from "./src/components";
 
 const Stack = createStackNavigator();
 const REGISTER_SCREEN = "Register";
 const LOGIN_SCREEN = "Login";
 const TABLE_SCREEN = "Home";
-
-const evrey = 3;
 
 const App = observer(() => {
   return (
@@ -25,6 +23,8 @@ const App = observer(() => {
     </NavigationContainer>
   );
 });
+
+export default App;
 
 const styles = StyleSheet.create({
   container: {

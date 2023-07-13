@@ -27,7 +27,31 @@ const LoginScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  // Стили здесь
+  container: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: "bold",
+    marginBottom: 20,
+  },
+  inputContainer: {
+    width: "80%",
+    marginBottom: 20,
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: "#777",
+    padding: 8,
+    marginBottom: 10,
+    width: "100%",
+  },
+  label: {
+    fontSize: 16,
+    marginBottom: 8,
+  },
 });
 
 export { LoginScreen };
