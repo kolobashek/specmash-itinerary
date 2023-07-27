@@ -2,18 +2,18 @@ import React, { useEffect, useState } from "react";
 import { StyleSheet, View, Text, ScrollView } from "react-native";
 import { getUsers } from "../services/api/user";
 
-const [users, setUsers] = useState([]);
+// const [users, setUsers] = useState([]);
 
-useEffect(() => {
-  const fetchUsers = async () => {
-    const data = await getUsers();
-    setUsers(data);
-  };
+// useEffect(() => {
+//   const fetchUsers = async () => {
+//     const data = await getUsers();
+//     setUsers(data);
+//   };
 
-  fetchUsers();
-}, []);
+//   fetchUsers();
+// }, []);
 
-const TableScreen = () => {
+export const TableScreen = () => {
   return (
     <ScrollView style={styles.container}>
       <Text style={styles.title}>Таблица пользователей</Text>
@@ -60,5 +60,3 @@ const styles = StyleSheet.create({
     padding: 10,
   },
 });
-
-export { TableScreen };
