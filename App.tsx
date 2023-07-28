@@ -8,13 +8,18 @@ import { RegisterScreen, LoginScreen, TableScreen } from "./src/components";
 const Stack = createStackNavigator();
 const REGISTER_SCREEN = "Register";
 const LOGIN_SCREEN = "Login";
-console.log("first!!!");
+
+export interface RootStackParamList {
+  Home: undefined;
+  Profile: { userId: string };
+
+  [key: string]: undefined | { userId: string };
+}
 
 // Проверяем авторизацию пользователя
 const isAuthorized = store.getUserAuthorized();
 
 const App = observer(() => {
-  console.log(isAuthorized);
   // Если пользователь авторизован, рендерим экран таблицы
   if (isAuthorized) {
     return <TableScreen />;

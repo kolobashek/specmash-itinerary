@@ -38,9 +38,9 @@ const RegisterScreen = () => {
         selectedValue={role}
         onValueChange={(itemValue) => setRole(itemValue)}
       >
-        {roles.map((role) => (
-          <Picker.Item label={role} value={role} />
-        ))}
+        {/* {roles.map((role) => ( */}
+        <Picker.Item label={role} value={role} />
+        {/* ))} */}
       </Picker>
       <Button title="Зарегистрироваться" onPress={handleSubmit} />
     </View>

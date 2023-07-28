@@ -7,14 +7,29 @@ import {
   Button,
   Alert, // добавлен
 } from "react-native";
-
-import { useNavigation } from "@react-navigation/native"; // добавлен
+import { useNavigation } from "@react-navigation/native";
+import { StackNavigationProp } from "@react-navigation/stack";
+import { RootStackParamList } from "../../App";
+import { loginUser } from "../services/api/user";
 
 // import { login } from '../api/auth'; // добавлен
 
 const LoginScreen = () => {
+  const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
+  const handleLogin = async () => {
+    try {
+      await loginUser({ email, password });
+
+      // навигация на экран после успешного входа
+      navigation.navigate("Home");
+    } catch (error: any) {
+      Alert.alert("Ошибка", error.message);
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -32,26 +47,11 @@ const LoginScreen = () => {
           secureTextEntry
         />
       </View>
-      <Button
-        title="Войти"
-        onPress={async () => {
-          // // логика входа
-          // // вызов API для входа
-          // try {
-          //   await login(email, password);
-          //   // успешный вход
-          //   navigation.navigate("Home");
-          // } catch (error) {
-          //   // ошибка входа
-          //   Alert.alert("Ошибка", error.message);
-          // }
-        }}
-      />
+      <Button title="Войти" onPress={handleLogin} />
+
       <Button
         title="Зарегистрироваться"
-        onPress={() => {
-          // navigation.navigate("Register");
-        }}
+        onPress={() => navigation.navigate("Register")}
       />
     </View>
   );
