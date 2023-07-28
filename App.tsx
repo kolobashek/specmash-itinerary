@@ -1,5 +1,4 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import React, { useState } from "react";
 import { observer } from "mobx-react-lite";
 import { NavigationContainer, StackActions } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
@@ -9,28 +8,26 @@ import { RegisterScreen, LoginScreen, TableScreen } from "./src/components";
 const Stack = createStackNavigator();
 const REGISTER_SCREEN = "Register";
 const LOGIN_SCREEN = "Login";
-const TABLE_SCREEN = "Home";
+console.log("first!!!");
+
+// Проверяем авторизацию пользователя
+const isAuthorized = store.getUserAuthorized();
 
 const App = observer(() => {
+  console.log(isAuthorized);
+  // Если пользователь авторизован, рендерим экран таблицы
+  if (isAuthorized) {
+    return <TableScreen />;
+  }
+  // Иначе рендерим экраны регистрации и авторизации
   return (
     <NavigationContainer>
       <Stack.Navigator>
-        <Stack.Screen name={TABLE_SCREEN} component={TableScreen} />
-        <Stack.Screen name={REGISTER_SCREEN} component={RegisterScreen} />
         <Stack.Screen name={LOGIN_SCREEN} component={LoginScreen} />
+        <Stack.Screen name={REGISTER_SCREEN} component={RegisterScreen} />
       </Stack.Navigator>
-      <StatusBar style="auto" />
     </NavigationContainer>
   );
 });
 
 export default App;
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-});

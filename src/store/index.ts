@@ -1,14 +1,18 @@
 import { makeAutoObservable } from "mobx";
 
 class Store {
-  count = 0;
+  userAuthorized = false;
 
   constructor() {
     makeAutoObservable(this);
   }
 
-  increment() {
-    this.count++;
+  setUserAuthorized(authorized: boolean) {
+    this.userAuthorized = authorized;
+  }
+
+  getUserAuthorized() {
+    return this.userAuthorized;
   }
 }
 

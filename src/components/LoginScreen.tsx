@@ -1,5 +1,16 @@
 import React, { useState } from "react";
-import { StyleSheet, View, Text, TextInput, Button } from "react-native";
+import {
+  StyleSheet,
+  View,
+  Text,
+  TextInput,
+  Button,
+  Alert, // добавлен
+} from "react-native";
+
+import { useNavigation } from "@react-navigation/native"; // добавлен
+
+// import { login } from '../api/auth'; // добавлен
 
 const LoginScreen = () => {
   const [email, setEmail] = useState("");
@@ -21,7 +32,27 @@ const LoginScreen = () => {
           secureTextEntry
         />
       </View>
-      <Button title="Войти" onPress={() => console.log("Login pressed")} />
+      <Button
+        title="Войти"
+        onPress={async () => {
+          // // логика входа
+          // // вызов API для входа
+          // try {
+          //   await login(email, password);
+          //   // успешный вход
+          //   navigation.navigate("Home");
+          // } catch (error) {
+          //   // ошибка входа
+          //   Alert.alert("Ошибка", error.message);
+          // }
+        }}
+      />
+      <Button
+        title="Зарегистрироваться"
+        onPress={() => {
+          // navigation.navigate("Register");
+        }}
+      />
     </View>
   );
 };
