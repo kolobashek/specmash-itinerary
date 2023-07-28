@@ -1,14 +1,16 @@
 import React, { useState } from "react";
 import { StyleSheet, View, Text, TextInput, Button } from "react-native";
+import { Picker } from "@react-native-picker/picker";
 import { registerUser } from "../services/api/user";
 
 const RegisterScreen = () => {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
+  const [role, setRole] = useState("user");
 
   const handleSubmit = async () => {
-    const user = { phone, name, password };
+    const user = { phone, name, password, role };
     const data = await registerUser(user);
   };
 
@@ -32,7 +34,15 @@ const RegisterScreen = () => {
           secureTextEntry
         />
       </View>
-      <Button title="Зарегистрироваться" onPress={() => {}} />
+      <Picker
+        selectedValue={role}
+        onValueChange={(itemValue) => setRole(itemValue)}
+      >
+        {roles.map((role) => (
+          <Picker.Item label={role} value={role} />
+        ))}
+      </Picker>
+      <Button title="Зарегистрироваться" onPress={handleSubmit} />
     </View>
   );
 };
