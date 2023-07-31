@@ -1,11 +1,14 @@
-import React, { useState } from "react";
+import React from "react";
 import { observer } from "mobx-react-lite";
 import { NavigationContainer, StackActions } from "@react-navigation/native";
-import { createStackNavigator } from "@react-navigation/stack";
+import {
+  createStackNavigator,
+  StackNavigationProp,
+} from '@react-navigation/stack';
 import store from "./src/store";
 import { RegisterScreen, LoginScreen, TableScreen } from "./src/components";
 
-const Stack = createStackNavigator();
+const Stack = createStackNavigator<RootStackParamList>();
 const REGISTER_SCREEN = "Register";
 const LOGIN_SCREEN = "Login";
 
@@ -16,6 +19,7 @@ export interface RootStackParamList {
   [key: string]: undefined | { userId: string };
 }
 
+type NavigationProps = StackNavigationProp<RootStackParamList>;
 // Проверяем авторизацию пользователя
 const isAuthorized = store.getUserAuthorized();
 

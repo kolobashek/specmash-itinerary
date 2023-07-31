@@ -26,6 +26,7 @@ const RegisterScreen = () => {
             value={phone}
             onChangeText={setPhone}
             keyboardType="phone-pad"
+            inputMode='tel'
           />
         </View>
 
