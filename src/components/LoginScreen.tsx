@@ -10,33 +10,33 @@ import {
 import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { RootStackParamList } from "../../App";
-import { loginUser } from "../services/api/user";
+import { loginUser } from '../services/api/auth'
 
 // import { login } from '../api/auth'; // добавлен
 
 const LoginScreen = () => {
-  const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
+  const navigation = useNavigation<StackNavigationProp<RootStackParamList>>()
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [phone, setPhone] = useState('')
+  const [password, setPassword] = useState('')
 
   const handleLogin = async () => {
     try {
-      await loginUser({ email, password });
+      await loginUser({ phone, password })
 
       // навигация на экран после успешного входа
-      navigation.navigate("Home");
+      navigation.navigate('Home')
     } catch (error: any) {
-      Alert.alert("Ошибка", error.message);
+      Alert.alert('Ошибка', error.message)
     }
-  };
+  }
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Войти</Text>
       <View style={styles.inputContainer}>
-        <Text style={styles.label}>Эл. почта</Text>
-        <TextInput style={styles.input} value={email} onChangeText={setEmail} />
+        <Text style={styles.label}>Телефон</Text>
+        <TextInput style={styles.input} value={phone} onChangeText={setPhone} />
       </View>
       <View style={styles.inputContainer}>
         <Text style={styles.label}>Пароль</Text>
@@ -51,11 +51,11 @@ const LoginScreen = () => {
 
       <Button
         title="Зарегистрироваться"
-        onPress={() => navigation.navigate("Register")}
+        onPress={() => navigation.navigate('Register')}
       />
     </View>
-  );
-};
+  )
+}
 
 const styles = StyleSheet.create({
   container: {
