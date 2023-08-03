@@ -5,7 +5,6 @@ import { StackNavigationProp } from '@react-navigation/stack'
 import { RootStackParamList } from '../../../App'
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL
-const navigation = useNavigation<StackNavigationProp<RootStackParamList>>()
 
 interface UserData {
   name: string
@@ -21,6 +20,7 @@ interface ResponseData {
 export const registerUser = async (
   userData: UserData
 ): Promise<ResponseData> => {
+  const navigation = useNavigation<StackNavigationProp<RootStackParamList>>()
   // Валидация
   if (!userData.name || !userData.phone || !userData.password) {
     throw new Error('Не заполнены обязательные поля')
