@@ -3,7 +3,8 @@
     "jsx": "react",
     "strict": true,
     "allowSyntheticDefaultImports": true,
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "types": ["node"]
   },
   "extends": "expo/tsconfig.base"
 }

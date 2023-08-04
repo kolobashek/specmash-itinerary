@@ -1,21 +1,34 @@
+import { gql } from 'graphql-request'
+
 const Queries = {
-  isActive: `#graphql
-    query isActive {
-        isActive(userId: "")
+  isActive: gql`
+    query isActive($userId: ID!) {
+      isActive(userId: $userId)
     }
-    `,
-  getRoles: `#graphql
+  `,
+
+  getRoles: gql`
     query getRoles {
-        roles {
-            id
-            name
-        }
+      roles {
+        id
+        name
+      }
     }
-    `,
-  createUser: `#graphql
-    mutation createUser() {
-        createUser(input: {name: "", phone: "", password: ""})
+  `,
+
+  register: gql`
+    mutation createUser($input: CreateUserInput!) {
+      createUser(input: $input)
     }
-    `,
+  `,
+
+  login: gql`
+    mutation Login($phone: String!, $password: String!) {
+      login(phone: $phone, password: $password) {
+        token
+      }
+    }
+  `,
 }
+
 export default Queries

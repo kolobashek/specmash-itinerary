@@ -3,6 +3,8 @@ import Store from '../../store'
 import { useNavigation } from '@react-navigation/native'
 import { StackNavigationProp } from '@react-navigation/stack'
 import { RootStackParamList } from '../../../App'
+import { graphqlRequest } from "./graphql"
+import Queries from "./queries"
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL
 
@@ -46,10 +48,11 @@ export const registerUser = async (
   }
 }
 
-export const loginUser = async (userData: any) => {
+export const loginUser = async (phone:string, password:string): Promise<ResponseData> => {
   try {
-    const response = await axios.post(`${API_URL}/login`, userData)
-    return response.data
+    // const response = await axios.post(`${API_URL}/login`, userData)
+    const response = await graphqlRequest(Queries.login, {phone, password})
+    return (response as any).data
   } catch (error: any) {
     throw new Error(error.message)
   }
