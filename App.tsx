@@ -5,18 +5,22 @@ import {
   createStackNavigator,
   StackNavigationProp,
 } from '@react-navigation/stack';
-import store from "./src/store";
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import { SafeAreaProvider } from 'react-native-safe-area-context'
+import store from './src/store'
 import {
   RegisterScreen,
   LoginScreen,
   TableScreen,
   InfoScreen,
+  ContragentsScreen,
 } from './src/components'
 
 const Stack = createStackNavigator<RootStackParamList>()
 const REGISTER_SCREEN = 'Register'
 const LOGIN_SCREEN = 'Login'
 const INFO_SCREEN = 'Info'
+const CONTRAGENTS_SCREEN = 'Contragents'
 
 export interface RootStackParamList {
   Home: undefined
@@ -36,13 +40,21 @@ const App = observer(() => {
   }
   // Иначе рендерим экраны регистрации и авторизации
   return (
-    <NavigationContainer>
-      <Stack.Navigator>
-        <Stack.Screen name={LOGIN_SCREEN} component={LoginScreen} />
-        <Stack.Screen name={REGISTER_SCREEN} component={RegisterScreen} />
-        <Stack.Screen name={INFO_SCREEN} component={InfoScreen} />
-      </Stack.Navigator>
-    </NavigationContainer>
+    <SafeAreaProvider>
+      <Router>
+        <NavigationContainer>
+          <Stack.Navigator>
+            <Stack.Screen name={LOGIN_SCREEN} component={LoginScreen} />
+            <Stack.Screen name={REGISTER_SCREEN} component={RegisterScreen} />
+            <Stack.Screen name={INFO_SCREEN} component={InfoScreen} />
+            <Stack.Screen
+              name={CONTRAGENTS_SCREEN}
+              component={ContragentsScreen}
+            />
+          </Stack.Navigator>
+        </NavigationContainer>
+      </Router>
+    </SafeAreaProvider>
   )
 })
 
