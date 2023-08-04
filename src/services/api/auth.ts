@@ -56,6 +56,8 @@ export const loginUser = async (userData: any) => {
 }
 
 export const checkIsActive = async () => {
-  const response = await axios.get(`${API_URL}/users`)
+  const response = await axios.post(`${API_URL}/graphql?query MyQuery {
+  isActive(userId: "")
+}`)
   return response.data
 }
