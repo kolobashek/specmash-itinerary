@@ -1,13 +1,11 @@
-import { gql } from 'graphql-request'
-
 const Queries = {
-  isActive: gql`
+  isActive: /* GraphQL */ `
     query isActive($userId: ID!) {
       isActive(userId: $userId)
     }
   `,
 
-  getRoles: gql`
+  getRoles: /* GraphQL */ `
     query getRoles {
       roles {
         id
@@ -16,13 +14,13 @@ const Queries = {
     }
   `,
 
-  register: gql`
+  register: /* GraphQL */ `
     mutation createUser($input: CreateUserInput!) {
       createUser(input: $input)
     }
   `,
 
-  login: gql`
+  login: /* GraphQL */ `
     mutation Login($phone: String!, $password: String!) {
       login(phone: $phone, password: $password) {
         token

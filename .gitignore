@@ -1,4 +1,9 @@
-node_modules/
+node_modules/*
+!node_modules/graphql-hooks
+node_modules/graphql-hooks/*
+!node_modules/graphql-hooks/es
+node_modules/graphql-hooks/es/*
+!node_modules/graphql-hooks/es/graphql-hooks.js
 .expo/
 dist/
 npm-debug.*
@@ -9,7 +14,6 @@ npm-debug.*
 *.mobileprovision
 *.orig.*
 web-build/
-
 # macOS
 .DS_Store
 

@@ -3,13 +3,16 @@ import { StyleSheet, View, Text } from 'react-native'
 import { Picker } from '@react-native-picker/picker'
 import { Button, Input, Card } from '@rneui/themed'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
-import { registerUser } from '../services/api/auth'
+// import { registerUser } from '../services/api/auth'
 
 const RegisterScreen = () => {
   const [name, setName] = useState('')
   const [phone, setPhone] = useState('')
   const [password, setPassword] = useState('')
   const [role, setRole] = useState('user')
+  const registerUser = async ({ name, phone, password, role }: { name:string, phone:string, password:string, role:string}) => {
+    console.log({ name, phone, password, role })
+  }
 
   return (
     <View style={styles.container}>
