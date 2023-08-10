@@ -1,44 +1,36 @@
 import React, { useState } from 'react'
 import { StyleSheet, View } from 'react-native'
 import { Button, Input, Card } from '@rneui/themed'
-import { useNavigation } from '@react-navigation/native'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
-import { type StackNavigationProp } from '@react-navigation/stack'
 import { useManualQuery } from 'graphql-hooks'
-import { type RootStackParamList } from '../../App'
 // Import { loginUser } from '../services/api/auth'
 import Queries from '../services/api/queries'
 
 // Import { login } from '../api/auth'; // добавлен
 
-const LoginScreen = () => {
-	const navigation = useNavigation<StackNavigationProp<RootStackParamList>>()
-
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const LoginScreen = ({ route, navigation }: { route: any; navigation: any }) => {
 	const [phone, setPhone] = useState('')
 	const [password, setPassword] = useState('')
+	const [errorMessage, setErrorMessage] = useState('')
 
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	const [loginUser, { loading, error, data }] = useManualQuery(Queries.login, {
-		variables: {
-			phone,
-			password,
-		},
-	})
+	const [loginUser] = useManualQuery(Queries.login)
 
-	// Const handleLogin = async () => {
-	//   try {
-	//     // await loginUser({ phone, password })
-
-	//     // навигация на экран после успешного входа
-	//     navigation.navigate('Home')
-	//   } catch (error: any) {
-	//     Alert.alert('Ошибка', error.message)
-	//   }
-	// }
 	const handleLogin = async () => {
 		const variables = { phone, password }
-		await loginUser({ variables })
-		console.log(data)
+
+		try {
+			const FetchedData = await loginUser({ variables })
+			console.log('FetchedData', FetchedData)
+			const loading = FetchedData.loading
+			console.log('loading', loading)
+			const user = FetchedData.data
+			const error = FetchedData.error
+			console.log(user, error)
+		} catch (catchedError) {
+			setPassword('')
+			console.log('catchedError', catchedError)
+		}
 	}
 
 	return (
@@ -49,43 +41,63 @@ const LoginScreen = () => {
 					containerStyle={{}}
 					// DisabledInputStyle={{ background: '#ddd' }}
 					inputContainerStyle={{}}
-					errorMessage={error?.httpError?.body ?? error?.fetchError?.message}
+					errorMessage={''}
 					errorStyle={{}}
 					errorProps={{}}
-					inputStyle={{}}
+					inputStyle={styles.inputStyle}
 					label='Вход:'
+					value={phone}
 					labelStyle={{}}
 					labelProps={{}}
 					leftIcon={<Icon name='phone-outline' size={20} />}
 					leftIconContainerStyle={{}}
-					rightIcon={<Icon name='close' size={20} />}
+					rightIcon={
+						<Icon
+							name='close'
+							color={phone.length ? '#000' : '#ddd'}
+							size={20}
+							onPress={() => setPhone('')}
+							aria-hidden={!phone.length}
+						/>
+					}
 					rightIconContainerStyle={{}}
 					placeholder='Введите номер'
 					onChangeText={setPhone}
+					// disabled={loading}
 				/>
 				<Input
 					containerStyle={{}}
 					// DisabledInputStyle={{ background: '#ddd' }}
-					inputContainerStyle={styles.inputContainerStyle}
-					errorMessage="Oops! that's not correct."
+					inputContainerStyle={{}}
+					errorMessage={errorMessage}
 					errorStyle={{}}
 					errorProps={{}}
-					inputStyle={{}}
+					inputStyle={styles.inputStyle}
 					labelStyle={{}}
 					labelProps={{}}
 					leftIconContainerStyle={{}}
 					rightIcon={
-						<View style={styles.passIcons}>
-							<Icon name='eye-outline' size={20} style={styles.passIcon} />
-							<Icon name='close' size={20} style={styles.passIcon} />
-						</View>
+						<Icon
+							name='close'
+							color={password.length ? '#000' : '#ddd'}
+							size={20}
+							style={styles.passIcon}
+							onPress={() => setPassword('')}
+							aria-hidden={!password.length}
+						/>
 					}
 					rightIconContainerStyle={{}}
 					placeholder='Введите пароль'
+					value={password}
 					onChangeText={setPassword}
 					secureTextEntry
+					// disabled={loading}
 				/>
-				<Button title='Войти' onPress={handleLogin} />
+				<Button
+					title='Войти'
+					onPress={handleLogin}
+					// disabled={loading}
+				/>
 
 				<Button
 					title='Зарегистрироваться'
@@ -133,7 +145,10 @@ const styles = StyleSheet.create({
 	passIcons: {
 		flexDirection: 'row',
 	},
-	inputContainerStyle: {},
+	inputStyle: {
+		paddingLeft: 20,
+		fontSize: 12,
+	},
 	passIcon: {
 		paddingLeft: 5,
 	},

@@ -1,10 +1,11 @@
 import React from 'react'
-import { StatusBar } from 'expo-status-bar'
+// import { StatusBar } from 'expo-status-bar'
 import { observer } from 'mobx-react-lite'
+import { NavigationContainer } from '@react-navigation/native'
 // import { NavigationContainer, StackActions } from '@react-navigation/native'
-import { createNativeStackNavigator } from '@react-navigation/native-stack'
+import { createStackNavigator } from '@react-navigation/stack'
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { BrowserRouter as Router, Routes, Route, BrowserRouter } from 'react-router-dom'
+// import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
 import store from './src/store'
 import {
@@ -23,11 +24,12 @@ const client = new GraphQLClient({
 	url,
 })
 
-const Stack = createNativeStackNavigator<RootStackParamList>()
+const Stack = createStackNavigator<RootStackParamList>()
 const REGISTER_SCREEN = 'Register'
 const LOGIN_SCREEN = 'Login'
 const INFO_SCREEN = 'Info'
 const CONTRAGENTS_SCREEN = 'Contragents'
+const TABLE_SCREEN = 'Table'
 
 export interface RootStackParamList {
 	Home: undefined
@@ -38,28 +40,31 @@ export interface RootStackParamList {
 
 // type NavigationProps = StackNavigationProp<RootStackParamList>
 // Проверяем авторизацию пользователя
-const isAuthorized = store.getUserAuthorized()
+const Screens = ({ isAuthorized }: { isAuthorized: boolean }) => {
+	if (!isAuthorized)
+		return (
+			<Stack.Navigator>
+				<Stack.Screen name={LOGIN_SCREEN} component={LoginScreen} />
+				<Stack.Screen name={REGISTER_SCREEN} component={RegisterScreen} />
+			</Stack.Navigator>
+		)
+	return (
+		<Stack.Navigator>
+			<Stack.Screen name={TABLE_SCREEN} component={TableScreen} options={{ headerShown: false }} />
+			<Stack.Screen name={INFO_SCREEN} component={InfoScreen} />
+			<Stack.Screen name={CONTRAGENTS_SCREEN} component={ContragentsScreen} />
+		</Stack.Navigator>
+	)
+}
 
 const App = observer(() => {
-	// Если пользователь авторизован, рендерим экран таблицы
-	if (isAuthorized) {
-		return <TableScreen />
-	}
-	// Иначе рендерим экраны регистрации и авторизации
+	const isAuthorized = store.getUserAuthorized()
 	return (
 		<ClientContext.Provider value={client}>
 			<SafeAreaProvider>
-				<Router>
-					<BrowserRouter>
-						<Stack.Navigator>
-							<StatusBar style='auto' />
-							<Stack.Screen name={LOGIN_SCREEN} component={LoginScreen} />
-							<Stack.Screen name={REGISTER_SCREEN} component={RegisterScreen} />
-							<Stack.Screen name={INFO_SCREEN} component={InfoScreen} />
-							<Stack.Screen name={CONTRAGENTS_SCREEN} component={ContragentsScreen} />
-						</Stack.Navigator>
-					</BrowserRouter>
-				</Router>
+				<NavigationContainer>
+					<Screens isAuthorized={isAuthorized} />
+				</NavigationContainer>
 			</SafeAreaProvider>
 		</ClientContext.Provider>
 	)
