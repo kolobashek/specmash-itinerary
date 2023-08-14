@@ -6,7 +6,7 @@ import { NavigationContainer } from '@react-navigation/native'
 import { createStackNavigator } from '@react-navigation/stack'
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 // import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
-import { SafeAreaProvider } from 'react-native-safe-area-context'
+import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context'
 import store from './src/store'
 import {
 	RegisterScreen,
@@ -70,10 +70,8 @@ const App = observer(() => {
 		const checkAuth = async () => {
 			const token = await getToken()
 			if (token) {
-				console.log(token)
 				client.setHeader('authorization', token)
 				const { data } = await Me()
-				console.log(data.me)
 				store.setUserAuthorized(true)
 				if (!error && data.me) {
 					store.setUserData(data.me)

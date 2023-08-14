@@ -47,6 +47,22 @@ const Queries = {
 			}
 		}
 	`,
+
+	getShifts: /* GraphQL */ `
+		query getShifts($dateStart: String, $dateEnd: String) {
+			travelLogs(dateStart: $dateStart, dateEnd: $dateEnd) {
+				id
+				driver
+				object
+				equipment
+				date
+				shiftNumber
+				hours
+				breaks
+				comment
+			}
+		}
+	`,
 }
 
 export function handleApiError(error: APIErrors) {
