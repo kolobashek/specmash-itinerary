@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 // import { StatusBar } from 'expo-status-bar'
 import { observer } from 'mobx-react-lite'
 import { NavigationContainer } from '@react-navigation/native'
@@ -15,7 +15,9 @@ import {
 	InfoScreen,
 	ContragentsScreen,
 } from './src/components'
-import { GraphQLClient, ClientContext } from 'graphql-hooks'
+import { GraphQLClient, ClientContext, useQuery, useManualQuery } from 'graphql-hooks'
+import AsyncStorage from '@react-native-async-storage/async-storage'
+import Queries from './src/services/api/queries'
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3000'
 const url = API_URL + '/graphql'
@@ -58,12 +60,33 @@ const Screens = ({ isAuthorized }: { isAuthorized: boolean }) => {
 }
 
 const App = observer(() => {
-	const isAuthorized = store.getUserAuthorized()
+	const [Me, { error }] = useManualQuery(Queries.me, { client })
+	const getToken = async () => {
+		const result = await AsyncStorage.getItem('token')
+		return result
+	}
+
+	useEffect(() => {
+		const checkAuth = async () => {
+			const token = await getToken()
+			if (token) {
+				console.log(token)
+				client.setHeader('authorization', token)
+				const { data } = await Me()
+				console.log(data.me)
+				store.setUserAuthorized(true)
+				if (!error && data.me) {
+					store.setUserData(data.me)
+				}
+			}
+		}
+		checkAuth()
+	}, [store.userAuthorized])
 	return (
 		<ClientContext.Provider value={client}>
 			<SafeAreaProvider>
 				<NavigationContainer>
-					<Screens isAuthorized={isAuthorized} />
+					<Screens isAuthorized={store.userAuthorized} />
 				</NavigationContainer>
 			</SafeAreaProvider>
 		</ClientContext.Provider>

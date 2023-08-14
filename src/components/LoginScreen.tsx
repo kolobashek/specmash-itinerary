@@ -1,20 +1,21 @@
-import React, { useState } from 'react'
+import React, { useState, useContext } from 'react'
 import { StyleSheet, View } from 'react-native'
 import { Button, Input, Card } from '@rneui/themed'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
-import { useManualQuery } from 'graphql-hooks'
-// Import { loginUser } from '../services/api/auth'
-import Queries from '../services/api/queries'
-
-// Import { login } from '../api/auth'; // добавлен
+import { useMutation, ClientContext, useQuery } from 'graphql-hooks'
+import AsyncStorage from '@react-native-async-storage/async-storage'
+import Queries, { handleApiError, APIErrors } from '../services/api/queries'
+import store from '../store'
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const LoginScreen = ({ route, navigation }: { route: any; navigation: any }) => {
+	const client = useContext(ClientContext)
 	const [phone, setPhone] = useState('')
 	const [password, setPassword] = useState('')
 	const [errorMessage, setErrorMessage] = useState('')
 
-	const [loginUser] = useManualQuery(Queries.login)
+	const [loginUser] = useMutation(Queries.login)
+	const { data } = useQuery(Queries.me)
 
 	const handleLogin = async () => {
 		const variables = { phone, password }
@@ -23,10 +24,25 @@ const LoginScreen = ({ route, navigation }: { route: any; navigation: any }) => 
 			const FetchedData = await loginUser({ variables })
 			console.log('FetchedData', FetchedData)
 			const loading = FetchedData.loading
-			console.log('loading', loading)
-			const user = FetchedData.data
 			const error = FetchedData.error
-			console.log(user, error)
+			const { login } = FetchedData.data
+			if (error) {
+				const message = handleApiError(error as APIErrors)
+				setErrorMessage(message)
+				setPassword('')
+				return
+			}
+			if (!loading) {
+				const { token } = login
+				await AsyncStorage.setItem('token', token)
+				client?.setHeader('Authorization', `Bearer ${token}`)
+				if (!error && data.me) {
+					store.setUserData(data.me)
+					store.setUserAuthorized(true)
+					navigation.navigate('Table')
+				}
+				console.log('token', token)
+			}
 		} catch (catchedError) {
 			setPassword('')
 			console.log('catchedError', catchedError)
@@ -89,15 +105,14 @@ const LoginScreen = ({ route, navigation }: { route: any; navigation: any }) => 
 					rightIconContainerStyle={{}}
 					placeholder='Введите пароль'
 					value={password}
-					onChangeText={setPassword}
+					onChangeText={(e) => {
+						setPassword(e), setErrorMessage('')
+					}}
+					onSubmitEditing={handleLogin}
 					secureTextEntry
 					// disabled={loading}
 				/>
-				<Button
-					title='Войти'
-					onPress={handleLogin}
-					// disabled={loading}
-				/>
+				<Button title='Войти' onPress={handleLogin} disabled={!phone.length || !password.length} />
 
 				<Button
 					title='Зарегистрироваться'

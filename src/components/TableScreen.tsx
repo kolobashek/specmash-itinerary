@@ -1,5 +1,6 @@
 import React from 'react'
 import { StyleSheet, View, Text, ScrollView } from 'react-native'
+import store from '../store'
 // import { getUsers } from "../services/api/user";
 
 // const [users, setUsers] = useState([]);
@@ -14,6 +15,7 @@ import { StyleSheet, View, Text, ScrollView } from 'react-native'
 // }, []);
 
 export const TableScreen = () => {
+	console.log(store.user)
 	return (
 		<ScrollView style={styles.container}>
 			<Text style={styles.title}>Таблица пользователей</Text>
