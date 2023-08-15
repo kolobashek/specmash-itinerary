@@ -1,6 +1,9 @@
-import { useQuery } from 'graphql-hooks'
+import { request, gql } from 'graphql-request'
 import { makeAutoObservable } from 'mobx'
 import Queries from '../services/api/queries'
+
+const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3000'
+const url = API_URL + '/graphql'
 
 class Store {
 	userAuthorized = false
@@ -126,8 +129,8 @@ class Store {
 	}
 
 	getShiftsFromApi() {
-		const { data } = useQuery(Queries.getShifts)
-		console.log(data.shifts)
+		const data = request(url, Queries.getShifts)
+		console.log(data)
 		this.shifts = data.shifts || []
 	}
 }

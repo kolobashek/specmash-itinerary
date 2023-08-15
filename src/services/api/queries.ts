@@ -52,9 +52,18 @@ const Queries = {
 		query getShifts($dateStart: String, $dateEnd: String) {
 			travelLogs(dateStart: $dateStart, dateEnd: $dateEnd) {
 				id
-				driver
-				object
-				equipment
+				driver {
+					id
+					name
+				}
+				object {
+					id
+					name
+				}
+				equipment {
+					id
+					name
+				}
 				date
 				shiftNumber
 				hours

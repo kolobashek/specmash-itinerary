@@ -4,6 +4,13 @@ node_modules/graphql-hooks/*
 !node_modules/graphql-hooks/es
 node_modules/graphql-hooks/es/*
 !node_modules/graphql-hooks/es/graphql-hooks.js
+!node_modules/graphql-request
+node_modules/graphql-request/*
+!node_modules/graphql-request/build
+node_modules/graphql-request/build/*
+!node_modules/graphql-request/build/cjs/
+node_modules/graphql-request/build/cjs/*
+!node_modules/graphql-request/build/cjs/resolveRequestDocument.js
 .expo/
 dist/
 npm-debug.*

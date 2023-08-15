@@ -4,12 +4,12 @@ import store from '../../store'
 import { observer } from 'mobx-react-lite'
 
 export const TableScreen = observer(() => {
-	const { shiftsTableSortBy, shifts } = store
+	const { shiftsTableSortBy, shifts, getShiftsFromApi } = store
 	const today = new Date()
 
 	return (
 		<ScrollView horizontal={true}>
-			<Text>Таблица путевых листов</Text>
+			<Text onPress={getShiftsFromApi}>Таблица путевых листов</Text>
 
 			<View>
 				<View style={[styles.row, styles.header]}>
