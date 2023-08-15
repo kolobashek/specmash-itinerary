@@ -4,7 +4,7 @@ import store from '../../store'
 import { observer } from 'mobx-react-lite'
 
 export const TableScreen = observer(() => {
-	const { shiftsTableSortBy, shifts, getShiftsFromApi } = store
+	const { shiftsTableSortBy, shifts, getShiftsFromApi } = store.shifts
 	const today = new Date()
 
 	return (
@@ -18,7 +18,7 @@ export const TableScreen = observer(() => {
 						return (
 							<Text
 								style={[styles.cell, styles.cellHeader]}
-								onPress={() => store.setShiftsTableSortBy(key)}
+								onPress={() => store.shifts.setShiftsTableSortBy(key)}
 								key={key}
 							>
 								{label}

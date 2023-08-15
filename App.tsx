@@ -2,10 +2,7 @@ import React, { useEffect, useState } from 'react'
 // import { StatusBar } from 'expo-status-bar'
 import { observer } from 'mobx-react-lite'
 import { NavigationContainer } from '@react-navigation/native'
-// import { NavigationContainer, StackActions } from '@react-navigation/native'
 import { createStackNavigator } from '@react-navigation/stack'
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-// import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context'
 import store from './src/store'
 import {
@@ -15,16 +12,6 @@ import {
 	InfoScreen,
 	ContragentsScreen,
 } from './src/components'
-import { GraphQLClient, ClientContext, useQuery, useManualQuery } from 'graphql-hooks'
-import AsyncStorage from '@react-native-async-storage/async-storage'
-import Queries from './src/services/api/queries'
-
-const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3000'
-const url = API_URL + '/graphql'
-
-const client = new GraphQLClient({
-	url,
-})
 
 const Stack = createStackNavigator<RootStackParamList>()
 const REGISTER_SCREEN = 'Register'
@@ -33,14 +20,6 @@ const INFO_SCREEN = 'Info'
 const CONTRAGENTS_SCREEN = 'Contragents'
 const TABLE_SCREEN = 'Table'
 
-export interface RootStackParamList {
-	Home: undefined
-	Profile: { userId: string }
-
-	[key: string]: undefined | { userId: string }
-}
-
-// type NavigationProps = StackNavigationProp<RootStackParamList>
 // Проверяем авторизацию пользователя
 const Screens = ({ isAuthorized }: { isAuthorized: boolean }) => {
 	if (!isAuthorized)
@@ -60,35 +39,30 @@ const Screens = ({ isAuthorized }: { isAuthorized: boolean }) => {
 }
 
 const App = observer(() => {
-	const [Me, { error }] = useManualQuery(Queries.me, { client })
-	const getToken = async () => {
-		const result = await AsyncStorage.getItem('token')
-		return result
-	}
-
 	useEffect(() => {
 		const checkAuth = async () => {
-			const token = await getToken()
+			const token = await store.auth.getTokenFromAsyncStorage()
 			if (token) {
-				client.setHeader('authorization', token)
-				const { data } = await Me()
-				store.setUserAuthorized(true)
-				if (!error && data.me) {
-					store.setUserData(data.me)
-				}
+				store.auth.setUserAuthorized(true)
 			}
 		}
 		checkAuth()
-	}, [store.userAuthorized])
+	}, [store.auth.userAuthorized])
+
 	return (
-		<ClientContext.Provider value={client}>
-			<SafeAreaProvider>
-				<NavigationContainer>
-					<Screens isAuthorized={store.userAuthorized} />
-				</NavigationContainer>
-			</SafeAreaProvider>
-		</ClientContext.Provider>
+		<SafeAreaProvider>
+			<NavigationContainer>
+				<Screens isAuthorized={store.auth.userAuthorized} />
+			</NavigationContainer>
+		</SafeAreaProvider>
 	)
 })
 
 export default App
+
+export interface RootStackParamList {
+	Home: undefined
+	Profile: { userId: string }
+
+	[key: string]: undefined | { userId: string }
+}

@@ -1,48 +1,23 @@
-import React, { useState, useContext } from 'react'
+import React, { useState, useEffect } from 'react'
 import { StyleSheet, View } from 'react-native'
 import { Button, Input, Card } from '@rneui/themed'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
-import { useMutation, ClientContext, useQuery } from 'graphql-hooks'
-import AsyncStorage from '@react-native-async-storage/async-storage'
-import Queries, { handleApiError, APIErrors } from '../services/api/queries'
 import store from '../store'
+import { observer } from 'mobx-react-lite'
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const LoginScreen = ({ route, navigation }: { route: any; navigation: any }) => {
-	const client = useContext(ClientContext)
+const LoginScreen = observer(({ route, navigation }: { route: any; navigation: any }) => {
 	const [phone, setPhone] = useState('')
 	const [password, setPassword] = useState('')
 	const [errorMessage, setErrorMessage] = useState('')
 
-	const [loginUser] = useMutation(Queries.login)
-	const { data } = useQuery(Queries.me)
+	useEffect(() => {
+		navigation.navigate('Table')
+	}, [store.auth.userAuthorized])
 
 	const handleLogin = async () => {
-		const variables = { phone, password }
-
 		try {
-			const FetchedData = await loginUser({ variables })
-			console.log('FetchedData', FetchedData)
-			const loading = FetchedData.loading
-			const error = FetchedData.error
-			const { login } = FetchedData.data
-			if (error) {
-				const message = handleApiError(error as APIErrors)
-				setErrorMessage(message)
-				setPassword('')
-				return
-			}
-			if (!loading) {
-				const { token } = login
-				await AsyncStorage.setItem('token', token)
-				client?.setHeader('Authorization', `Bearer ${token}`)
-				if (!error && data.me) {
-					store.setUserData(data.me)
-					store.setUserAuthorized(true)
-					navigation.navigate('Table')
-				}
-				console.log('token', token)
-			}
+			store.auth.login(phone, password)
 		} catch (catchedError) {
 			setPassword('')
 			console.log('catchedError', catchedError)
@@ -124,7 +99,7 @@ const LoginScreen = ({ route, navigation }: { route: any; navigation: any }) => 
 			</Card>
 		</View>
 	)
-}
+})
 
 const styles = StyleSheet.create({
 	container: {
