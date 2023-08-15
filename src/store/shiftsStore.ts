@@ -9,8 +9,8 @@ const url = API_URL + '/graphql'
 class ShiftsStore {
 	auth = authStore
 	shiftsTableFilter = {
-		dateStart: dateToStringDate(new Date()),
-		dateEnd: dateToStringDate(new Date(Date.now() + 3 * (24 * 60 * 60 * 1000))),
+		dateStart: date.dateToString(new Date()),
+		dateEnd: date.dateToString(new Date(Date.now() + 3 * (24 * 60 * 60 * 1000))),
 		shiftNumber: '',
 		objects: [],
 		equipments: [],
@@ -75,8 +75,8 @@ class ShiftsStore {
 		switch (sortBy) {
 			case 'date':
 				this.shifts.sort((a, b) => {
-					if (dateStringToDate(a.date).getTime() < dateStringToDate(b.date).getTime()) return -1
-					if (dateStringToDate(a.date).getTime() > dateStringToDate(b.date).getTime()) return 1
+					if (date.stringToDate(a.date).getTime() < date.stringToDate(b.date).getTime()) return -1
+					if (date.stringToDate(a.date).getTime() > date.stringToDate(b.date).getTime()) return 1
 					return 0
 				})
 				break
@@ -135,12 +135,14 @@ class ShiftsStore {
 	}
 }
 
-const dateStringToDate = (dateString: string) => {
-	const [day, month, year] = dateString.split('.')
-	return new Date(Number(year), Number(month) - 1, Number(day))
-}
-const dateToStringDate = (date: Date) => {
-	return `${date.getDate()}.${date.getMonth() + 1}.${date.getFullYear()}`
+const date = {
+	stringToDate: (dateString: string) => {
+		const [day, month, year] = dateString.split('.')
+		return new Date(Number(year), Number(month) - 1, Number(day))
+	},
+	dateToString: (date: Date) => {
+		return `${date.getDate()}.${date.getMonth() + 1}.${date.getFullYear()}`
+	},
 }
 
 export default new ShiftsStore()
