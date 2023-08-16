@@ -3,9 +3,6 @@ import Queries from '../services/api/queries'
 import authStore from './authStore'
 import { graphqlRequest } from '../services/api/graphql'
 
-const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3000'
-const url = API_URL + '/graphql'
-
 class ShiftsStore {
 	auth = authStore
 	shiftsTableFilter = {
@@ -18,6 +15,7 @@ class ShiftsStore {
 		hours: '', // должно быть три вида фильтра: заполнено, не заполнено, не имеет значения
 		breaks: '', // аналогично hours
 		comments: '', // аналогично hours
+		onlyFull: true, // показывать только заполненные смены
 	}
 	shiftsTableSortBy = 'date'
 	shifts = [
@@ -92,18 +90,55 @@ class ShiftsStore {
 				break
 		}
 	}
+	setShiftsFilterOnlyFull(onlyFull: boolean) {
+		console.log(this)
+		this.shiftsTableFilter.onlyFull = onlyFull
+	}
 
 	addEmptyShifts = () => {
-		this.shifts.push({
-			id: this.shifts.length + 1,
-			date: '',
-			shiftNumber: '',
-			object: '',
-			equipment: '',
-			driver: '',
-			hours: '',
-			breaks: '',
-			comment: '',
+		// Получаем даты начала и конца
+		const { dateStart } = this.shiftsTableFilter
+		const { dateEnd } = this.shiftsTableFilter
+
+		// Проходим по датам от начала до конца
+		let currentDate = date.stringToDate(dateStart)
+		while (currentDate != date.stringToDate(dateEnd)) {
+			// Проверяем, есть ли уже смены на эту дату
+			const shiftsForDate = this.shifts.filter((s) => date.stringToDate(s.date) === currentDate)
+
+			// Если смен меньше 2 - добавляем недостающие
+			if (shiftsForDate.length < 2) {
+				const numToAdd = 2 - shiftsForDate.length
+				for (let i = 0; i < numToAdd; i++) {
+					this.shifts.push({
+						id: this.shifts.length + 1,
+						date: date.dateToString(currentDate),
+						shiftNumber: numToAdd,
+						object: '',
+						equipment: '',
+						driver: '',
+						hours: 0,
+						breaks: 0,
+						comment: '',
+					})
+				}
+			}
+
+			// Переходим к следующей дате
+			currentDate = date.addDays(currentDate, 1)
+		}
+	}
+	removeEmptyShifts = () => {
+		// Фильтруем смены, у которых все поля пустые
+		this.shifts = this.shifts.filter((shift) => {
+			return (
+				shift.object ||
+				shift.equipment ||
+				shift.driver ||
+				shift.hours ||
+				shift.breaks ||
+				shift.comment
+			)
 		})
 	}
 
@@ -142,6 +177,10 @@ const date = {
 	},
 	dateToString: (date: Date) => {
 		return `${date.getDate()}.${date.getMonth() + 1}.${date.getFullYear()}`
+	},
+	addDays: (date: Date, days: number) => {
+		date.setDate(date.getDate() + days)
+		return date
 	},
 }
 

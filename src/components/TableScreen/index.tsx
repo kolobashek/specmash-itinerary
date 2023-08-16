@@ -1,34 +1,80 @@
-import React, { useMemo, useState } from 'react'
+import React from 'react'
 import { StyleSheet, View, Text, ScrollView } from 'react-native'
+import { FAB } from '@rneui/themed'
+import DateTimePicker from '@react-native-community/datetimepicker'
 import store from '../../store'
 import { observer } from 'mobx-react-lite'
 
-export const TableScreen = observer(() => {
-	const { shiftsTableSortBy, shifts, getShiftsFromApi } = store.shifts
-	const today = new Date()
+export const TableScreen = observer(({ navigation }) => {
+	const [visible, setVisible] = React.useState(true)
+	const {
+		setShiftsTableSortBy,
+		shifts,
+		getShiftsFromApi,
+		setShiftsFilterOnlyFull,
+		shiftsTableFilter,
+		addEmptyShifts,
+		removeEmptyShifts,
+	} = store.shifts
 
+	const showSchedule = () => {
+		setShiftsFilterOnlyFull(!shiftsTableFilter.onlyFull)
+		if (shiftsTableFilter.onlyFull) {
+			removeEmptyShifts()
+		} else {
+			addEmptyShifts()
+		}
+	}
+	navigation.openDrawer()
 	return (
-		<ScrollView horizontal={true}>
+		<>
 			<Text onPress={getShiftsFromApi}>Таблица путевых листов</Text>
-
-			<View>
-				<View style={[styles.row, styles.header]}>
-					{cols.map((col) => {
-						const { key, label } = col
-						return (
-							<Text
-								style={[styles.cell, styles.cellHeader]}
-								onPress={() => store.shifts.setShiftsTableSortBy(key)}
-								key={key}
-							>
-								{label}
-							</Text>
-						)
-					})}
+			<ScrollView horizontal={true}>
+				<View>
+					<View style={[styles.row, styles.header]}>
+						{cols.map((col) => {
+							const { key, label } = col
+							return (
+								<Text
+									style={[styles.cell, styles.cellHeader]}
+									onPress={() => setShiftsTableSortBy(key)}
+									key={key}
+								>
+									{label}
+								</Text>
+							)
+						})}
+					</View>
+					{shifts.map(TableRow)}
+					<>
+						<FAB
+							visible={visible}
+							onPress={() => setVisible(!visible)}
+							placement='right'
+							title='Редактировать'
+							icon={{ name: 'edit', color: 'white' }}
+							color='red'
+						/>
+						<FAB
+							visible={!visible}
+							onPress={() => setVisible(!visible)}
+							placement='right'
+							title='Сохранить'
+							icon={{ name: 'save', color: 'white' }}
+							color='green'
+						/>
+					</>
+					<FAB
+						visible={shiftsTableFilter.onlyFull}
+						onPress={showSchedule}
+						placement='left'
+						title='Показать все'
+						icon={{ name: 'visibility', color: 'white' }}
+						color='grey'
+					/>
 				</View>
-				{shifts.map(TableRow)}
-			</View>
-		</ScrollView>
+			</ScrollView>
+		</>
 	)
 })
 

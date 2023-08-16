@@ -1,3 +1,4 @@
+import { isActive } from './../services/api/user'
 import { makeAutoObservable } from 'mobx'
 import Queries from '../services/api/queries'
 import AsyncStorage from '@react-native-async-storage/async-storage'
@@ -9,36 +10,55 @@ class AuthStore {
 	userRole = ''
 	registrationMessage = ''
 	token = ''
-	currentUser = {}
+	currentUser = {
+		id: 0,
+		phone: '',
+		role: {
+			id: 0,
+			name: '',
+		},
+		isActive: false,
+		password: '',
+	}
 
 	constructor() {
 		makeAutoObservable(this)
 	}
 
-	getTokenFromAsyncStorage = async () => {
-		const result = await AsyncStorage.getItem('token')
-		if (result) {
-			this.token = result
-			const currentUser = await graphqlRequest(Queries.me, {}, { token: result })
-			this.currentUser = currentUser.me
-			return result
-		}
-		return new Error('Токен не найден')
-	}
+	// getTokenFromAsyncStorage = async () => {
+	// 	const result = await AsyncStorage.getItem('token')
+	// 	if (result) {
+	// 		this.token = result
+	// 		setAuthTokenHeader(result)
+	// 		const currentUser = await graphqlRequest(Queries.me, {}, { token: result })
+	// 		console.log(currentUser)
+	// 		if (currentUser?.me) this.currentUser = currentUser.me
+	// 		return result
+	// 	}
+	// 	return new Error('Токен не найден')
+	// }
 
-	getCurrentUser = async () => {
-		if (this.currentUser) {
+	getCurrentUser = async (): Promise<User | Error> => {
+		if (this.userAuthorized) {
 			return this.currentUser
 		} else {
 			try {
-				const token = await this.getTokenFromAsyncStorage()
-				if (token instanceof Error) {
-					return token
+				const token = await AsyncStorage.getItem('token')
+				if (!token) {
+					this.userAuthorized = false
+					return new Error('Токен не найден')
 				} else {
-					return graphqlRequest(Queries.me, {}, { token }).then((user) => {
-						this.currentUser = user.me
-						return this.currentUser
-					})
+					setAuthTokenHeader(token)
+					const request = (await graphqlRequest(Queries.me, {}, { token })) as UserResponse
+					const user = request.me
+					if (user) {
+						this.currentUser = user
+						this.userAuthorized = true
+						return user
+					} else {
+						this.userAuthorized = false
+						return new Error('Токен не действителен')
+					}
 				}
 			} catch (error) {
 				return new Error(error as string)
@@ -48,20 +68,14 @@ class AuthStore {
 
 	login = async (phone: string, password: string) => {
 		try {
-			const { login } = await graphqlRequest(Queries.login, {
+			const { login } = (await graphqlRequest(Queries.login, {
 				phone,
 				password,
-			})
-
-			await AsyncStorage.setItem('token', login.token)
+			})) as Login
 			this.token = login.token
-			setAuthTokenHeader(this.token)
-
+			await AsyncStorage.setItem('token', login.token)
 			await this.getCurrentUser()
-
-			this.userAuthorized = true
-
-			return login
+			return login.token
 		} catch (error) {
 			return new Error('Неверный логин или пароль')
 		}
@@ -101,3 +115,26 @@ class AuthStore {
 }
 
 export default new AuthStore()
+
+interface User {
+	comment?: string
+	id: number
+	isActive: boolean
+	name?: string
+	nickname?: string
+	password: string
+	phone: string
+	role: {
+		id: number
+		name: string
+	}
+}
+interface UserResponse {
+	me: User
+}
+
+interface Login {
+	login: {
+		token: string
+	}
+}

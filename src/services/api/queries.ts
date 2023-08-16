@@ -72,6 +72,19 @@ const Queries = {
 			}
 		}
 	`,
+
+	getMachines: /* GraphQL */ `
+	query getEquipments {
+		equipments {
+			id
+			type
+			name
+			dimensions
+			weight
+			licensePlate
+			nickname
+		}
+		`,
 }
 
 export function handleApiError(error: APIErrors) {
