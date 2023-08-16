@@ -20,56 +20,56 @@ export const MachineScreen = observer(() => {
 		setVisible(true)
 	}
 	return (
-		<>
-			<ScrollView horizontal={true}>
-				<View>
-					<View style={[styles.row, styles.header]}>
-						{cols.map((col) => {
-							const { key, label } = col
-							return (
-								<Text
-									style={[styles.cell, styles.cellHeader]}
-									// onPress={{}}
-									key={key}
-								>
-									{label}
-								</Text>
-							)
-						})}
-					</View>
-					{machines.map((machine) => {
-						return (
-							<View key={machine.id} style={[styles.row]}>
-								<Text style={styles.cell}>{machine.name}</Text>
-								<Text style={styles.cell}>{machine.type}</Text>
-								<Text style={styles.cell}>{machine.dimensions}</Text>
-								<Text style={styles.cell}>{machine.weight}</Text>
-								<Text style={styles.cell}>{machine.licensePlate}</Text>
-								<Text style={styles.cell}>{machine.nickname}</Text>
-							</View>
-						)
-					})}
-					{!visible && (
-						<View>
-							<Input style={styles.cell} />
-							<Input style={styles.cell} />
-							<Input style={styles.cell} />
-							<Input style={styles.cell} />
-							<Input style={styles.cell} />
-							<Input style={styles.cell} />
-						</View>
-					)}
-				</View>
-			</ScrollView>
-			<FAB
-				visible={visible}
-				onPress={addMachineHandler}
-				placement='right'
-				icon={{ name: 'add', color: 'white' }}
-				color='green'
-			/>
-		</>
-	)
+    <>
+      <ScrollView horizontal={true}>
+        <View>
+          <View style={[styles.row, styles.header]}>
+            {cols.map((col) => {
+              const { key, label } = col
+              return (
+                <Text
+                  style={[styles.cell, styles.cellHeader]}
+                  // onPress={{}}
+                  key={key}
+                >
+                  {label}
+                </Text>
+              )
+            })}
+          </View>
+          {machines.map((machine) => {
+            return (
+              <View key={machine.id} style={[styles.row]}>
+                <Text style={styles.cell}>{machine.name}</Text>
+                <Text style={styles.cell}>{machine.type}</Text>
+                <Text style={styles.cell}>{machine.dimensions}</Text>
+                <Text style={styles.cell}>{machine.weight}</Text>
+                <Text style={styles.cell}>{machine.licensePlate}</Text>
+                <Text style={styles.cell}>{machine.nickname}</Text>
+              </View>
+            )
+          })}
+          {!visible && (
+            <View style={[styles.row]}>
+              <Input style={styles.cell} />
+              <Input style={styles.cell} />
+              <Input style={styles.cell} />
+              <Input style={styles.cell} />
+              <Input style={styles.cell} />
+              <Input style={styles.cell} />
+            </View>
+          )}
+        </View>
+      </ScrollView>
+      <FAB
+        visible={visible}
+        onPress={addMachineHandler}
+        placement="right"
+        icon={{ name: 'add', color: 'white' }}
+        color="green"
+      />
+    </>
+  )
 })
 
 const styles = StyleSheet.create({

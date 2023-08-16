@@ -1,6 +1,5 @@
 {
   "cSpell.words": ["Contragents", "rneui"],
   "prettier.eslintIntegration": true,
-  "explorer.fileNesting.enabled": true,
-  "explorer.excludeGitIgnore": true
+  "explorer.fileNesting.enabled": true
 }
