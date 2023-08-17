@@ -6,52 +6,54 @@ import { graphqlRequest } from '../services/api/graphql'
 class MachinesStore {
 	auth = authStore
 	machines = [
-		{
-			id: 1,
-			type: 'Погрузчик',
-			name: '22',
-			dimensions: '',
-			weight: '',
-			licensePlate: '',
-			nickname: '',
-		},
-		{
-			id: 2,
-			type: 'Погрузчик',
-			name: 'XCMG LW300',
-			dimensions: '',
-			weight: '',
-			licensePlate: '',
-			nickname: 'Малыш',
-		},
-		{
-			id: 3,
-			type: 'Самосвал',
-			name: '956',
-			dimensions: '',
-			weight: '',
-			licensePlate: '',
-			nickname: '',
-		},
-		{
-			id: 4,
-			type: 'Бульдозер',
-			name: 'т11',
-			dimensions: '',
-			weight: '',
-			licensePlate: '',
-			nickname: '',
-		},
-		{
-			id: 5,
-			type: 'Погрузчик',
-			name: '16',
-			dimensions: '',
-			weight: '',
-			licensePlate: '',
-			nickname: '',
-		},
+		// {
+		// 	id: 1,
+		// 	type: 'Погрузчик',
+		// 	name: '22',
+		// 	dimensions: '',
+		// 	weight: '',
+		// 	licensePlate: '',
+		// 	nickname: '',
+		// },
+		// {
+		// 	id: 2,
+		// 	type: 'Погрузчик',
+		// 	name: 'XCMG LW300',
+		// 	dimensions: '',
+		// 	weight: '',
+		// 	licensePlate: '',
+		// 	nickname: 'Малыш',
+		// },
+		// {
+		// 	id: 3,
+		// 	type: 'Самосвал',
+		// 	name: '956',
+		// 	dimensions: '',
+		// 	weight: '',
+		// 	licensePlate: '',
+		// 	nickname: '',
+		// },
+		// {
+		// 	id: 4,
+		// 	type: 'Бульдозер',
+		// 	name: 'т11',
+		// 	dimensions: '',
+		// 	weight: '',
+		// 	licensePlate: '',
+		// 	nickname: '',
+		// },
+		// {
+		// 	id: 5,
+		// 	type: 'Погрузчик',
+		// 	name: '16',
+		// 	dimensions: '',
+		// 	weight: '',
+		// 	licensePlate: '',
+		// 	nickname: '',
+		// },
+		{},
 	]
+	types = [{}]
 
 	constructor() {
 		makeAutoObservable(this)
@@ -64,6 +66,18 @@ class MachinesStore {
 			}
 			this.machines = machines.equipments
 			return machines.equipments
+		} catch (error) {
+			return new Error(error as string)
+		}
+	}
+	async getMachineTypes() {
+		try {
+			const types = (await graphqlRequest(Queries.getMachineTypes)) as TypesResponse | Error
+			if (types instanceof Error) {
+				return types
+			}
+			this.types = types.equipmentTypes
+			return types.equipmentTypes
 		} catch (error) {
 			return new Error(error as string)
 		}
@@ -83,4 +97,10 @@ interface Machines {
 }
 interface MachinesResponse {
 	equipments: Machines[]
+}
+interface TypesResponse {
+	equipmentTypes: {
+		id: number
+		name: string
+	}[]
 }

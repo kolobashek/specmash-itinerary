@@ -85,6 +85,14 @@ const Queries = {
 			nickname
 		}
 		`,
+
+	getMachineTypes: /* GraphQL */ `
+	query equipmentTypes {
+		equipmentTypes {
+			id
+			name
+		}
+		`,
 }
 
 export function handleApiError(error: APIErrors) {
