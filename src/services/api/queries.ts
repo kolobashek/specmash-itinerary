@@ -74,25 +74,30 @@ const Queries = {
 	`,
 
 	getMachines: /* GraphQL */ `
-	query getEquipments {
-		equipments {
-			id
-			type
-			name
-			dimensions
-			weight
-			licensePlate
-			nickname
+		query getEquipments {
+			equipments {
+				id
+				type {
+					id
+					name
+				}
+				name
+				dimensions
+				weight
+				licensePlate
+				nickname
+			}
 		}
-		`,
+	`,
 
 	getMachineTypes: /* GraphQL */ `
-	query equipmentTypes {
-		equipmentTypes {
-			id
-			name
+		query getEquipmentTypes {
+			getEquipmentTypes {
+				id
+				name
+			}
 		}
-		`,
+	`,
 }
 
 export function handleApiError(error: APIErrors) {

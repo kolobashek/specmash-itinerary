@@ -7,30 +7,39 @@ import { observer } from 'mobx-react-lite'
 
 export const MachineScreen = observer(() => {
 	useEffect(() => {
-		console.log('first')
 		store.machines.getMachines()
-		store.machines.getMachineTypes()
-	}, [])
+		// console.log(store.machines.types)
+	}, [store.machines.types])
 
-	const [visible, setVisible] = useState(true)
+	const [visibleAddButton, setVisibleAddButton] = useState(true)
 	const [isVisibleBS, setIsVisibleBS] = useState(false)
-	const { machines } = store.machines
-	const addMachineHandler = () => {
-		setVisible(false)
+	const { machines, machineInput, types, setMachineInput, getMachineTypes } = store.machines
+	const addMachineHandler = async () => {
+		setVisibleAddButton(false)
 	}
 	const addMachineSubmit = () => {
-		setVisible(true)
+		setVisibleAddButton(true)
 	}
 	const typesList = [
-		{ title: 'List Item 1' },
-		{ title: 'List Item 2' },
+		...types.map((type) => {
+			return {
+				key: type.id,
+				title: type.name,
+				containerStyle: { backgroundColor: 'white' },
+				titleStyle: { color: 'black' },
+				onPress: async () => {
+					setMachineInput({ type: type.name })
+					setIsVisibleBS(false)
+				},
+			}
+		}),
 		{
 			title: 'Cancel',
 			containerStyle: { backgroundColor: 'red' },
 			titleStyle: { color: 'white' },
 			onPress: () => {
 				setIsVisibleBS(false)
-				setVisible(true)
+				setVisibleAddButton(true)
 			},
 		},
 	]
@@ -64,41 +73,48 @@ export const MachineScreen = observer(() => {
 							</View>
 						)
 					})}
-					{!visible && (
-						<View style={[styles.row]}>
-							<View style={styles.cell}>
-								<Input placeholder='Марка/модель' />
+					{!visibleAddButton && (
+						<>
+							<View style={[styles.row]}>
+								<View style={styles.cell}>
+									<Input placeholder='Марка/модель' value={machineInput.name} />
+								</View>
+								<View style={styles.cell}>
+									<Button title={machineInput.type || 'Тип'} onPress={() => setIsVisibleBS(true)} />
+									<BottomSheet modalProps={{}} isVisible={isVisibleBS}>
+										{typesList.map((l, i) => (
+											<ListItem key={i} containerStyle={l.containerStyle} onPress={l.onPress}>
+												<ListItem.Content>
+													<ListItem.Title style={l.titleStyle}>{l.title}</ListItem.Title>
+												</ListItem.Content>
+											</ListItem>
+										))}
+									</BottomSheet>
+								</View>
+								<View style={styles.cell}>
+									<Input />
+								</View>
+								<View style={styles.cell}>
+									<Input />
+								</View>
+								<View style={styles.cell}>
+									<Input />
+								</View>
+								<View style={styles.cell}>
+									<Input />
+								</View>
 							</View>
-							<View style={styles.cell}>
-								<Button title={'Тип'} onPress={() => setIsVisibleBS(true)} />
-								<BottomSheet modalProps={{}} isVisible={isVisibleBS}>
-									{typesList.map((l, i) => (
-										<ListItem key={i} containerStyle={l.containerStyle} onPress={l.onPress}>
-											<ListItem.Content>
-												<ListItem.Title style={l.titleStyle}>{l.title}</ListItem.Title>
-											</ListItem.Content>
-										</ListItem>
-									))}
-								</BottomSheet>
-							</View>
-							<View style={styles.cell}>
-								<Input />
-							</View>
-							<View style={styles.cell}>
-								<Input />
-							</View>
-							<View style={styles.cell}>
-								<Input />
-							</View>
-							<View style={styles.cell}>
-								<Input />
-							</View>
-						</View>
+							<Button
+								// style={styles.row}
+								color={'green'}
+								icon={{ name: 'success', color: 'white' }}
+							/>
+						</>
 					)}
 				</View>
 			</ScrollView>
 			<FAB
-				visible={visible}
+				visible={visibleAddButton}
 				onPress={addMachineHandler}
 				placement='right'
 				icon={{ name: 'add', color: 'white' }}

@@ -5,7 +5,7 @@ import { graphqlRequest } from '../services/api/graphql'
 
 class MachinesStore {
 	auth = authStore
-	machines = [
+	machines: IMachine[] | [] = [
 		// {
 		// 	id: 1,
 		// 	type: 'Погрузчик',
@@ -51,14 +51,22 @@ class MachinesStore {
 		// 	licensePlate: '',
 		// 	nickname: '',
 		// },
-		{},
 	]
-	types = [{}]
+	machineInput: IMachineInputStore = {
+		type: '',
+		name: '',
+		dimensions: '',
+		weight: '',
+		licensePlate: '',
+		nickname: '',
+	}
+	types: MachineType[] | [] = []
 
 	constructor() {
 		makeAutoObservable(this)
+		this.getMachineTypes()
 	}
-	async getMachines() {
+	getMachines = async () => {
 		try {
 			const machines = (await graphqlRequest(Queries.getMachines)) as MachinesResponse | Error
 			if (machines instanceof Error) {
@@ -70,23 +78,40 @@ class MachinesStore {
 			return new Error(error as string)
 		}
 	}
-	async getMachineTypes() {
+	getMachineTypes = async () => {
 		try {
 			const types = (await graphqlRequest(Queries.getMachineTypes)) as TypesResponse | Error
+			// console.log(types)
 			if (types instanceof Error) {
 				return types
 			}
-			this.types = types.equipmentTypes
-			return types.equipmentTypes
+			this.types = types.getEquipmentTypes
+			return types.getEquipmentTypes
 		} catch (error) {
 			return new Error(error as string)
 		}
+	}
+	setMachineInput = ({ type, name, dimensions, weight, licensePlate, nickname }: IMachineInput) => {
+		console.log(
+			type ? `type - ${type}` : '',
+			name ? `name - ${name}` : '',
+			dimensions ? `dimensions - ${dimensions}` : '',
+			weight ? `weight - ${weight}` : '',
+			licensePlate ? `licensePlate - ${licensePlate}` : '',
+			nickname ? `nickname - ${nickname}` : ''
+		)
+		type && (this.machineInput.type = type)
+		name && (this.machineInput.name = name)
+		dimensions && (this.machineInput.dimensions = dimensions)
+		weight && (this.machineInput.weight = weight)
+		licensePlate && (this.machineInput.licensePlate = licensePlate)
+		nickname && (this.machineInput.nickname = nickname)
 	}
 }
 
 export default new MachinesStore()
 
-interface Machines {
+interface IMachine {
 	id: number
 	type: string
 	name: string
@@ -96,11 +121,28 @@ interface Machines {
 	nickname?: string
 }
 interface MachinesResponse {
-	equipments: Machines[]
+	equipments: IMachine[]
 }
 interface TypesResponse {
-	equipmentTypes: {
-		id: number
-		name: string
-	}[]
+	getEquipmentTypes: MachineType[]
+}
+interface MachineType {
+	id: number
+	name: string
+}
+interface IMachineInput {
+	type?: string
+	name?: string
+	dimensions?: string
+	weight?: string
+	licensePlate?: string
+	nickname?: string
+}
+interface IMachineInputStore {
+	type: string
+	name: string
+	dimensions: string
+	weight: string
+	licensePlate: string
+	nickname: string
 }
