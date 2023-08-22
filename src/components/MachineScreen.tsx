@@ -6,18 +6,38 @@ import store from '../store'
 import { observer } from 'mobx-react-lite'
 
 export const MachineScreen = observer(() => {
+	const {
+		machines,
+		machineInput,
+		types,
+		setMachineInput,
+		createMachine,
+		clearMachineInput,
+		getMachines,
+	} = store.machines
 	useEffect(() => {
-		store.machines.getMachines()
-		// console.log(store.machines.types)
-	}, [store.machines.types])
+		getMachines()
+	}, [])
 
 	const [visibleAddButton, setVisibleAddButton] = useState(true)
+	const [loading, setLoading] = useState(false)
 	const [isVisibleBS, setIsVisibleBS] = useState(false)
-	const { machines, machineInput, types, setMachineInput, getMachineTypes } = store.machines
 	const addMachineHandler = async () => {
 		setVisibleAddButton(false)
 	}
-	const addMachineSubmit = () => {
+	const addMachineSubmit = async () => {
+		setLoading(true)
+		const newMachine = await createMachine()
+		if (newMachine instanceof Error) {
+			console.log(newMachine)
+			setLoading(false)
+		}
+		setVisibleAddButton(true)
+		setLoading(false)
+		clearMachineInput()
+		getMachines()
+	}
+	const cancelHandler = () => {
 		setVisibleAddButton(true)
 	}
 	const typesList = [
@@ -77,10 +97,19 @@ export const MachineScreen = observer(() => {
 						<>
 							<View style={[styles.row]}>
 								<View style={styles.cell}>
-									<Input placeholder='Марка/модель' value={machineInput.name} />
+									<Input
+										placeholder='Марка/модель'
+										value={machineInput.name}
+										onChangeText={(e) => setMachineInput({ name: e })}
+										disabled={loading}
+									/>
 								</View>
 								<View style={styles.cell}>
-									<Button title={machineInput.type || 'Тип'} onPress={() => setIsVisibleBS(true)} />
+									<Button
+										title={machineInput.type || 'Тип'}
+										onPress={() => setIsVisibleBS(true)}
+										disabled={loading}
+									/>
 									<BottomSheet modalProps={{}} isVisible={isVisibleBS}>
 										{typesList.map((l, i) => (
 											<ListItem key={i} containerStyle={l.containerStyle} onPress={l.onPress}>
@@ -92,23 +121,54 @@ export const MachineScreen = observer(() => {
 									</BottomSheet>
 								</View>
 								<View style={styles.cell}>
-									<Input />
+									<Input
+										placeholder='Габариты'
+										value={machineInput.dimensions}
+										onChangeText={(e) => setMachineInput({ dimensions: e })}
+										disabled={loading}
+									/>
 								</View>
 								<View style={styles.cell}>
-									<Input />
+									<Input
+										placeholder='Масса, кг'
+										value={machineInput.weight.toString()}
+										onChangeText={(e) => setMachineInput({ weight: Number(e) })}
+										disabled={loading}
+									/>
 								</View>
 								<View style={styles.cell}>
-									<Input />
+									<Input
+										placeholder='Гос. номер'
+										value={machineInput.licensePlate}
+										onChangeText={(e) => setMachineInput({ licensePlate: e })}
+										disabled={loading}
+									/>
 								</View>
 								<View style={styles.cell}>
-									<Input />
+									<Input
+										placeholder='Псевдоним'
+										value={machineInput.nickname}
+										onChangeText={(e) => setMachineInput({ nickname: e })}
+										disabled={loading}
+									/>
 								</View>
 							</View>
-							<Button
-								// style={styles.row}
-								color={'green'}
-								icon={{ name: 'success', color: 'white' }}
-							/>
+							<View style={styles.row}>
+								<Button
+									// style={styles.row}
+									color={'green'}
+									icon={{ name: 'check', color: 'white' }}
+									disabled={!machineInput.name || !machineInput.type || loading}
+									onPress={addMachineSubmit}
+									loading={loading}
+								/>
+								<Button
+									color={'red'}
+									icon={{ name: 'cancel', color: 'white' }}
+									onPress={cancelHandler}
+									disabled={loading}
+								/>
+							</View>
 						</>
 					)}
 				</View>

@@ -77,10 +77,7 @@ const Queries = {
 		query getEquipments {
 			equipments {
 				id
-				type {
-					id
-					name
-				}
+				type
 				name
 				dimensions
 				weight
@@ -95,6 +92,28 @@ const Queries = {
 			getEquipmentTypes {
 				id
 				name
+			}
+		}
+	`,
+
+	createMachine: /* GraphQL */ `
+		mutation CreateEquipment(
+			$name: String!
+			$type: String!
+			$weight: Int
+			$nickname: String
+			$licensePlate: String
+			$dimensions: String
+		) {
+			createEquipment(
+				name: $name
+				type: $type
+				dimensions: $dimensions
+				licensePlate: $licensePlate
+				nickname: $nickname
+				weight: $weight
+			) {
+				id
 			}
 		}
 	`,

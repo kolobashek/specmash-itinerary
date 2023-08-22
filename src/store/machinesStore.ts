@@ -56,7 +56,7 @@ class MachinesStore {
 		type: '',
 		name: '',
 		dimensions: '',
-		weight: '',
+		weight: 0,
 		licensePlate: '',
 		nickname: '',
 	}
@@ -96,7 +96,7 @@ class MachinesStore {
 			type ? `type - ${type}` : '',
 			name ? `name - ${name}` : '',
 			dimensions ? `dimensions - ${dimensions}` : '',
-			weight ? `weight - ${weight}` : '',
+			weight ? `weight - ${weight}` : 0,
 			licensePlate ? `licensePlate - ${licensePlate}` : '',
 			nickname ? `nickname - ${nickname}` : ''
 		)
@@ -106,6 +106,29 @@ class MachinesStore {
 		weight && (this.machineInput.weight = weight)
 		licensePlate && (this.machineInput.licensePlate = licensePlate)
 		nickname && (this.machineInput.nickname = nickname)
+	}
+	clearMachineInput = () => {
+		this.machineInput = {
+			type: '',
+			name: '',
+			dimensions: '',
+			weight: 0,
+			licensePlate: '',
+			nickname: '',
+		}
+	}
+	createMachine = async () => {
+		try {
+			const response = (await graphqlRequest(Queries.createMachine, this.machineInput)) as
+				| ICreateMachineResponse
+				| Error
+			if (response instanceof Error) {
+				return response
+			}
+			return response.createEquipment
+		} catch (error) {
+			return new Error(error as string)
+		}
 	}
 }
 
@@ -123,6 +146,9 @@ interface IMachine {
 interface MachinesResponse {
 	equipments: IMachine[]
 }
+interface ICreateMachineResponse {
+	createEquipment: IMachine
+}
 interface TypesResponse {
 	getEquipmentTypes: MachineType[]
 }
@@ -134,7 +160,7 @@ interface IMachineInput {
 	type?: string
 	name?: string
 	dimensions?: string
-	weight?: string
+	weight?: number
 	licensePlate?: string
 	nickname?: string
 }
@@ -142,7 +168,7 @@ interface IMachineInputStore {
 	type: string
 	name: string
 	dimensions: string
-	weight: string
+	weight: number
 	licensePlate: string
 	nickname: string
 }
