@@ -1,6 +1,7 @@
 {
 	"expo": {
 		"name": "specmash-itinerary",
+		"scheme": "shifts",
 		"slug": "specmash-itinerary",
 		"version": "1.0.0",
 		"orientation": "portrait",

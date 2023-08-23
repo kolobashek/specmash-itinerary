@@ -17,7 +17,7 @@ export const graphqlRequest = async (
 		if (setToken) {
 			setAuthTokenHeader(setToken.token)
 		}
-		console.log(query, variables)
+		// console.log(query, variables)
 		const response = await client.request(query, variables)
 		return response
 	} catch (error) {
