@@ -92,20 +92,12 @@ class MachinesStore {
 		}
 	}
 	setMachineInput = ({ type, name, dimensions, weight, licensePlate, nickname }: IMachineInput) => {
-		console.log(
-			type ? `type - ${type}` : '',
-			name ? `name - ${name}` : '',
-			dimensions ? `dimensions - ${dimensions}` : '',
-			weight ? `weight - ${weight}` : 0,
-			licensePlate ? `licensePlate - ${licensePlate}` : '',
-			nickname ? `nickname - ${nickname}` : ''
-		)
-		type && (this.machineInput.type = type)
-		name && (this.machineInput.name = name)
-		dimensions && (this.machineInput.dimensions = dimensions)
-		weight && (this.machineInput.weight = weight)
-		licensePlate && (this.machineInput.licensePlate = licensePlate)
-		nickname && (this.machineInput.nickname = nickname)
+		this.machineInput.type = type || ''
+		this.machineInput.name = name || ''
+		this.machineInput.dimensions = dimensions || ''
+		this.machineInput.weight = weight || 0
+		this.machineInput.licensePlate = licensePlate || ''
+		this.machineInput.nickname = nickname || ''
 	}
 	clearMachineInput = () => {
 		this.machineInput = {

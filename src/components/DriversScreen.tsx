@@ -5,50 +5,48 @@ import DateTimePicker from '@react-native-community/datetimepicker'
 import store from '../store'
 import { observer } from 'mobx-react-lite'
 
-export const MachineScreen = observer(() => {
-	const {
-		machines,
-		machineInput,
-		types,
-		setMachineInput,
-		createMachine,
-		clearMachineInput,
-		getMachines,
-	} = store.machines
+export const DriversScreen = observer(() => {
+	const { list, driverInput, roles, setDriverInput, createDriver, clearDriverInput, getDrivers } =
+		store.drivers
 	useEffect(() => {
-		getMachines()
+		getDrivers()
 	}, [])
 
 	const [visibleAddButton, setVisibleAddButton] = useState(true)
 	const [loading, setLoading] = useState(false)
 	const [isVisibleBS, setIsVisibleBS] = useState(false)
-	const addMachineHandler = async () => {
+	const [isActive, setIsActive] = useState(false)
+	const addDriverHandler = async () => {
 		setVisibleAddButton(false)
 	}
-	const addMachineSubmit = async () => {
+	const addDriverSubmit = async () => {
 		setLoading(true)
-		const newMachine = await createMachine()
-		if (newMachine instanceof Error) {
-			console.log(newMachine)
+		const newDriver = await createDriver()
+		if (newDriver instanceof Error) {
+			console.log(newDriver)
 			setLoading(false)
 		}
 		setVisibleAddButton(true)
 		setLoading(false)
-		clearMachineInput()
-		getMachines()
+		clearDriverInput()
+		getDrivers()
 	}
 	const cancelHandler = () => {
 		setVisibleAddButton(true)
 	}
-	const typesList = [
-		...types.map((type) => {
+	const isActiveHandler = () => {
+		setIsActive(!isActive)
+		setDriverInput({ isActive: !isActive })
+	}
+	const rolesList = [
+		...roles.map((role) => {
 			return {
-				key: type.id,
-				title: type.name,
+				key: role.id,
+				title: role.name,
 				containerStyle: { backgroundColor: 'white' },
 				titleStyle: { color: 'black' },
 				onPress: async () => {
-					setMachineInput({ type: type.name })
+					setDriverInput({ role: role.name })
 					setIsVisibleBS(false)
 				},
 			}
@@ -81,15 +79,14 @@ export const MachineScreen = observer(() => {
 							)
 						})}
 					</View>
-					{machines.map((machine) => {
+					{list.map((driver) => {
 						return (
-							<View key={machine.id} style={[styles.row]}>
-								<Text style={styles.cell}>{machine.name}</Text>
-								<Text style={styles.cell}>{machine.type}</Text>
-								<Text style={styles.cell}>{machine.dimensions}</Text>
-								<Text style={styles.cell}>{machine.weight}</Text>
-								<Text style={styles.cell}>{machine.licensePlate}</Text>
-								<Text style={styles.cell}>{machine.nickname}</Text>
+							<View key={driver.id} style={[styles.row]}>
+								<Text style={styles.cell}>{driver.name}</Text>
+								<Text style={styles.cell}>{driver.phone}</Text>
+								<Text style={styles.cell}>{driver.nickname}</Text>
+								<Text style={styles.cell}>{driver.comment}</Text>
+								<Text style={styles.cell}>{driver.role}</Text>
 							</View>
 						)
 					})}
@@ -98,20 +95,65 @@ export const MachineScreen = observer(() => {
 							<View style={[styles.row]}>
 								<View style={styles.cell}>
 									<Input
-										placeholder='Марка/модель'
-										value={machineInput.name}
-										onChangeText={(e) => setMachineInput({ name: e })}
+										placeholder='Телефон'
+										value={driverInput.phone}
+										onChangeText={(e) => {
+											console.log(e)
+											setDriverInput({ phone: e })
+										}}
+										disabled={loading}
+									/>
+								</View>
+								<View style={styles.cell}>
+									<Input
+										placeholder='ФИО'
+										value={driverInput.name}
+										onChangeText={(e) => setDriverInput({ name: e })}
+										disabled={loading}
+									/>
+								</View>
+								<View style={styles.cell}>
+									<Input
+										placeholder='Псевдоним'
+										value={driverInput.nickname}
+										onChangeText={(e) => setDriverInput({ nickname: e })}
+										disabled={loading}
+									/>
+								</View>
+								<View style={styles.cell}>
+									<Input
+										placeholder='Комментарий'
+										value={driverInput.comment}
+										onChangeText={(e) => setDriverInput({ comment: e })}
+										disabled={loading}
+									/>
+								</View>
+								<View style={styles.cell}>
+									{/* <Input
+										placeholder='Активен'
+										value={driverInput.isActive}
+										onChangeText={(e) => setDriverInput({ isActive: e })}
+										disabled={loading}
+									/> */}
+									<Button
+										color={isActive ? 'gray' : 'warning'}
+										icon={
+											isActive
+												? { name: 'check', color: 'white' }
+												: { name: 'cancel', color: 'white' }
+										}
+										onPress={isActiveHandler}
 										disabled={loading}
 									/>
 								</View>
 								<View style={styles.cell}>
 									<Button
-										title={machineInput.type || 'Тип'}
+										title={driverInput.role || 'Роль'}
 										onPress={() => setIsVisibleBS(true)}
 										disabled={loading}
 									/>
 									<BottomSheet modalProps={{}} isVisible={isVisibleBS}>
-										{typesList.map((l, i) => (
+										{rolesList.map((l, i) => (
 											<ListItem key={i} containerStyle={l.containerStyle} onPress={l.onPress}>
 												<ListItem.Content>
 													<ListItem.Title style={l.titleStyle}>{l.title}</ListItem.Title>
@@ -120,46 +162,14 @@ export const MachineScreen = observer(() => {
 										))}
 									</BottomSheet>
 								</View>
-								<View style={styles.cell}>
-									<Input
-										placeholder='Габариты'
-										value={machineInput.dimensions}
-										onChangeText={(e) => setMachineInput({ dimensions: e })}
-										disabled={loading}
-									/>
-								</View>
-								<View style={styles.cell}>
-									<Input
-										placeholder='Масса, кг'
-										value={machineInput.weight.toString()}
-										onChangeText={(e) => setMachineInput({ weight: Number(e) })}
-										disabled={loading}
-									/>
-								</View>
-								<View style={styles.cell}>
-									<Input
-										placeholder='Гос. номер'
-										value={machineInput.licensePlate}
-										onChangeText={(e) => setMachineInput({ licensePlate: e })}
-										disabled={loading}
-									/>
-								</View>
-								<View style={styles.cell}>
-									<Input
-										placeholder='Псевдоним'
-										value={machineInput.nickname}
-										onChangeText={(e) => setMachineInput({ nickname: e })}
-										disabled={loading}
-									/>
-								</View>
 							</View>
 							<View style={styles.row}>
 								<Button
 									// style={styles.row}
 									color={'green'}
 									icon={{ name: 'check', color: 'white' }}
-									disabled={!machineInput.name || !machineInput.type || loading}
-									onPress={addMachineSubmit}
+									disabled={!driverInput.name || !driverInput.role || loading}
+									onPress={addDriverSubmit}
 									loading={loading}
 								/>
 								<Button
@@ -175,7 +185,7 @@ export const MachineScreen = observer(() => {
 			</ScrollView>
 			<FAB
 				visible={visibleAddButton}
-				onPress={addMachineHandler}
+				onPress={addDriverHandler}
 				placement='right'
 				icon={{ name: 'add', color: 'white' }}
 				color='green'
@@ -220,10 +230,10 @@ const styles = StyleSheet.create({
 })
 
 const cols = [
-	{ key: 'name', label: 'Марка/модель' },
-	{ key: 'type', label: 'Тип' },
-	{ key: 'dimensions', label: 'Габариты' },
-	{ key: 'weight', label: 'Масса' },
-	{ key: 'licensePlate', label: 'ГРЗ' },
-	{ key: 'nickname', label: 'Кодовое имя' },
+	{ key: 'phone', label: 'Телефон' },
+	{ key: 'name', label: 'ФИО' },
+	{ key: 'nickname', label: 'Псевдоним' },
+	{ key: 'comment', label: 'Комментарий' },
+	{ key: 'isActive', label: 'Активен' },
+	{ key: 'role', label: 'Роль' },
 ]

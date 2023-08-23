@@ -4,8 +4,9 @@ import { FAB } from '@rneui/themed'
 import DateTimePicker from '@react-native-community/datetimepicker'
 import store from '../../store'
 import { observer } from 'mobx-react-lite'
+import { IShift } from '../../store/shiftsStore'
 
-export const TableScreen = observer(({ navigation }) => {
+export const TableScreen = observer(({ navigation }: any) => {
 	const [visible, setVisible] = React.useState(true)
 	const {
 		setShiftsTableSortBy,
@@ -78,7 +79,7 @@ export const TableScreen = observer(({ navigation }) => {
 	)
 })
 
-const TableRow = (item: Shift, key: number) => {
+const TableRow = (item: IShift, key: number) => {
 	const { id, date, shiftNumber, object, equipment, driver, hours, breaks, comment } = item
 	return (
 		<View style={styles.row} key={key}>
@@ -129,21 +130,6 @@ const styles = StyleSheet.create({
 	},
 })
 
-type Shift = {
-	id: number
-	date: string
-	shiftNumber: number
-	object: string
-	equipment: string
-	driver: string
-	hours: number
-	breaks: number
-	comment: string
-}
-type ColType = {
-	key: string
-	label: string
-}
 const cols = [
 	{ key: 'date', label: 'Дата' },
 	{ key: 'shiftNumber', label: 'Смена' },

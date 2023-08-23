@@ -20,6 +20,7 @@ import {
 	InfoScreen,
 	ContragentsScreen,
 	MachineScreen,
+	DriversScreen,
 } from './src/components'
 
 const Stack = createStackNavigator<RootStackParamList>()
@@ -33,6 +34,7 @@ const INFO_SCREEN = 'info'
 const CONTRAGENTS_SCREEN = 'contragents'
 const TABLE_SCREEN = 'table'
 const MACHINES_SCREEN = 'machines'
+const DRIVERS_SCREEN = 'drivers'
 
 const App = observer(() => {
 	const url = Linking.useURL()
@@ -46,13 +48,15 @@ const App = observer(() => {
 			screens: {
 				Спецмаш: {
 					initialRouteName:
-						pathname === (MACHINES_SCREEN || INFO_SCREEN || CONTRAGENTS_SCREEN || TABLE_SCREEN)
+						pathname ===
+						(MACHINES_SCREEN || INFO_SCREEN || CONTRAGENTS_SCREEN || TABLE_SCREEN || DRIVERS_SCREEN)
 							? pathname
 							: TABLE_SCREEN,
 					path: '/',
 					screens: {
 						table: 'table',
 						machines: 'machines',
+						drivers: 'drivers',
 						contragents: 'contragents',
 						info: 'info',
 					},
@@ -99,24 +103,27 @@ const App = observer(() => {
 })
 
 const Home = () => {
-	const url = Linking.useURL()
-	const pathname = (url && new URL(url).pathname) || 'table'
 	return (
 		<Drawer.Navigator>
 			<Drawer.Screen
 				name={TABLE_SCREEN}
 				component={TableScreen}
-				options={{ drawerLabel: 'Shifts' }}
+				options={{ drawerLabel: 'Путевые' }}
 			/>
 			<Drawer.Screen
 				name={MACHINES_SCREEN}
 				component={MachineScreen}
-				options={{ drawerLabel: 'Machines' }}
+				options={{ drawerLabel: 'Техника' }}
+			/>
+			<Drawer.Screen
+				name={DRIVERS_SCREEN}
+				component={DriversScreen}
+				options={{ drawerLabel: 'Водители' }}
 			/>
 			<Drawer.Screen
 				name={CONTRAGENTS_SCREEN}
 				component={ContragentsScreen}
-				options={{ drawerLabel: 'Contragents' }}
+				options={{ drawerLabel: 'Контрагенты' }}
 			/>
 			<Drawer.Screen name={INFO_SCREEN} component={InfoScreen} options={{ drawerLabel: 'Info' }} />
 		</Drawer.Navigator>
@@ -144,6 +151,7 @@ type RootStackParamList = {
 type HomeDrawerParamList = {
 	table: undefined
 	machines: undefined
+	drivers: undefined
 	contragents: undefined
 	info: undefined
 }

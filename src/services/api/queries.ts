@@ -117,6 +117,43 @@ const Queries = {
 			}
 		}
 	`,
+
+	createDriver: /* GraphQL */ `
+		mutation CreateUser(
+			$phone: String!
+			$name: String!
+			$nickname: String
+			$comment: String
+			$role: String
+			$isActive: String
+		) {
+			createEquipment(
+				phone: $phone
+				name: $name
+				nickname: $nickname
+				comment: $comment
+				isActive: $isActive
+				role: $role
+			) {
+				id
+				password
+			}
+		}
+	`,
+
+	getDrivers: /* GraphQL */ `
+		query getUsers {
+			users {
+				id
+				phone
+				name
+				nickname
+				comment
+				role
+				isActive
+			}
+		}
+	`,
 }
 
 export function handleApiError(error: APIErrors) {

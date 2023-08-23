@@ -18,7 +18,7 @@ class ShiftsStore {
 		onlyFull: true, // показывать только заполненные смены
 	}
 	shiftsTableSortBy = 'date'
-	shifts = [
+	shifts: IShift[] = [
 		{
 			id: 1,
 			date: '14.08.2023',
@@ -80,6 +80,8 @@ class ShiftsStore {
 				break
 			case 'driver':
 				this.shifts.sort((a, b) => {
+					if (!a.driver) return -1
+					if (!b.driver) return 1
 					if (a.driver < b.driver) return -1
 					if (a.driver > b.driver) return 1
 					return 0
@@ -142,17 +144,19 @@ class ShiftsStore {
 		})
 	}
 
-	removeShift = (id) => {
+	removeShift = (id: number) => {
 		this.shifts = this.shifts.filter((shift) => shift.id !== id)
 	}
 
 	getShifts = async () => {
 		try {
-			const response = await graphqlRequest(Queries.getShifts, {
+			const response = (await graphqlRequest(Queries.getShifts, {
 				dateStart: this.shiftsTableFilter.dateStart,
 				dateEnd: this.shiftsTableFilter.dateEnd,
-			})
-			this.shifts = response.travelLogs
+			})) as IShiftsResponse | Error
+			if (response instanceof Error) {
+				console.error(response)
+			} else this.shifts = response.travelLogs
 		} catch (error) {
 			console.log(error)
 		}
@@ -160,10 +164,12 @@ class ShiftsStore {
 
 	getShiftsFromApi = async () => {
 		try {
-			const res = await graphqlRequest(Queries.getShifts, this.shiftsTableFilter, {
+			const res = (await graphqlRequest(Queries.getShifts, this.shiftsTableFilter, {
 				token: this.auth.token,
-			})
-			this.shifts = res.travelLogs
+			})) as IShiftsResponse | Error
+			if (res instanceof Error) {
+				console.error(res)
+			} else this.shifts = res.travelLogs
 		} catch (error) {
 			return new Error(error as string)
 		}
@@ -185,3 +191,19 @@ const date = {
 }
 
 export default new ShiftsStore()
+
+export interface IShift {
+	id: number
+	date: string
+	shiftNumber: number
+	object?: string
+	equipment?: string
+	driver?: string
+	hours?: number
+	breaks?: number
+	comment?: string
+}
+
+interface IShiftsResponse {
+	travelLogs: IShift[]
+}
