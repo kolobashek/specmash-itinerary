@@ -58,7 +58,7 @@ class DriversStore {
 		role: '',
 		isActive: false,
 	}
-	roles: Role[] | [] = []
+	roles: string[] | [] = []
 
 	constructor() {
 		makeAutoObservable(this)
@@ -150,11 +150,7 @@ interface ICreateDriverResponse {
 	createUser: IDriver
 }
 interface RolesResponse {
-	roles: Role[]
-}
-interface Role {
-	id: number
-	name: string
+	roles: string[]
 }
 interface IDriverInput {
 	phone?: string

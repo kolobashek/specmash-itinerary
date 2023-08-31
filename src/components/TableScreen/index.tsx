@@ -29,7 +29,6 @@ export const TableScreen = observer(({ navigation }: any) => {
 	navigation.openDrawer()
 	return (
 		<>
-			<Text onPress={getShiftsFromApi}>Таблица путевых листов</Text>
 			<ScrollView horizontal={true}>
 				<View>
 					<View style={[styles.row, styles.header]}>

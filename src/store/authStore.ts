@@ -13,10 +13,7 @@ class AuthStore {
 	currentUser = {
 		id: 0,
 		phone: '',
-		role: {
-			id: 0,
-			name: '',
-		},
+		role: '',
 		isActive: false,
 		password: '',
 	}
@@ -53,6 +50,7 @@ class AuthStore {
 					const user = request.me
 					if (user) {
 						this.currentUser = user
+						this.userRole = user.role
 						this.userAuthorized = true
 						return user
 					} else {
@@ -124,10 +122,7 @@ interface User {
 	nickname?: string
 	password: string
 	phone: string
-	role: {
-		id: number
-		name: string
-	}
+	role: string
 }
 interface UserResponse {
 	me: User

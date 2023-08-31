@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react'
-import { StyleSheet, View, Text, ScrollView } from 'react-native'
-import { FAB, Input, BottomSheet, Button, ListItem } from '@rneui/themed'
+import { StyleSheet, View, ScrollView } from 'react-native'
+import { FAB, Input, BottomSheet, Button, ListItem, Text } from '@rneui/themed'
 import DateTimePicker from '@react-native-community/datetimepicker'
 import store from '../store'
 import { observer } from 'mobx-react-lite'
+import { StickyHeader } from './UIkit'
 
 export const DriversScreen = observer(() => {
 	const { list, driverInput, roles, setDriverInput, createDriver, clearDriverInput, getDrivers } =
@@ -38,21 +39,28 @@ export const DriversScreen = observer(() => {
 		setIsActive(!isActive)
 		setDriverInput({ isActive: !isActive })
 	}
+	const memoizedRoleName = React.useMemo(() => {
+		return (role: string | undefined) => {
+			if (role === 'admin') return 'Администратор'
+			if (role === 'manager') return 'Менеджер'
+			return 'Водитель'
+		}
+	}, [])
 	const rolesList = [
-		...roles.map((role) => {
+		...roles.map((role, key) => {
 			return {
-				key: role.id,
-				title: role.name,
+				key,
+				title: memoizedRoleName(role),
 				containerStyle: { backgroundColor: 'white' },
 				titleStyle: { color: 'black' },
 				onPress: async () => {
-					setDriverInput({ role: role.name })
+					setDriverInput({ role })
 					setIsVisibleBS(false)
 				},
 			}
 		}),
 		{
-			title: 'Cancel',
+			title: 'Отмена',
 			containerStyle: { backgroundColor: 'red' },
 			titleStyle: { color: 'white' },
 			onPress: () => {
@@ -63,22 +71,9 @@ export const DriversScreen = observer(() => {
 	]
 	return (
 		<>
-			<ScrollView horizontal={true}>
-				<View style={{ flex: 1 }}>
-					<View style={[styles.row, styles.header]}>
-						{cols.map((col) => {
-							const { key, label } = col
-							return (
-								<Text
-									style={[styles.cell, styles.cellHeader]}
-									// onPress={{}}
-									key={key}
-								>
-									{label}
-								</Text>
-							)
-						})}
-					</View>
+			<ScrollView stickyHeaderHiddenOnScroll stickyHeaderIndices={[0]}>
+				<StickyHeader titles={cols} />
+				<View style={styles.table}>
 					{list.map((driver) => {
 						return (
 							<View key={driver.id} style={[styles.row]}>
@@ -86,14 +81,22 @@ export const DriversScreen = observer(() => {
 								<Text style={styles.cell}>{driver.phone}</Text>
 								<Text style={styles.cell}>{driver.nickname}</Text>
 								<Text style={styles.cell}>{driver.comment}</Text>
-								<Text style={styles.cell}>{driver.role}</Text>
+								<Text style={styles.cell}>{memoizedRoleName(driver.role)}</Text>
 							</View>
 						)
 					})}
 					{!visibleAddButton && (
 						<>
 							<View style={[styles.row]}>
-								<View style={styles.cell}>
+								<View style={styles.inputsCell}>
+									<Input
+										placeholder='ФИО'
+										value={driverInput.name}
+										onChangeText={(e) => setDriverInput({ name: e })}
+										disabled={loading}
+									/>
+								</View>
+								<View style={styles.inputsCell}>
 									<Input
 										placeholder='Телефон'
 										value={driverInput.phone}
@@ -104,15 +107,7 @@ export const DriversScreen = observer(() => {
 										disabled={loading}
 									/>
 								</View>
-								<View style={styles.cell}>
-									<Input
-										placeholder='ФИО'
-										value={driverInput.name}
-										onChangeText={(e) => setDriverInput({ name: e })}
-										disabled={loading}
-									/>
-								</View>
-								<View style={styles.cell}>
+								<View style={styles.inputsCell}>
 									<Input
 										placeholder='Псевдоним'
 										value={driverInput.nickname}
@@ -120,7 +115,7 @@ export const DriversScreen = observer(() => {
 										disabled={loading}
 									/>
 								</View>
-								<View style={styles.cell}>
+								<View style={styles.inputsCell}>
 									<Input
 										placeholder='Комментарий'
 										value={driverInput.comment}
@@ -128,13 +123,12 @@ export const DriversScreen = observer(() => {
 										disabled={loading}
 									/>
 								</View>
-								<View style={styles.cell}>
-									{/* <Input
-										placeholder='Активен'
-										value={driverInput.isActive}
-										onChangeText={(e) => setDriverInput({ isActive: e })}
+								<View style={styles.inputsCell}>
+									<Button
+										title={driverInput.role || 'Роль'}
+										onPress={() => setIsVisibleBS(true)}
 										disabled={loading}
-									/> */}
+									/>
 									<Button
 										color={isActive ? 'gray' : 'warning'}
 										icon={
@@ -143,13 +137,6 @@ export const DriversScreen = observer(() => {
 												: { name: 'cancel', color: 'white' }
 										}
 										onPress={isActiveHandler}
-										disabled={loading}
-									/>
-								</View>
-								<View style={styles.cell}>
-									<Button
-										title={driverInput.role || 'Роль'}
-										onPress={() => setIsVisibleBS(true)}
 										disabled={loading}
 									/>
 									<BottomSheet modalProps={{}} isVisible={isVisibleBS}>
@@ -163,7 +150,7 @@ export const DriversScreen = observer(() => {
 									</BottomSheet>
 								</View>
 							</View>
-							<View style={styles.row}>
+							<View style={styles.inputsSubmitRow}>
 								<Button
 									// style={styles.row}
 									color={'green'}
@@ -197,6 +184,8 @@ export const DriversScreen = observer(() => {
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,
+		justifyContent: 'center',
+		alignItems: 'stretch',
 	},
 	title: {
 		fontSize: 20,
@@ -208,32 +197,41 @@ const styles = StyleSheet.create({
 		paddingHorizontal: 16, // добавили горизонтальный padding
 	},
 	row: {
+		flex: 1,
 		flexDirection: 'row',
 		borderBottomWidth: 1,
 		borderColor: '#ddd',
 	},
 	header: {
+		flex: 1,
 		flexDirection: 'row',
 		borderBottomWidth: 2, // увеличили толщину линии для заголовка
 	},
 	cell: {
 		flex: 1,
 		padding: 10,
-		textAlign: 'center', // выравнивание по центру
+		textAlign: 'left', // выравнивание по центру
 	},
 	cellHeader: {
-		flex: 1,
 		padding: 10,
 		fontWeight: 'bold', // жирный шрифт
-		textAlign: 'center',
+		textAlign: 'left',
+	},
+	inputsCell: {
+		flex: 1,
+		flexDirection: 'row',
+	},
+	inputsSubmitRow: {
+		flexDirection: 'row',
+		justifyContent: 'flex-end',
 	},
 })
 
 const cols = [
-	{ key: 'phone', label: 'Телефон' },
 	{ key: 'name', label: 'ФИО' },
+	{ key: 'phone', label: 'Телефон' },
 	{ key: 'nickname', label: 'Псевдоним' },
 	{ key: 'comment', label: 'Комментарий' },
-	{ key: 'isActive', label: 'Активен' },
 	{ key: 'role', label: 'Роль' },
+	// { key: 'isActive', label: 'Активен' },
 ]

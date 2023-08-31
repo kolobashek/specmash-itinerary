@@ -9,10 +9,7 @@ const Queries = {
 
 	getRoles: /* GraphQL */ `
 		query getRoles {
-			roles {
-				id
-				name
-			}
+			roles
 		}
 	`,
 
@@ -40,10 +37,7 @@ const Queries = {
 				nickname
 				password
 				phone
-				role {
-					name
-					id
-				}
+				role
 			}
 		}
 	`,
@@ -142,7 +136,7 @@ const Queries = {
 	`,
 
 	getDrivers: /* GraphQL */ `
-		query getUsers {
+		query users {
 			users {
 				id
 				phone

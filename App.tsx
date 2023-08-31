@@ -79,7 +79,7 @@ const App = observer(() => {
 		}
 		checkAuth()
 	}, [store.auth.userAuthorized])
-	const isAuthorized = store.auth.userAuthorized
+	const { userAuthorized, userRole } = store.auth
 	if (loading) {
 		return (
 			<View style={styles.fullContainer}>
@@ -91,7 +91,7 @@ const App = observer(() => {
 		<SafeAreaProvider>
 			<NavigationContainer linking={linking} fallback={<Text>Loading...</Text>}>
 				<Stack.Navigator screenOptions={{ headerShown: false }}>
-					{!isAuthorized ? (
+					{!userAuthorized ? (
 						<Stack.Screen name='AuthStack' component={Auth} />
 					) : (
 						<Stack.Screen name='Спецмаш' component={Home} />
@@ -102,33 +102,44 @@ const App = observer(() => {
 	)
 })
 
-const Home = () => {
+const Home = observer(() => {
+	const { userRole } = store.auth
 	return (
 		<Drawer.Navigator>
 			<Drawer.Screen
 				name={TABLE_SCREEN}
 				component={TableScreen}
-				options={{ drawerLabel: 'Путевые' }}
+				options={{ drawerLabel: 'Путевые', title: 'Путевые' }}
 			/>
+			{(userRole === 'admin' || userRole === 'manager') && (
+				<Drawer.Screen
+					name={MACHINES_SCREEN}
+					component={MachineScreen}
+					options={{ drawerLabel: 'Техника', title: 'Техника' }}
+				/>
+			)}
+			{(userRole === 'admin' || userRole === 'manager') && (
+				<Drawer.Screen
+					name={DRIVERS_SCREEN}
+					component={DriversScreen}
+					options={{ drawerLabel: 'Водители', title: 'Водители' }}
+				/>
+			)}
+			{(userRole === 'admin' || userRole === 'manager') && (
+				<Drawer.Screen
+					name={CONTRAGENTS_SCREEN}
+					component={ContragentsScreen}
+					options={{ drawerLabel: 'Контрагенты', title: 'Контрагенты' }}
+				/>
+			)}
 			<Drawer.Screen
-				name={MACHINES_SCREEN}
-				component={MachineScreen}
-				options={{ drawerLabel: 'Техника' }}
+				name={INFO_SCREEN}
+				component={InfoScreen}
+				options={{ drawerLabel: 'Info', title: 'Info' }}
 			/>
-			<Drawer.Screen
-				name={DRIVERS_SCREEN}
-				component={DriversScreen}
-				options={{ drawerLabel: 'Водители' }}
-			/>
-			<Drawer.Screen
-				name={CONTRAGENTS_SCREEN}
-				component={ContragentsScreen}
-				options={{ drawerLabel: 'Контрагенты' }}
-			/>
-			<Drawer.Screen name={INFO_SCREEN} component={InfoScreen} options={{ drawerLabel: 'Info' }} />
 		</Drawer.Navigator>
 	)
-}
+})
 const Auth = () => {
 	return (
 		<AuthStack.Navigator>
