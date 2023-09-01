@@ -22,7 +22,7 @@ import {
 	MachineScreen,
 	DriversList,
 } from './src/components'
-import { DriverCard } from './src/components/DriversTable'
+import { DriverCard } from './src/components/DriversScreen'
 import * as Device from 'expo-device'
 
 const Stack = createStackNavigator<RootStackParamList>()
