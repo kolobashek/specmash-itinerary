@@ -3,53 +3,7 @@ import Queries from '../services/api/queries'
 import { graphqlRequest } from '../services/api/graphql'
 
 class DriversStore {
-	list: IDriver[] | [] = [
-		// {
-		// 	id: 1,
-		// 	type: 'Погрузчик',
-		// 	name: '22',
-		// 	dimensions: '',
-		// 	weight: '',
-		// 	licensePlate: '',
-		// 	nickname: '',
-		// },
-		// {
-		// 	id: 2,
-		// 	type: 'Погрузчик',
-		// 	name: 'XCMG LW300',
-		// 	dimensions: '',
-		// 	weight: '',
-		// 	licensePlate: '',
-		// 	nickname: 'Малыш',
-		// },
-		// {
-		// 	id: 3,
-		// 	type: 'Самосвал',
-		// 	name: '956',
-		// 	dimensions: '',
-		// 	weight: '',
-		// 	licensePlate: '',
-		// 	nickname: '',
-		// },
-		// {
-		// 	id: 4,
-		// 	type: 'Бульдозер',
-		// 	name: 'т11',
-		// 	dimensions: '',
-		// 	weight: '',
-		// 	licensePlate: '',
-		// 	nickname: '',
-		// },
-		// {
-		// 	id: 5,
-		// 	type: 'Погрузчик',
-		// 	name: '16',
-		// 	dimensions: '',
-		// 	weight: '',
-		// 	licensePlate: '',
-		// 	nickname: '',
-		// },
-	]
+	list: IDriver[] | [] = []
 	driverInput: IDriverInputStore = {
 		phone: '',
 		name: '',
@@ -59,6 +13,7 @@ class DriversStore {
 		isActive: false,
 	}
 	roles: string[] | [] = []
+	currentDriver: IDriver | null = null
 
 	constructor() {
 		makeAutoObservable(this)
@@ -72,6 +27,19 @@ class DriversStore {
 			}
 			this.list = drivers.users
 			return drivers.users
+		} catch (error) {
+			return new Error(error as string)
+		}
+	}
+	getUserById = async (id: number) => {
+		try {
+			const driver = (await graphqlRequest(Queries.getUserById, { id })) as DriverResponse | Error
+			if (driver instanceof Error) {
+				return driver
+			}
+			console.log(driver.user)
+			this.currentDriver = driver.user
+			return driver.user
 		} catch (error) {
 			return new Error(error as string)
 		}
@@ -90,14 +58,6 @@ class DriversStore {
 		}
 	}
 	setDriverInput = ({ phone, name, nickname, comment, role, isActive }: IDriverInput) => {
-		// 		console.log(
-		// 			`type - ${phone ? phone : this.driverInput.phone},
-		// name - ${name ? name : this.driverInput.name},
-		// nickname - ${nickname ? nickname : this.driverInput.nickname},
-		// comment - ${comment ? comment : this.driverInput.comment},
-		// role - ${role ? role : this.driverInput.role},
-		// isActive - ${isActive ? isActive : this.driverInput.isActive}`
-		// 		)
 		phone = phone || ''
 		name = name || ''
 		nickname = nickname || ''
@@ -136,15 +96,26 @@ class DriversStore {
 			return new Error(error as string)
 		}
 	}
+	updateDriver = async (driver: IDriver) => {
+		try {
+			// TODO: Implement update driver request
+			return driver
+		} catch (error) {
+			return new Error(error as string)
+		}
+	}
 }
 
 export default new DriversStore()
 
-interface IDriver extends IDriverInput {
+export interface IDriver extends IDriverInput {
 	id: number
 }
 interface DriversResponse {
 	users: IDriver[]
+}
+interface DriverResponse {
+	user: IDriver
 }
 interface ICreateDriverResponse {
 	createUser: IDriver

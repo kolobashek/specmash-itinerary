@@ -1,12 +1,20 @@
 import React, { useEffect, useState } from 'react'
-import { StyleSheet, View, ScrollView } from 'react-native'
+import { StyleSheet, View, ScrollView, TouchableOpacity } from 'react-native'
 import { FAB, Input, BottomSheet, Button, ListItem, Text } from '@rneui/themed'
 import DateTimePicker from '@react-native-community/datetimepicker'
-import store from '../store'
+import store from '../../store'
 import { observer } from 'mobx-react-lite'
-import { StickyHeader } from './UIkit'
+import { StickyHeader } from '../UIkit'
+// import { DrawerScreenProps } from '@react-navigation/drawer'
+import { DriversStackParamList } from '../../../App'
+import { DriverCard } from './DriverCard'
+import { StackScreenProps } from '@react-navigation/stack'
+import { Link } from '@react-navigation/native'
+import * as Device from 'expo-device'
 
-export const DriversScreen = observer(() => {
+type Props = StackScreenProps<DriversStackParamList, 'DriversList'>
+
+export const DriversList = observer(({ navigation }: Props) => {
 	const { list, driverInput, roles, setDriverInput, createDriver, clearDriverInput, getDrivers } =
 		store.drivers
 	useEffect(() => {
@@ -46,6 +54,9 @@ export const DriversScreen = observer(() => {
 			return 'Водитель'
 		}
 	}, [])
+	const currentDriver = navigation.getState().routes.find((r) => r.name === 'DriversList')
+		?.params?.id
+	console.log(navigation.getState().routes)
 	const rolesList = [
 		...roles.map((role, key) => {
 			return {
@@ -69,6 +80,7 @@ export const DriversScreen = observer(() => {
 			},
 		},
 	]
+	const device = Device.DeviceType[Device.deviceType || 0]
 	return (
 		<>
 			<ScrollView stickyHeaderHiddenOnScroll stickyHeaderIndices={[0]}>
@@ -76,13 +88,23 @@ export const DriversScreen = observer(() => {
 				<View style={styles.table}>
 					{list.map((driver) => {
 						return (
-							<View key={driver.id} style={[styles.row]}>
-								<Text style={styles.cell}>{driver.name}</Text>
-								<Text style={styles.cell}>{driver.phone}</Text>
-								<Text style={styles.cell}>{driver.nickname}</Text>
-								<Text style={styles.cell}>{driver.comment}</Text>
-								<Text style={styles.cell}>{memoizedRoleName(driver.role)}</Text>
-							</View>
+							<Link
+								to={
+									device === 'DESKTOP'
+										? `/drivers/${driver.id}`
+										: { screen: 'DriverDetails', params: { id: driver.id } }
+								}
+								key={driver.id}
+								style={[styles.link]}
+							>
+								<View style={[styles.row]}>
+									<Text style={styles.cell}>{driver.name}</Text>
+									<Text style={styles.cell}>{driver.phone}</Text>
+									<Text style={styles.cell}>{driver.nickname}</Text>
+									<Text style={styles.cell}>{driver.comment}</Text>
+									<Text style={styles.cell}>{memoizedRoleName(driver.role)}</Text>
+								</View>
+							</Link>
 						)
 					})}
 					{!visibleAddButton && (
@@ -186,6 +208,9 @@ const styles = StyleSheet.create({
 		flex: 1,
 		justifyContent: 'center',
 		alignItems: 'stretch',
+	},
+	link: {
+		display: 'flex',
 	},
 	title: {
 		fontSize: 20,

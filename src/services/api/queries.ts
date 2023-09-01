@@ -148,6 +148,20 @@ const Queries = {
 			}
 		}
 	`,
+
+	getUserById: /* GraphQL */ `
+		query user($id: ID!) {
+			user(id: $id) {
+				id
+				phone
+				name
+				nickname
+				comment
+				role
+				isActive
+			}
+		}
+	`,
 }
 
 export function handleApiError(error: APIErrors) {

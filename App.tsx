@@ -20,26 +20,31 @@ import {
 	InfoScreen,
 	ContragentsScreen,
 	MachineScreen,
-	DriversScreen,
+	DriversList,
 } from './src/components'
+import { DriverCard } from './src/components/DriversTable'
+import * as Device from 'expo-device'
 
 const Stack = createStackNavigator<RootStackParamList>()
 const AuthStack = createStackNavigator<AuthStackParamList>()
 const Drawer = createDrawerNavigator<HomeDrawerParamList>()
+const DriversStack = createStackNavigator<DriversStackParamList>()
 const prefix = Linking.createURL('/')
 
 const REGISTER_SCREEN = 'register'
 const LOGIN_SCREEN = 'login'
 const INFO_SCREEN = 'info'
 const CONTRAGENTS_SCREEN = 'contragents'
-const TABLE_SCREEN = 'table'
+const SHIFTS_SCREEN = 'shifts'
 const MACHINES_SCREEN = 'machines'
 const DRIVERS_SCREEN = 'drivers'
 
 const App = observer(() => {
 	const url = Linking.useURL()
-	const pathname = url && new URL(url).pathname.toLowerCase()
-
+	let pathname = null
+	if (Device.DeviceType[Device.deviceType || 0] === 'DESKTOP') {
+		pathname = url && new URL(url).pathname.toLowerCase()
+	}
 	const [loading, setLoading] = useState(false)
 	const linking: LinkingOptions<RootStackParamList> = {
 		prefixes: [prefix],
@@ -49,14 +54,26 @@ const App = observer(() => {
 				Спецмаш: {
 					initialRouteName:
 						pathname ===
-						(MACHINES_SCREEN || INFO_SCREEN || CONTRAGENTS_SCREEN || TABLE_SCREEN || DRIVERS_SCREEN)
+						(MACHINES_SCREEN ||
+							INFO_SCREEN ||
+							CONTRAGENTS_SCREEN ||
+							SHIFTS_SCREEN ||
+							DRIVERS_SCREEN)
 							? pathname
-							: TABLE_SCREEN,
+							: SHIFTS_SCREEN,
 					path: '/',
 					screens: {
-						table: 'table',
+						shifts: 'shifts',
 						machines: 'machines',
-						drivers: 'drivers',
+						drivers: {
+							path: 'drivers',
+							screens: {
+								DriversList: '',
+								DriverDetails: {
+									path: '/:id',
+								},
+							},
+						},
 						contragents: 'contragents',
 						info: 'info',
 					},
@@ -107,7 +124,7 @@ const Home = observer(() => {
 	return (
 		<Drawer.Navigator>
 			<Drawer.Screen
-				name={TABLE_SCREEN}
+				name={SHIFTS_SCREEN}
 				component={TableScreen}
 				options={{ drawerLabel: 'Путевые', title: 'Путевые' }}
 			/>
@@ -121,7 +138,7 @@ const Home = observer(() => {
 			{(userRole === 'admin' || userRole === 'manager') && (
 				<Drawer.Screen
 					name={DRIVERS_SCREEN}
-					component={DriversScreen}
+					component={Drivers}
 					options={{ drawerLabel: 'Водители', title: 'Водители' }}
 				/>
 			)}
@@ -152,19 +169,39 @@ const Auth = () => {
 		</AuthStack.Navigator>
 	)
 }
+const Drivers = () => {
+	return (
+		<DriversStack.Navigator>
+			<DriversStack.Screen
+				name='DriversList'
+				component={DriversList}
+				options={{ headerShown: false }}
+			/>
+			<DriversStack.Screen
+				name='DriverDetails'
+				component={DriverCard}
+				options={{ headerShown: false }}
+			/>
+		</DriversStack.Navigator>
+	)
+}
 
 export default App
 
-type RootStackParamList = {
+export type RootStackParamList = {
 	Спецмаш: NavigatorScreenParams<HomeDrawerParamList>
 	AuthStack: NavigatorScreenParams<AuthStackParamList>
 }
-type HomeDrawerParamList = {
-	table: undefined
+export type HomeDrawerParamList = {
+	shifts: undefined
 	machines: undefined
-	drivers: undefined
+	drivers: NavigatorScreenParams<DriversStackParamList>
 	contragents: undefined
 	info: undefined
+}
+export type DriversStackParamList = {
+	DriversList: undefined
+	DriverDetails: { id: string }
 }
 type AuthStackParamList = {
 	login: undefined
