@@ -18,7 +18,7 @@ import {
 	LoginScreen,
 	TableScreen,
 	InfoScreen,
-	ContragentsScreen,
+	ContrAgentsList,
 	MachineScreen,
 	DriversList,
 } from './src/components'
@@ -29,6 +29,7 @@ const Stack = createStackNavigator<RootStackParamList>()
 const AuthStack = createStackNavigator<AuthStackParamList>()
 const Drawer = createDrawerNavigator<HomeDrawerParamList>()
 const DriversStack = createStackNavigator<DriversStackParamList>()
+const ContrAgentsStack = createStackNavigator<ContrAgentsStackParamList>()
 const prefix = Linking.createURL('/')
 
 const REGISTER_SCREEN = 'register'
@@ -74,7 +75,15 @@ const App = observer(() => {
 								},
 							},
 						},
-						contragents: 'contragents',
+						contragents: {
+							path: 'contragents',
+							screens: {
+								ContrAgentsList: '',
+								ContrAgentDetails: {
+									path: '/:id',
+								},
+							},
+						},
 						info: 'info',
 					},
 				},
@@ -145,7 +154,7 @@ const Home = observer(() => {
 			{(userRole === 'admin' || userRole === 'manager') && (
 				<Drawer.Screen
 					name={CONTRAGENTS_SCREEN}
-					component={ContragentsScreen}
+					component={ContrAgents}
 					options={{ drawerLabel: 'Контрагенты', title: 'Контрагенты' }}
 				/>
 			)}
@@ -185,6 +194,17 @@ const Drivers = () => {
 		</DriversStack.Navigator>
 	)
 }
+const ContrAgents = () => {
+	return (
+		<ContrAgentsStack.Navigator>
+			<ContrAgentsStack.Screen
+				name='ContrAgentsList'
+				component={ContrAgentsList}
+				options={{ headerShown: false }}
+			/>
+		</ContrAgentsStack.Navigator>
+	)
+}
 
 export default App
 
@@ -196,12 +216,16 @@ export type HomeDrawerParamList = {
 	shifts: undefined
 	machines: undefined
 	drivers: NavigatorScreenParams<DriversStackParamList>
-	contragents: undefined
+	contragents: NavigatorScreenParams<ContrAgentsStackParamList>
 	info: undefined
 }
 export type DriversStackParamList = {
 	DriversList: undefined
 	DriverDetails: { id: string }
+}
+export type ContrAgentsStackParamList = {
+	ContrAgentsList: undefined
+	ContrAgentDetails: { id: string }
 }
 type AuthStackParamList = {
 	login: undefined

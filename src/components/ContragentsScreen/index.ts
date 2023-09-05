@@ -1,1 +1,2 @@
-export * from './ContragentsList'
+export * from './ContrAgentList'
+export * from './ContrAgentCard'
