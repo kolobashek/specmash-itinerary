@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { StyleSheet, View, ScrollView, TouchableOpacity } from 'react-native'
-import { FAB, Input, BottomSheet, Button, ListItem, Text } from '@rneui/themed'
+import { FAB, Input, BottomSheet, Button, ListItem, Text, Avatar } from '@rneui/themed'
 import DateTimePicker from '@react-native-community/datetimepicker'
 import store from '../../store'
 import { observer } from 'mobx-react-lite'
@@ -54,9 +54,8 @@ export const DriversList = observer(({ navigation }: Props) => {
 			return 'Водитель'
 		}
 	}, [])
-	const currentDriver = navigation.getState().routes.find((r) => r.name === 'DriversList')
-		?.params?.id
-	console.log(navigation.getState().routes)
+	// const currentDriver = navigation.getState().routes.find((r) => r.name === 'DriversList')
+	// 	?.params?.id
 	const rolesList = [
 		...roles.map((role, key) => {
 			return {
@@ -84,7 +83,7 @@ export const DriversList = observer(({ navigation }: Props) => {
 	return (
 		<>
 			<ScrollView stickyHeaderHiddenOnScroll stickyHeaderIndices={[0]}>
-				<StickyHeader titles={cols} />
+				{/* <StickyHeader titles={cols} /> */}
 				<View style={styles.table}>
 					{list.map((driver) => {
 						return (
@@ -97,13 +96,17 @@ export const DriversList = observer(({ navigation }: Props) => {
 								key={driver.id}
 								style={[styles.link]}
 							>
-								<View style={[styles.row]}>
-									<Text style={styles.cell}>{driver.name}</Text>
-									<Text style={styles.cell}>{driver.phone}</Text>
-									<Text style={styles.cell}>{driver.nickname}</Text>
-									<Text style={styles.cell}>{driver.comment}</Text>
-									<Text style={styles.cell}>{memoizedRoleName(driver.role)}</Text>
-								</View>
+								<ListItem bottomDivider style={styles.row} containerStyle={styles.row}>
+									<Avatar
+										rounded
+										title={driver.name?.charAt(0).toUpperCase()}
+										containerStyle={{ backgroundColor: 'grey' }}
+									/>
+									<ListItem.Content>
+										<ListItem.Title>{driver.name}</ListItem.Title>
+										<ListItem.Subtitle>{memoizedRoleName(driver.role)}</ListItem.Subtitle>
+									</ListItem.Content>
+								</ListItem>
 							</Link>
 						)
 					})}
@@ -211,6 +214,7 @@ const styles = StyleSheet.create({
 	},
 	link: {
 		display: 'flex',
+		flex: 1,
 	},
 	title: {
 		fontSize: 20,
@@ -224,8 +228,8 @@ const styles = StyleSheet.create({
 	row: {
 		flex: 1,
 		flexDirection: 'row',
-		borderBottomWidth: 1,
-		borderColor: '#ddd',
+		// borderBottomWidth: 1,
+		// borderColor: '#ddd',
 	},
 	header: {
 		flex: 1,

@@ -31,13 +31,18 @@ class DriversStore {
 			return new Error(error as string)
 		}
 	}
+	roleName = (role: string | undefined) => {
+		if (role === 'admin') return 'Администратор'
+		if (role === 'manager') return 'Менеджер'
+		if (role === 'driver') return 'Водитель'
+		return 'Не назначена'
+	}
 	getUserById = async (id: number) => {
 		try {
 			const driver = (await graphqlRequest(Queries.getUserById, { id })) as DriverResponse | Error
 			if (driver instanceof Error) {
 				return driver
 			}
-			console.log(driver.user)
 			this.currentDriver = driver.user
 			return driver.user
 		} catch (error) {
@@ -58,20 +63,23 @@ class DriversStore {
 		}
 	}
 	setDriverInput = ({ phone, name, nickname, comment, role, isActive }: IDriverInput) => {
-		phone = phone || ''
-		name = name || ''
-		nickname = nickname || ''
-		comment = comment || ''
-		role = role || ''
-		isActive = isActive || false
+		console.log(comment)
+		phone = phone ?? this.driverInput.phone ?? ''
+		name = name ?? this.driverInput.name ?? ''
+		nickname = nickname ?? this.driverInput.nickname ?? ''
+		comment = comment ?? this.driverInput.comment ?? ''
+		role = role ?? this.driverInput.role ?? ''
+		isActive = isActive ?? this.driverInput.isActive ?? false
 
-		console.log(phone, name, nickname, comment, role, isActive)
 		this.driverInput.phone = phone
 		this.driverInput.name = name
 		this.driverInput.nickname = nickname
 		this.driverInput.comment = comment
 		this.driverInput.role = role
 		this.driverInput.isActive = isActive
+	}
+	setCurrentDriver(driver: IDriver | null) {
+		this.currentDriver = driver
 	}
 	clearDriverInput = () => {
 		this.driverInput = {
@@ -96,10 +104,15 @@ class DriversStore {
 			return new Error(error as string)
 		}
 	}
-	updateDriver = async (driver: IDriver) => {
+	updateDriver = async (input: IDriver) => {
 		try {
-			// TODO: Implement update driver request
-			return driver
+			const response = (await graphqlRequest(Queries.updateUser, { input })) as
+				| UpdateDriverResponse
+				| Error
+			if (response instanceof Error) {
+				return response
+			}
+			return response.updateUser
 		} catch (error) {
 			return new Error(error as string)
 		}
@@ -116,6 +129,9 @@ interface DriversResponse {
 }
 interface DriverResponse {
 	user: IDriver
+}
+interface UpdateDriverResponse {
+	updateUser: IDriver
 }
 interface ICreateDriverResponse {
 	createUser: IDriver

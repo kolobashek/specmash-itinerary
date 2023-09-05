@@ -92,12 +92,12 @@ class MachinesStore {
 		}
 	}
 	setMachineInput = ({ type, name, dimensions, weight, licensePlate, nickname }: IMachineInput) => {
-		this.machineInput.type = type || ''
-		this.machineInput.name = name || ''
-		this.machineInput.dimensions = dimensions || ''
-		this.machineInput.weight = weight || 0
-		this.machineInput.licensePlate = licensePlate || ''
-		this.machineInput.nickname = nickname || ''
+		this.machineInput.type = type ?? this.machineInput.type ?? ''
+		this.machineInput.name = name ?? this.machineInput.name ?? ''
+		this.machineInput.dimensions = dimensions ?? this.machineInput.dimensions ?? ''
+		this.machineInput.weight = weight ?? this.machineInput.weight ?? 0
+		this.machineInput.licensePlate = licensePlate ?? this.machineInput.licensePlate ?? ''
+		this.machineInput.nickname = nickname ?? this.machineInput.nickname ?? ''
 	}
 	clearMachineInput = () => {
 		this.machineInput = {

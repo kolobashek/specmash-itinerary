@@ -162,6 +162,19 @@ const Queries = {
 			}
 		}
 	`,
+	updateUser: /* GraphQL */ `
+		mutation updateUser($input: UpdateUserInput!) {
+			updateUser(input: $input) {
+				id
+				phone
+				name
+				nickname
+				comment
+				role
+				isActive
+			}
+		}
+	`,
 }
 
 export function handleApiError(error: APIErrors) {
