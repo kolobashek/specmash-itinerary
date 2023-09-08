@@ -10,6 +10,7 @@ import {
 } from '@react-navigation/native'
 import { createDrawerNavigator } from '@react-navigation/drawer'
 import { createStackNavigator } from '@react-navigation/stack'
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
 import * as Linking from 'expo-linking'
 import store from './src/store'
@@ -21,17 +22,31 @@ import {
 	ContrAgentsList,
 	MachineScreen,
 	DriversList,
+	ContrAgentCard,
 } from './src/components'
 import { DriverCard } from './src/components/DriversScreen'
 import * as Device from 'expo-device'
+import { ObjectCard, ObjectsList } from './src/components/ObjectsScreen'
 
 const Stack = createStackNavigator<RootStackParamList>()
 const AuthStack = createStackNavigator<AuthStackParamList>()
 const Drawer = createDrawerNavigator<HomeDrawerParamList>()
 const DriversStack = createStackNavigator<DriversStackParamList>()
 const ContrAgentsStack = createStackNavigator<ContrAgentsStackParamList>()
+const ObjectStack = createStackNavigator<ObjectStackParamList>()
+const ObjectsTab = createBottomTabNavigator<WorkPlacesTabParamList>()
 const prefix = Linking.createURL('/')
 
+// const Screen = {
+// 	REGISTER_SCREEN: 'register',
+// 	LOGIN_SCREEN: 'login',
+// 	INFO_SCREEN: 'info',
+// 	CONTRAGENTS_SCREEN: 'contragents',
+// 	SHIFTS_SCREEN: 'shifts',
+// 	MACHINES_SCREEN: 'machines',
+// 	DRIVERS_SCREEN: 'drivers',
+// 	WORK_PLACES_SCREEN: 'workplaces',
+// }
 const REGISTER_SCREEN = 'register'
 const LOGIN_SCREEN = 'login'
 const INFO_SCREEN = 'info'
@@ -39,6 +54,9 @@ const CONTRAGENTS_SCREEN = 'contragents'
 const SHIFTS_SCREEN = 'shifts'
 const MACHINES_SCREEN = 'machines'
 const DRIVERS_SCREEN = 'drivers'
+const WORK_PLACES_SCREEN = 'workplaces'
+const OBJECTS_SCREEN = 'objects'
+const AUTH_SCREEN = 'auth'
 
 const App = observer(() => {
 	const url = Linking.useURL()
@@ -59,15 +77,16 @@ const App = observer(() => {
 							INFO_SCREEN ||
 							CONTRAGENTS_SCREEN ||
 							SHIFTS_SCREEN ||
-							DRIVERS_SCREEN)
+							DRIVERS_SCREEN ||
+							WORK_PLACES_SCREEN)
 							? pathname
 							: SHIFTS_SCREEN,
 					path: '/',
 					screens: {
-						shifts: 'shifts',
-						machines: 'machines',
+						shifts: SHIFTS_SCREEN,
+						machines: MACHINES_SCREEN,
 						drivers: {
-							path: 'drivers',
+							path: DRIVERS_SCREEN,
 							screens: {
 								DriversList: '',
 								DriverDetails: {
@@ -75,12 +94,26 @@ const App = observer(() => {
 								},
 							},
 						},
-						contragents: {
-							path: 'contragents',
+						workplaces: {
+							path: WORK_PLACES_SCREEN,
 							screens: {
-								ContrAgentsList: '',
-								ContrAgentDetails: {
-									path: '/:id',
+								contragents: {
+									path: CONTRAGENTS_SCREEN,
+									screens: {
+										ContrAgentsList: '',
+										ContrAgentDetails: {
+											path: '/:id',
+										},
+									},
+								},
+								objects: {
+									path: OBJECTS_SCREEN,
+									screens: {
+										ObjectsList: '',
+										ObjectDetails: {
+											path: '/:id',
+										},
+									},
 								},
 							},
 						},
@@ -88,10 +121,10 @@ const App = observer(() => {
 					},
 				},
 				AuthStack: {
-					path: 'auth',
+					path: AUTH_SCREEN,
 					screens: {
-						login: 'login',
-						register: 'register',
+						login: LOGIN_SCREEN,
+						register: REGISTER_SCREEN,
 					},
 				},
 			},
@@ -153,9 +186,9 @@ const Home = observer(() => {
 			)}
 			{(userRole === 'admin' || userRole === 'manager') && (
 				<Drawer.Screen
-					name={CONTRAGENTS_SCREEN}
-					component={ContrAgents}
-					options={{ drawerLabel: 'Контрагенты', title: 'Контрагенты' }}
+					name={WORK_PLACES_SCREEN}
+					component={WorkPlaces}
+					options={{ drawerLabel: 'Объекты', title: 'Объекты' }}
 				/>
 			)}
 			<Drawer.Screen
@@ -202,7 +235,44 @@ const ContrAgents = () => {
 				component={ContrAgentsList}
 				options={{ headerShown: false }}
 			/>
+			<ContrAgentsStack.Screen
+				name='ContrAgentDetails'
+				component={ContrAgentCard}
+				options={{ headerShown: false }}
+			/>
 		</ContrAgentsStack.Navigator>
+	)
+}
+const Objects = () => {
+	return (
+		<ObjectStack.Navigator>
+			<ObjectStack.Screen
+				name='ObjectsList'
+				component={ObjectsList}
+				options={{ headerShown: false }}
+			/>
+			<ObjectStack.Screen
+				name='ObjectDetails'
+				component={ObjectCard}
+				options={{ headerShown: false }}
+			/>
+		</ObjectStack.Navigator>
+	)
+}
+const WorkPlaces = () => {
+	return (
+		<ObjectsTab.Navigator>
+			<ObjectsTab.Screen
+				name={OBJECTS_SCREEN}
+				component={Objects}
+				options={{ headerShown: false }}
+			/>
+			<ObjectsTab.Screen
+				name={CONTRAGENTS_SCREEN}
+				component={ContrAgents}
+				options={{ headerShown: false }}
+			/>
+		</ObjectsTab.Navigator>
 	)
 }
 
@@ -216,7 +286,7 @@ export type HomeDrawerParamList = {
 	shifts: undefined
 	machines: undefined
 	drivers: NavigatorScreenParams<DriversStackParamList>
-	contragents: NavigatorScreenParams<ContrAgentsStackParamList>
+	workplaces: NavigatorScreenParams<WorkPlacesTabParamList>
 	info: undefined
 }
 export type DriversStackParamList = {
@@ -226,6 +296,14 @@ export type DriversStackParamList = {
 export type ContrAgentsStackParamList = {
 	ContrAgentsList: undefined
 	ContrAgentDetails: { id: string }
+}
+export type ObjectStackParamList = {
+	ObjectsList: undefined
+	ObjectDetails: { id: string }
+}
+export type WorkPlacesTabParamList = {
+	objects: NavigatorScreenParams<ObjectStackParamList>
+	contragents: NavigatorScreenParams<ContrAgentsStackParamList>
 }
 type AuthStackParamList = {
 	login: undefined

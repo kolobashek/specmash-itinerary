@@ -4,6 +4,7 @@ import shiftsStore from './shiftsStore'
 import machinesStore from './machinesStore'
 import driversStore from './driversStore'
 import contrAgentStore from './contrAgentStore'
+import objectStore from './objectStore'
 
 class Store {
 	auth = authStore
@@ -11,6 +12,8 @@ class Store {
 	machines = machinesStore
 	drivers = driversStore
 	contrAgents = contrAgentStore
+	objects = objectStore
+
 	constructor() {
 		makeAutoObservable(this)
 	}

@@ -1,6 +1,7 @@
 import { makeAutoObservable } from 'mobx'
 import Queries from '../services/api/queries'
 import { graphqlRequest } from '../services/api/graphql'
+import { IObject } from './objectStore'
 
 class ContrAgentStore {
 	list: IContrAgent[] | [] = []
@@ -129,20 +130,20 @@ interface UpdateContrAgentResponse {
 interface ICreateContrAgentResponse {
 	createUser: IContrAgent
 }
-interface ObjectsResponse {
-	objects: Object[]
-}
+// interface ObjectsResponse {
+// 	objects: IObject[]
+// }
 interface IContrAgentInput {
 	name?: string
 	contacts?: string
 	address?: string
 	comment?: string
-	objects?: Object[]
+	objects?: IObject[]
 }
 interface IContrAgentInputStore {
 	name: string
 	contacts: string
 	address: string
 	comment: string
-	objects: Object[]
+	objects: IObject[]
 }

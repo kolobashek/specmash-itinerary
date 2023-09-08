@@ -67,7 +67,7 @@ export const MachineScreen = observer(() => {
 		<>
 			<ScrollView horizontal={true}>
 				<View style={{ flex: 1 }}>
-					<View style={[styles.row, styles.header]}>
+					{/* <View style={[styles.row, styles.header]}>
 						{cols.map((col) => {
 							const { key, label } = col
 							return (
@@ -80,17 +80,27 @@ export const MachineScreen = observer(() => {
 								</Text>
 							)
 						})}
-					</View>
+					</View> */}
 					{machines.map((machine) => {
 						return (
-							<View key={machine.id} style={[styles.row]}>
-								<Text style={styles.cell}>{machine.name}</Text>
-								<Text style={styles.cell}>{machine.type}</Text>
-								<Text style={styles.cell}>{machine.dimensions}</Text>
-								<Text style={styles.cell}>{machine.weight}</Text>
-								<Text style={styles.cell}>{machine.licensePlate}</Text>
-								<Text style={styles.cell}>{machine.nickname}</Text>
-							</View>
+							// <View key={machine.id} style={[styles.row]}>
+							// 	<Text style={styles.cell}>{machine.name}</Text>
+							// 	<Text style={styles.cell}>{machine.type}</Text>
+							// 	<Text style={styles.cell}>{machine.dimensions}</Text>
+							// 	<Text style={styles.cell}>{machine.weight}</Text>
+							// 	<Text style={styles.cell}>{machine.licensePlate}</Text>
+							// 	<Text style={styles.cell}>{machine.nickname}</Text>
+							// </View>
+							<ListItem key={machine.id} bottomDivider style={{ flexDirection: 'row' }}>
+								<ListItem.Content>
+									<ListItem.Title>{machine.name}</ListItem.Title>
+									<ListItem.Subtitle>{machine.type}</ListItem.Subtitle>
+									<ListItem.Subtitle>{machine.dimensions}</ListItem.Subtitle>
+									<ListItem.Subtitle>{machine.weight}</ListItem.Subtitle>
+									<ListItem.Subtitle>{machine.licensePlate}</ListItem.Subtitle>
+									<ListItem.Subtitle>{machine.nickname}</ListItem.Subtitle>
+								</ListItem.Content>
+							</ListItem>
 						)
 					})}
 					{!visibleAddButton && (
