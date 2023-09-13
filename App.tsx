@@ -20,9 +20,10 @@ import {
 	TableScreen,
 	InfoScreen,
 	ContrAgentsList,
-	MachineScreen,
 	DriversList,
 	ContrAgentCard,
+	MachinesList,
+	MachineCard,
 } from './src/components'
 import { DriverCard } from './src/components/DriversScreen'
 import * as Device from 'expo-device'
@@ -35,6 +36,7 @@ const DriversStack = createStackNavigator<DriversStackParamList>()
 const ContrAgentsStack = createStackNavigator<ContrAgentsStackParamList>()
 const ObjectStack = createStackNavigator<ObjectStackParamList>()
 const ObjectsTab = createBottomTabNavigator<WorkPlacesTabParamList>()
+const MachinesStack = createStackNavigator<MachinesStackParamList>()
 const prefix = Linking.createURL('/')
 
 // const Screen = {
@@ -78,13 +80,22 @@ const App = observer(() => {
 							CONTRAGENTS_SCREEN ||
 							SHIFTS_SCREEN ||
 							DRIVERS_SCREEN ||
-							WORK_PLACES_SCREEN)
+							WORK_PLACES_SCREEN ||
+							MACHINES_SCREEN)
 							? pathname
 							: SHIFTS_SCREEN,
 					path: '/',
 					screens: {
 						shifts: SHIFTS_SCREEN,
-						machines: MACHINES_SCREEN,
+						machines: {
+							path: MACHINES_SCREEN,
+							screens: {
+								MachinesList: '',
+								MachineDetails: {
+									path: '/:id',
+								},
+							},
+						},
 						drivers: {
 							path: DRIVERS_SCREEN,
 							screens: {
@@ -173,7 +184,7 @@ const Home = observer(() => {
 			{(userRole === 'admin' || userRole === 'manager') && (
 				<Drawer.Screen
 					name={MACHINES_SCREEN}
-					component={MachineScreen}
+					component={Machines}
 					options={{ drawerLabel: 'Техника', title: 'Техника' }}
 				/>
 			)}
@@ -275,6 +286,22 @@ const WorkPlaces = () => {
 		</ObjectsTab.Navigator>
 	)
 }
+const Machines = () => {
+	return (
+		<MachinesStack.Navigator>
+			<MachinesStack.Screen
+				name='MachinesList'
+				component={MachinesList}
+				options={{ headerShown: false }}
+			/>
+			<MachinesStack.Screen
+				name='MachineDetails'
+				component={MachineCard}
+				options={{ headerShown: false }}
+			/>
+		</MachinesStack.Navigator>
+	)
+}
 
 export default App
 
@@ -284,7 +311,7 @@ export type RootStackParamList = {
 }
 export type HomeDrawerParamList = {
 	shifts: undefined
-	machines: undefined
+	machines: NavigatorScreenParams<MachinesStackParamList>
 	drivers: NavigatorScreenParams<DriversStackParamList>
 	workplaces: NavigatorScreenParams<WorkPlacesTabParamList>
 	info: undefined
@@ -300,6 +327,10 @@ export type ContrAgentsStackParamList = {
 export type ObjectStackParamList = {
 	ObjectsList: undefined
 	ObjectDetails: { id: string }
+}
+export type MachinesStackParamList = {
+	MachinesList: undefined
+	MachineDetails: { id: string }
 }
 export type WorkPlacesTabParamList = {
 	objects: NavigatorScreenParams<ObjectStackParamList>

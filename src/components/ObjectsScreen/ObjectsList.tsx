@@ -1,26 +1,3 @@
-// import React from 'react'
-// import { observer } from 'mobx-react-lite'
-// import { Button, Text, View } from 'react-native'
-// import store from '../../store'
-
-// export const ContragentsScreen = observer(() => {
-// 	return (
-// 		<View>
-// 			<Text>
-// 				{store.auth.registrationMessage.length
-// 					? store.auth.registrationMessage
-// 					: 'Ошибка. Перезагрузите приложение или дождитесь пока его исправят.'}
-// 			</Text>
-
-// 			<Button
-// 				title='Отменить регистрацию'
-// 				onPress={() => {
-// 					store.auth.setRegistrationMessage('')
-// 				}}
-// 			/>
-// 		</View>
-// 	)
-// })
 import React, { useEffect, useState } from 'react'
 import { StyleSheet, View, ScrollView, TouchableOpacity } from 'react-native'
 import { FAB, Input, BottomSheet, Button, ListItem, Text, Avatar } from '@rneui/themed'
@@ -70,43 +47,10 @@ export const ObjectsList = observer(({ navigation }: Props) => {
 		setIsActive(!isActive)
 		// setObjectInput({ isActive: !isActive })
 	}
-	// const memoizedRoleName = React.useMemo(() => {
-	// 	return (role: string | undefined) => {
-	// 		if (role === 'admin') return 'Администратор'
-	// 		if (role === 'manager') return 'Менеджер'
-	// 		return 'Водитель'
-	// 	}
-	// }, [])
-	// const currentDriver = navigation.getState().routes.find((r) => r.name === 'DriversList')
-	// 	?.params?.id
-	// const rolesList = [
-	// 	...roles.map((role, key) => {
-	// 		return {
-	// 			key,
-	// 			title: memoizedRoleName(role),
-	// 			containerStyle: { backgroundColor: 'white' },
-	// 			titleStyle: { color: 'black' },
-	// 			onPress: async () => {
-	// 				setDriverInput({ role })
-	// 				setIsVisibleBS(false)
-	// 			},
-	// 		}
-	// 	}),
-	// 	{
-	// 		title: 'Отмена',
-	// 		containerStyle: { backgroundColor: 'red' },
-	// 		titleStyle: { color: 'white' },
-	// 		onPress: () => {
-	// 			setIsVisibleBS(false)
-	// 			setVisibleAddButton(true)
-	// 		},
-	// 	},
-	// ]
 	const device = Device.DeviceType[Device.deviceType || 0]
 	return (
 		<>
-			<ScrollView stickyHeaderHiddenOnScroll stickyHeaderIndices={[0]}>
-				{/* <StickyHeader titles={cols} /> */}
+			<ScrollView>
 				<View style={styles.table}>
 					{list.map((object) => {
 						return (
@@ -172,32 +116,7 @@ export const ObjectsList = observer(({ navigation }: Props) => {
 										disabled={loading}
 									/>
 								</View>
-								<View style={styles.inputsCell}>
-									{/* <Button
-										title={objectInput.role || 'Роль'}
-										onPress={() => setIsVisibleBS(true)}
-										disabled={loading}
-									/> */}
-									{/* <Button
-										color={isActive ? 'gray' : 'warning'}
-										icon={
-											isActive
-												? { name: 'check', color: 'white' }
-												: { name: 'cancel', color: 'white' }
-										}
-										onPress={isActiveHandler}
-										disabled={loading}
-									/> */}
-									{/* <BottomSheet modalProps={{}} isVisible={isVisibleBS}>
-										{rolesList.map((l, i) => (
-											<ListItem key={i} containerStyle={l.containerStyle} onPress={l.onPress}>
-												<ListItem.Content>
-													<ListItem.Title style={l.titleStyle}>{l.title}</ListItem.Title>
-												</ListItem.Content>
-											</ListItem>
-										))}
-									</BottomSheet> */}
-								</View>
+								<View style={styles.inputsCell}></View>
 							</View>
 							<View style={styles.inputsSubmitRow}>
 								<Button

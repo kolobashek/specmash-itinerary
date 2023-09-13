@@ -5,54 +5,8 @@ import { graphqlRequest } from '../services/api/graphql'
 
 class MachinesStore {
 	auth = authStore
-	machines: IMachine[] | [] = [
-		// {
-		// 	id: 1,
-		// 	type: 'Погрузчик',
-		// 	name: '22',
-		// 	dimensions: '',
-		// 	weight: '',
-		// 	licensePlate: '',
-		// 	nickname: '',
-		// },
-		// {
-		// 	id: 2,
-		// 	type: 'Погрузчик',
-		// 	name: 'XCMG LW300',
-		// 	dimensions: '',
-		// 	weight: '',
-		// 	licensePlate: '',
-		// 	nickname: 'Малыш',
-		// },
-		// {
-		// 	id: 3,
-		// 	type: 'Самосвал',
-		// 	name: '956',
-		// 	dimensions: '',
-		// 	weight: '',
-		// 	licensePlate: '',
-		// 	nickname: '',
-		// },
-		// {
-		// 	id: 4,
-		// 	type: 'Бульдозер',
-		// 	name: 'т11',
-		// 	dimensions: '',
-		// 	weight: '',
-		// 	licensePlate: '',
-		// 	nickname: '',
-		// },
-		// {
-		// 	id: 5,
-		// 	type: 'Погрузчик',
-		// 	name: '16',
-		// 	dimensions: '',
-		// 	weight: '',
-		// 	licensePlate: '',
-		// 	nickname: '',
-		// },
-	]
-	machineInput: IMachineInputStore = {
+	machines: IMachine[] | [] = []
+	machineData: IMachineDataStore = {
 		type: '',
 		name: '',
 		dimensions: '',
@@ -61,6 +15,7 @@ class MachinesStore {
 		nickname: '',
 	}
 	types: MachineType[] | [] = []
+	currentMachine: IMachine | null = null
 
 	constructor() {
 		makeAutoObservable(this)
@@ -91,27 +46,44 @@ class MachinesStore {
 			return new Error(error as string)
 		}
 	}
-	setMachineInput = ({ type, name, dimensions, weight, licensePlate, nickname }: IMachineInput) => {
-		this.machineInput.type = type ?? this.machineInput.type ?? ''
-		this.machineInput.name = name ?? this.machineInput.name ?? ''
-		this.machineInput.dimensions = dimensions ?? this.machineInput.dimensions ?? ''
-		this.machineInput.weight = weight ?? this.machineInput.weight ?? 0
-		this.machineInput.licensePlate = licensePlate ?? this.machineInput.licensePlate ?? ''
-		this.machineInput.nickname = nickname ?? this.machineInput.nickname ?? ''
+	getMachineById = async (id: number) => {
+		try {
+			const machine = (await graphqlRequest(Queries.getMachineById, { id })) as
+				| MachineResponse
+				| Error
+			if (machine instanceof Error) {
+				return machine
+			}
+			this.currentMachine = machine.equipment
+			return machine.equipment
+		} catch (error) {
+			return new Error(error as string)
+		}
 	}
-	clearMachineInput = () => {
-		this.machineInput = {
-			type: '',
-			name: '',
-			dimensions: '',
-			weight: 0,
-			licensePlate: '',
-			nickname: '',
+	setCurrentMachine(machine: IMachine | null) {
+		this.currentMachine = machine
+	}
+	setMachineData = ({ type, name, dimensions, weight, licensePlate, nickname }: IMachineData) => {
+		this.machineData.type = type ?? this.machineData.type ?? ''
+		this.machineData.name = name ?? this.machineData.name ?? ''
+		this.machineData.dimensions = dimensions ?? this.machineData.dimensions ?? ''
+		this.machineData.weight = weight ?? this.machineData.weight ?? 0
+		this.machineData.licensePlate = licensePlate ?? this.machineData.licensePlate ?? ''
+		this.machineData.nickname = nickname ?? this.machineData.nickname ?? ''
+	}
+	clearMachineData = () => {
+		this.machineData = {
+			type: this.currentMachine?.type ?? '',
+			name: this.currentMachine?.name ?? '',
+			dimensions: this.currentMachine?.dimensions ?? '',
+			weight: this.currentMachine?.weight ?? 0,
+			licensePlate: this.currentMachine?.licensePlate ?? '',
+			nickname: this.currentMachine?.nickname ?? '',
 		}
 	}
 	createMachine = async () => {
 		try {
-			const response = (await graphqlRequest(Queries.createMachine, this.machineInput)) as
+			const response = (await graphqlRequest(Queries.createMachine, this.machineData)) as
 				| ICreateMachineResponse
 				| Error
 			if (response instanceof Error) {
@@ -122,24 +94,43 @@ class MachinesStore {
 			return new Error(error as string)
 		}
 	}
+	updateMachine = async (input: IMachine) => {
+		try {
+			const response = (await graphqlRequest(Queries.updateMachine, { input })) as
+				| UpdateMachineResponse
+				| Error
+			if (response instanceof Error) {
+				return response
+			}
+			return response.updateEquipment
+		} catch (error) {
+			return new Error(error as string)
+		}
+	}
 }
 
 export default new MachinesStore()
 
-interface IMachine {
+export interface IMachine {
 	id: number
 	type: string
 	name: string
 	dimensions?: string
-	weight?: string
+	weight?: number
 	licensePlate?: string
 	nickname?: string
 }
 interface MachinesResponse {
 	equipments: IMachine[]
 }
+interface MachineResponse {
+	equipment: IMachine
+}
 interface ICreateMachineResponse {
 	createEquipment: IMachine
+}
+interface UpdateMachineResponse {
+	updateEquipment: IMachine
 }
 interface TypesResponse {
 	getEquipmentTypes: MachineType[]
@@ -148,7 +139,7 @@ interface MachineType {
 	id: number
 	name: string
 }
-interface IMachineInput {
+interface IMachineData {
 	type?: string
 	name?: string
 	dimensions?: string
@@ -156,7 +147,7 @@ interface IMachineInput {
 	licensePlate?: string
 	nickname?: string
 }
-interface IMachineInputStore {
+interface IMachineDataStore {
 	type: string
 	name: string
 	dimensions: string

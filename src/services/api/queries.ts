@@ -81,6 +81,20 @@ const Queries = {
 		}
 	`,
 
+	getMachineById: /* GraphQL */ `
+		query equipment($id: ID!) {
+			equipment(id: $id) {
+				id
+				type
+				name
+				dimensions
+				weight
+				licensePlate
+				nickname
+			}
+		}
+	`,
+
 	getMachineTypes: /* GraphQL */ `
 		query getEquipmentTypes {
 			getEquipmentTypes {
@@ -172,6 +186,19 @@ const Queries = {
 				comment
 				role
 				isActive
+			}
+		}
+	`,
+	updateMachine: /* GraphQL */ `
+		mutation updateEquipment($input: UpdateEquipmentInput!) {
+			updateEquipment(input: $input) {
+				id
+				type
+				name
+				dimensions
+				weight
+				licensePlate
+				nickname
 			}
 		}
 	`,

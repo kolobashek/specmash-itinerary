@@ -2,17 +2,19 @@ import React, { useEffect, useState } from 'react'
 import { StyleSheet, View, Text, ScrollView } from 'react-native'
 import { FAB, Input, BottomSheet, Button, ListItem } from '@rneui/themed'
 import DateTimePicker from '@react-native-community/datetimepicker'
-import store from '../store'
+import store from '../../store'
 import { observer } from 'mobx-react-lite'
+import { Link } from '@react-navigation/native'
+import * as Device from 'expo-device'
 
-export const MachineScreen = observer(() => {
+export const MachinesList = observer(() => {
 	const {
 		machines,
-		machineInput,
+		machineData,
 		types,
-		setMachineInput,
+		setMachineData,
 		createMachine,
-		clearMachineInput,
+		clearMachineData,
 		getMachines,
 	} = store.machines
 	useEffect(() => {
@@ -34,7 +36,7 @@ export const MachineScreen = observer(() => {
 		}
 		setVisibleAddButton(true)
 		setLoading(false)
-		clearMachineInput()
+		clearMachineData()
 		getMachines()
 	}
 	const cancelHandler = () => {
@@ -48,7 +50,7 @@ export const MachineScreen = observer(() => {
 				containerStyle: { backgroundColor: 'white' },
 				titleStyle: { color: 'black' },
 				onPress: async () => {
-					setMachineInput({ type: type.name })
+					setMachineData({ type: type.name })
 					setIsVisibleBS(false)
 				},
 			}
@@ -63,44 +65,33 @@ export const MachineScreen = observer(() => {
 			},
 		},
 	]
+	const device = Device.DeviceType[Device.deviceType || 0]
 	return (
 		<>
-			<ScrollView horizontal={true}>
-				<View style={{ flex: 1 }}>
-					{/* <View style={[styles.row, styles.header]}>
-						{cols.map((col) => {
-							const { key, label } = col
-							return (
-								<Text
-									style={[styles.cell, styles.cellHeader]}
-									// onPress={{}}
-									key={key}
-								>
-									{label}
-								</Text>
-							)
-						})}
-					</View> */}
+			<ScrollView>
+				<View>
 					{machines.map((machine) => {
 						return (
-							// <View key={machine.id} style={[styles.row]}>
-							// 	<Text style={styles.cell}>{machine.name}</Text>
-							// 	<Text style={styles.cell}>{machine.type}</Text>
-							// 	<Text style={styles.cell}>{machine.dimensions}</Text>
-							// 	<Text style={styles.cell}>{machine.weight}</Text>
-							// 	<Text style={styles.cell}>{machine.licensePlate}</Text>
-							// 	<Text style={styles.cell}>{machine.nickname}</Text>
-							// </View>
-							<ListItem key={machine.id} bottomDivider style={{ flexDirection: 'row' }}>
-								<ListItem.Content>
-									<ListItem.Title>{machine.name}</ListItem.Title>
-									<ListItem.Subtitle>{machine.type}</ListItem.Subtitle>
-									<ListItem.Subtitle>{machine.dimensions}</ListItem.Subtitle>
-									<ListItem.Subtitle>{machine.weight}</ListItem.Subtitle>
-									<ListItem.Subtitle>{machine.licensePlate}</ListItem.Subtitle>
-									<ListItem.Subtitle>{machine.nickname}</ListItem.Subtitle>
-								</ListItem.Content>
-							</ListItem>
+							<Link
+								to={
+									device === 'DESKTOP'
+										? `/machines/${machine.id}`
+										: { screen: 'MachineDetails', params: { id: machine.id } }
+								}
+								key={machine.id}
+								style={[styles.link]}
+							>
+								<ListItem key={machine.id} bottomDivider>
+									<ListItem.Content>
+										<ListItem.Title>{machine.name}</ListItem.Title>
+										<ListItem.Subtitle>{machine.type}</ListItem.Subtitle>
+										<ListItem.Subtitle>{machine.dimensions}</ListItem.Subtitle>
+										<ListItem.Subtitle>{machine.weight}</ListItem.Subtitle>
+										<ListItem.Subtitle>{machine.licensePlate}</ListItem.Subtitle>
+										<ListItem.Subtitle>{machine.nickname}</ListItem.Subtitle>
+									</ListItem.Content>
+								</ListItem>
+							</Link>
 						)
 					})}
 					{!visibleAddButton && (
@@ -109,14 +100,14 @@ export const MachineScreen = observer(() => {
 								<View style={styles.cell}>
 									<Input
 										placeholder='Марка/модель'
-										value={machineInput.name}
-										onChangeText={(e) => setMachineInput({ name: e })}
+										value={machineData.name}
+										onChangeText={(e) => setMachineData({ name: e })}
 										disabled={loading}
 									/>
 								</View>
 								<View style={styles.cell}>
 									<Button
-										title={machineInput.type || 'Тип'}
+										title={machineData.type || 'Тип'}
 										onPress={() => setIsVisibleBS(true)}
 										disabled={loading}
 									/>
@@ -133,32 +124,32 @@ export const MachineScreen = observer(() => {
 								<View style={styles.cell}>
 									<Input
 										placeholder='Габариты'
-										value={machineInput.dimensions}
-										onChangeText={(e) => setMachineInput({ dimensions: e })}
+										value={machineData.dimensions}
+										onChangeText={(e) => setMachineData({ dimensions: e })}
 										disabled={loading}
 									/>
 								</View>
 								<View style={styles.cell}>
 									<Input
 										placeholder='Масса, кг'
-										value={machineInput.weight.toString()}
-										onChangeText={(e) => setMachineInput({ weight: Number(e) })}
+										value={machineData.weight.toString()}
+										onChangeText={(e) => setMachineData({ weight: Number(e) })}
 										disabled={loading}
 									/>
 								</View>
 								<View style={styles.cell}>
 									<Input
 										placeholder='Гос. номер'
-										value={machineInput.licensePlate}
-										onChangeText={(e) => setMachineInput({ licensePlate: e })}
+										value={machineData.licensePlate}
+										onChangeText={(e) => setMachineData({ licensePlate: e })}
 										disabled={loading}
 									/>
 								</View>
 								<View style={styles.cell}>
 									<Input
 										placeholder='Псевдоним'
-										value={machineInput.nickname}
-										onChangeText={(e) => setMachineInput({ nickname: e })}
+										value={machineData.nickname}
+										onChangeText={(e) => setMachineData({ nickname: e })}
 										disabled={loading}
 									/>
 								</View>
@@ -168,7 +159,7 @@ export const MachineScreen = observer(() => {
 									// style={styles.row}
 									color={'green'}
 									icon={{ name: 'check', color: 'white' }}
-									disabled={!machineInput.name || !machineInput.type || loading}
+									disabled={!machineData.name || !machineData.type || loading}
 									onPress={addMachineSubmit}
 									loading={loading}
 								/>
@@ -206,6 +197,10 @@ const styles = StyleSheet.create({
 	table: {
 		flex: 1,
 		paddingHorizontal: 16, // добавили горизонтальный padding
+	},
+	link: {
+		display: 'flex',
+		flex: 1,
 	},
 	row: {
 		flexDirection: 'row',
