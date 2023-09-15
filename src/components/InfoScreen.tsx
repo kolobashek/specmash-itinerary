@@ -4,20 +4,16 @@ import { Button, Text, View } from 'react-native'
 import store from '../store'
 
 export const InfoScreen = observer(() => {
-  return (
-    <View>
-      <Text>
-        {store.registrationMessage.length
-          ? store.registrationMessage
-          : 'Ошибка. Перезагрузите приложение или дождитесь пока его исправят.'}
-      </Text>
+	return (
+		<View>
+			<Text>INFO</Text>
 
-      <Button
-        title="Отменить регистрацию"
-        onPress={() => {
-          store.setRegistrationMessage('')
-        }}
-      />
-    </View>
-  )
+			<Button
+				title='Отменить регистрацию'
+				onPress={() => {
+					// store.setRegistrationMessage('')
+				}}
+			/>
+		</View>
+	)
 })

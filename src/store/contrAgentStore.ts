@@ -32,7 +32,7 @@ class ContrAgentStore {
 			return new Error(error as string)
 		}
 	}
-	getUserById = async (id: number) => {
+	getContrAgentById = async (id: number) => {
 		try {
 			const contrAgent = (await graphqlRequest(Queries.getUserById, { id })) as
 				| ContrAgentResponse

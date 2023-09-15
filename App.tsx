@@ -27,10 +27,13 @@ import {
 	MachineEdit,
 	MachineNew,
 	ScheduleScreen,
+	ContrAgentEdit,
 } from './src/components'
 import { UserCard, UserEdit, UserNew } from './src/components/UsersScreen'
 import * as Device from 'expo-device'
 import { ObjectCard, ObjectsList } from './src/components/ObjectsScreen'
+import { ObjectEdit } from './src/components/ObjectsScreen/ObjectEdit'
+import { ObjectNew } from './src/components/ObjectsScreen/ObjectNew'
 
 const Stack = createStackNavigator<RootStackParamList>()
 const AuthStack = createStackNavigator<AuthStackParamList>()
@@ -110,8 +113,12 @@ const App = observer(() => {
 									path: CONTRAGENTS_SCREEN,
 									screens: {
 										ContrAgentsList: '',
+										ContrAgentNew: 'new',
 										ContrAgentDetails: {
 											path: '/:id',
+										},
+										ContrAgentEdit: {
+											path: '/:id/edit',
 										},
 									},
 								},
@@ -119,8 +126,12 @@ const App = observer(() => {
 									path: OBJECTS_SCREEN,
 									screens: {
 										ObjectsList: '',
+										ObjectNew: 'new',
 										ObjectDetails: {
 											path: '/:id',
+										},
+										ObjectEdit: {
+											path: '/:id/edit',
 										},
 									},
 								},
@@ -249,6 +260,16 @@ const ContrAgents = () => {
 				component={ContrAgentCard}
 				options={{ headerShown: false }}
 			/>
+			<ContrAgentsStack.Screen
+				name='ContrAgentEdit'
+				component={ContrAgentEdit}
+				options={{ headerShown: false }}
+			/>
+			<ContrAgentsStack.Screen
+				name='ContrAgentNew'
+				component={ContrAgentNew}
+				options={{ headerShown: false }}
+			/>
 		</ContrAgentsStack.Navigator>
 	)
 }
@@ -265,6 +286,12 @@ const Objects = () => {
 				component={ObjectCard}
 				options={{ headerShown: false }}
 			/>
+			<ObjectStack.Screen
+				name='ObjectEdit'
+				component={ObjectEdit}
+				options={{ headerShown: false }}
+			/>
+			<ObjectStack.Screen name='ObjectNew' component={ObjectNew} options={{ headerShown: false }} />
 		</ObjectStack.Navigator>
 	)
 }
@@ -334,10 +361,14 @@ export type UsersStackParamList = {
 export type ContrAgentsStackParamList = {
 	ContrAgentsList: undefined
 	ContrAgentDetails: { id: string }
+	ContrAgentEdit: { id: string }
+	ContrAgentNew: undefined
 }
 export type ObjectStackParamList = {
 	ObjectsList: undefined
 	ObjectDetails: { id: string }
+	ObjectEdit: { id: string }
+	ObjectNew: undefined
 }
 export type MachinesStackParamList = {
 	MachinesList: undefined
