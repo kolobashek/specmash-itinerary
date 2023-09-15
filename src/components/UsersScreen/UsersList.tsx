@@ -6,46 +6,45 @@ import store from '../../store'
 import { observer } from 'mobx-react-lite'
 import { StickyHeader } from '../UIkit'
 // import { DrawerScreenProps } from '@react-navigation/drawer'
-import { DriversStackParamList } from '../../../App'
-import { DriverCard } from './DriverCard'
+import { UsersStackParamList } from '../../../App'
+import { UserCard } from './UserCard'
 import { StackScreenProps } from '@react-navigation/stack'
 import { Link } from '@react-navigation/native'
 import * as Device from 'expo-device'
 
-type Props = StackScreenProps<DriversStackParamList, 'DriversList'>
+type Props = StackScreenProps<UsersStackParamList, 'UsersList'>
 
-export const DriversList = observer(({ navigation }: Props) => {
-	const { list, driverInput, roles, setDriverInput, createDriver, clearDriverInput, getDrivers } =
-		store.drivers
+export const UsersList = observer(({ navigation }: Props) => {
+	const { list, userInput, roles, setUserInput, createUser, clearUserInput, getUsers } = store.users
 	useEffect(() => {
-		getDrivers()
+		getUsers()
 	}, [])
 
 	const [visibleAddButton, setVisibleAddButton] = useState(true)
 	const [loading, setLoading] = useState(false)
 	const [isVisibleBS, setIsVisibleBS] = useState(false)
 	const [isActive, setIsActive] = useState(false)
-	const addDriverHandler = async () => {
+	const addUserHandler = async () => {
 		setVisibleAddButton(false)
 	}
-	const addDriverSubmit = async () => {
+	const addUserSubmit = async () => {
 		setLoading(true)
-		const newDriver = await createDriver()
-		if (newDriver instanceof Error) {
-			console.log(newDriver)
+		const newUser = await createUser()
+		if (newUser instanceof Error) {
+			console.log(newUser)
 			setLoading(false)
 		}
 		setVisibleAddButton(true)
 		setLoading(false)
-		clearDriverInput()
-		getDrivers()
+		clearUserInput()
+		getUsers()
 	}
 	const cancelHandler = () => {
 		setVisibleAddButton(true)
 	}
 	const isActiveHandler = () => {
 		setIsActive(!isActive)
-		setDriverInput({ isActive: !isActive })
+		setUserInput({ isActive: !isActive })
 	}
 	const memoizedRoleName = React.useMemo(() => {
 		return (role: string | undefined) => {
@@ -54,7 +53,7 @@ export const DriversList = observer(({ navigation }: Props) => {
 			return 'Водитель'
 		}
 	}, [])
-	// const currentDriver = navigation.getState().routes.find((r) => r.name === 'DriversList')
+	// const currentUser = navigation.getState().routes.find((r) => r.name === 'UsersList')
 	// 	?.params?.id
 	const rolesList = [
 		...roles.map((role, key) => {
@@ -64,7 +63,7 @@ export const DriversList = observer(({ navigation }: Props) => {
 				containerStyle: { backgroundColor: 'white' },
 				titleStyle: { color: 'black' },
 				onPress: async () => {
-					setDriverInput({ role })
+					setUserInput({ role })
 					setIsVisibleBS(false)
 				},
 			}
@@ -85,26 +84,26 @@ export const DriversList = observer(({ navigation }: Props) => {
 			<ScrollView stickyHeaderHiddenOnScroll stickyHeaderIndices={[0]}>
 				{/* <StickyHeader titles={cols} /> */}
 				<View style={styles.table}>
-					{list.map((driver) => {
+					{list.map((user) => {
 						return (
 							<Link
 								to={
 									device === 'DESKTOP'
-										? `/drivers/${driver.id}`
-										: { screen: 'DriverDetails', params: { id: driver.id } }
+										? `/users/${user.id}`
+										: { screen: 'UserDetails', params: { id: user.id } }
 								}
-								key={driver.id}
+								key={user.id}
 								style={[styles.link]}
 							>
 								<ListItem bottomDivider style={styles.row} containerStyle={styles.row}>
 									<Avatar
 										rounded
-										title={driver.name?.charAt(0).toUpperCase()}
+										title={user.name?.charAt(0).toUpperCase()}
 										containerStyle={{ backgroundColor: 'grey' }}
 									/>
 									<ListItem.Content>
-										<ListItem.Title>{driver.name}</ListItem.Title>
-										<ListItem.Subtitle>{memoizedRoleName(driver.role)}</ListItem.Subtitle>
+										<ListItem.Title>{user.name}</ListItem.Title>
+										<ListItem.Subtitle>{memoizedRoleName(user.role)}</ListItem.Subtitle>
 									</ListItem.Content>
 								</ListItem>
 							</Link>
@@ -116,18 +115,18 @@ export const DriversList = observer(({ navigation }: Props) => {
 								<View style={styles.inputsCell}>
 									<Input
 										placeholder='ФИО'
-										value={driverInput.name}
-										onChangeText={(e) => setDriverInput({ name: e })}
+										value={userInput.name}
+										onChangeText={(e) => setUserInput({ name: e })}
 										disabled={loading}
 									/>
 								</View>
 								<View style={styles.inputsCell}>
 									<Input
 										placeholder='Телефон'
-										value={driverInput.phone}
+										value={userInput.phone}
 										onChangeText={(e) => {
 											console.log(e)
-											setDriverInput({ phone: e })
+											setUserInput({ phone: e })
 										}}
 										disabled={loading}
 									/>
@@ -135,22 +134,22 @@ export const DriversList = observer(({ navigation }: Props) => {
 								<View style={styles.inputsCell}>
 									<Input
 										placeholder='Псевдоним'
-										value={driverInput.nickname}
-										onChangeText={(e) => setDriverInput({ nickname: e })}
+										value={userInput.nickname}
+										onChangeText={(e) => setUserInput({ nickname: e })}
 										disabled={loading}
 									/>
 								</View>
 								<View style={styles.inputsCell}>
 									<Input
 										placeholder='Комментарий'
-										value={driverInput.comment}
-										onChangeText={(e) => setDriverInput({ comment: e })}
+										value={userInput.comment}
+										onChangeText={(e) => setUserInput({ comment: e })}
 										disabled={loading}
 									/>
 								</View>
 								<View style={styles.inputsCell}>
 									<Button
-										title={driverInput.role || 'Роль'}
+										title={userInput.role || 'Роль'}
 										onPress={() => setIsVisibleBS(true)}
 										disabled={loading}
 									/>
@@ -180,8 +179,8 @@ export const DriversList = observer(({ navigation }: Props) => {
 									// style={styles.row}
 									color={'green'}
 									icon={{ name: 'check', color: 'white' }}
-									disabled={!driverInput.name || !driverInput.role || loading}
-									onPress={addDriverSubmit}
+									disabled={!userInput.name || !userInput.role || loading}
+									onPress={addUserSubmit}
 									loading={loading}
 								/>
 								<Button
@@ -197,7 +196,7 @@ export const DriversList = observer(({ navigation }: Props) => {
 			</ScrollView>
 			<FAB
 				visible={visibleAddButton}
-				onPress={addDriverHandler}
+				onPress={addUserHandler}
 				placement='right'
 				icon={{ name: 'add', color: 'white' }}
 				color='green'

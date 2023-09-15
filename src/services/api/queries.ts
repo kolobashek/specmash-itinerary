@@ -112,7 +112,7 @@ const Queries = {
 		}
 	`,
 
-	createDriver: /* GraphQL */ `
+	createUser: /* GraphQL */ `
 		mutation CreateUser(
 			$phone: String!
 			$name: String!
@@ -135,7 +135,7 @@ const Queries = {
 		}
 	`,
 
-	getDrivers: /* GraphQL */ `
+	getUsers: /* GraphQL */ `
 		query users {
 			users {
 				id

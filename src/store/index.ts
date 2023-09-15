@@ -2,7 +2,7 @@ import { makeAutoObservable } from 'mobx'
 import authStore from './authStore'
 import shiftsStore from './shiftsStore'
 import machinesStore from './machinesStore'
-import driversStore from './driversStore'
+import usersStore from './usersStore'
 import contrAgentStore from './contrAgentStore'
 import objectStore from './objectStore'
 
@@ -10,7 +10,7 @@ class Store {
 	auth = authStore
 	shifts = shiftsStore
 	machines = machinesStore
-	drivers = driversStore
+	users = usersStore
 	contrAgents = contrAgentStore
 	objects = objectStore
 

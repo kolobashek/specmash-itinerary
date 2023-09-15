@@ -20,7 +20,7 @@ import {
 	TableScreen,
 	InfoScreen,
 	ContrAgentsList,
-	DriversList,
+	UsersList,
 	ContrAgentCard,
 	MachinesList,
 	MachineCard,
@@ -28,14 +28,14 @@ import {
 	MachineNew,
 	ScheduleScreen,
 } from './src/components'
-import { DriverCard } from './src/components/DriversScreen'
+import { UserCard } from './src/components/UsersScreen'
 import * as Device from 'expo-device'
 import { ObjectCard, ObjectsList } from './src/components/ObjectsScreen'
 
 const Stack = createStackNavigator<RootStackParamList>()
 const AuthStack = createStackNavigator<AuthStackParamList>()
 const Drawer = createDrawerNavigator<HomeDrawerParamList>()
-const DriversStack = createStackNavigator<DriversStackParamList>()
+const UsersStack = createStackNavigator<UsersStackParamList>()
 const ContrAgentsStack = createStackNavigator<ContrAgentsStackParamList>()
 const ObjectStack = createStackNavigator<ObjectStackParamList>()
 const ObjectsTab = createBottomTabNavigator<WorkPlacesTabParamList>()
@@ -48,7 +48,7 @@ const INFO_SCREEN = 'info'
 const CONTRAGENTS_SCREEN = 'contragents'
 const SHIFTS_SCREEN = 'shifts'
 const MACHINES_SCREEN = 'machines'
-const DRIVERS_SCREEN = 'drivers'
+const USERS_SCREEN = 'users'
 const WORK_PLACES_SCREEN = 'workplaces'
 const OBJECTS_SCREEN = 'objects'
 const AUTH_SCREEN = 'auth'
@@ -69,7 +69,7 @@ const App = observer(() => {
 							INFO_SCREEN ||
 							CONTRAGENTS_SCREEN ||
 							SHIFTS_SCREEN ||
-							DRIVERS_SCREEN ||
+							USERS_SCREEN ||
 							WORK_PLACES_SCREEN ||
 							MACHINES_SCREEN)
 							? pathname
@@ -90,11 +90,11 @@ const App = observer(() => {
 								},
 							},
 						},
-						drivers: {
-							path: DRIVERS_SCREEN,
+						users: {
+							path: USERS_SCREEN,
 							screens: {
-								DriversList: '',
-								DriverDetails: {
+								UsersList: '',
+								UserDetails: {
 									path: '/:id',
 								},
 							},
@@ -185,8 +185,8 @@ const Home = observer(() => {
 			)}
 			{(userRole === 'admin' || userRole === 'manager') && (
 				<Drawer.Screen
-					name={DRIVERS_SCREEN}
-					component={Drivers}
+					name={USERS_SCREEN}
+					component={Users}
 					options={{ drawerLabel: 'Водители', title: 'Водители' }}
 				/>
 			)}
@@ -222,20 +222,12 @@ const Auth = () => {
 		</AuthStack.Navigator>
 	)
 }
-const Drivers = () => {
+const Users = () => {
 	return (
-		<DriversStack.Navigator>
-			<DriversStack.Screen
-				name='DriversList'
-				component={DriversList}
-				options={{ headerShown: false }}
-			/>
-			<DriversStack.Screen
-				name='DriverDetails'
-				component={DriverCard}
-				options={{ headerShown: false }}
-			/>
-		</DriversStack.Navigator>
+		<UsersStack.Navigator>
+			<UsersStack.Screen name='UsersList' component={UsersList} options={{ headerShown: false }} />
+			<UsersStack.Screen name='UserDetails' component={UserCard} options={{ headerShown: false }} />
+		</UsersStack.Navigator>
 	)
 }
 const ContrAgents = () => {
@@ -322,14 +314,14 @@ export type RootStackParamList = {
 export type HomeDrawerParamList = {
 	shifts: undefined
 	machines: NavigatorScreenParams<MachinesStackParamList>
-	drivers: NavigatorScreenParams<DriversStackParamList>
+	users: NavigatorScreenParams<UsersStackParamList>
 	workplaces: NavigatorScreenParams<WorkPlacesTabParamList>
 	schedule: undefined
 	info: undefined
 }
-export type DriversStackParamList = {
-	DriversList: undefined
-	DriverDetails: { id: string }
+export type UsersStackParamList = {
+	UsersList: undefined
+	UserDetails: { id: string }
 }
 export type ContrAgentsStackParamList = {
 	ContrAgentsList: undefined

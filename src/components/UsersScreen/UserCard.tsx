@@ -1,107 +1,72 @@
 import React, { useEffect, useState } from 'react'
 import { StyleSheet, View, ScrollView } from 'react-native'
 import { FAB, Input, BottomSheet, Button, ListItem, Text, Card } from '@rneui/themed'
-import DateTimePicker from '@react-native-community/datetimepicker'
 import store from '../../store'
 import { observer } from 'mobx-react-lite'
-import { StickyHeader } from '../UIkit'
-import { localizedRoleName } from '../../utils'
-import { IDriver } from '../../store/driversStore'
 import { StackScreenProps } from '@react-navigation/stack'
-import { DriversStackParamList } from '../../../App'
-import { get } from 'http'
+import { UsersStackParamList } from '../../../App'
 import { Dropdown } from 'react-native-element-dropdown'
 import { AntDesign } from '@expo/vector-icons'
 
-type Props = StackScreenProps<DriversStackParamList, 'DriverDetails'>
+type Props = StackScreenProps<UsersStackParamList, 'UserDetails'>
 
-export const DriverCard = observer(({ navigation }: Props) => {
+export const UserCard = observer(({ navigation }: Props) => {
 	const {
-		currentDriver,
-		setCurrentDriver,
+		currentUser,
+		setCurrentUser,
 		getUserById,
-		getDrivers,
-		updateDriver,
-		clearDriverInput,
-		setDriverInput,
+		getUsers,
+		updateUser,
+		clearUserInput,
+		setUserInput,
 		roles,
-		driverInput,
+		userInput,
 		roleName,
-	} = store.drivers
-	const driverId = Number(
-		navigation.getState().routes.find((r) => r.name === 'DriverDetails')?.params?.id
+	} = store.users
+	const userId = Number(
+		navigation.getState().routes.find((r) => r.name === 'UserDetails')?.params?.id
 	)
 	useEffect(() => {
 		const user = async () => {
-			const input = await getUserById(driverId)
+			const input = await getUserById(userId)
 			if (input instanceof Error) {
 				return new Error('Unable to fetch user')
 			}
-			setDriverInput(input)
+			setUserInput(input)
 		}
 		user()
 	}, [])
 
 	const [visibleEditButton, setVisibleEditButton] = useState(true)
 	const [loading, setLoading] = useState(false)
-	const [isVisibleBS, setIsVisibleBS] = useState(false)
-	const [isActive, setIsActive] = useState(false)
 	const [updateError, setUpdateError] = useState('')
 
-	const editDriverHandler = () => {
+	const editUserHandler = () => {
 		setVisibleEditButton(!visibleEditButton)
 	}
-	const editDriverSubmit = async (id: number) => {
+	const editUserSubmit = async (id: number) => {
 		setLoading(true)
-		const newDriver = await updateDriver({ id, ...driverInput })
-		if (newDriver instanceof Error) {
-			console.log(newDriver)
-			setUpdateError(newDriver.message)
+		const newUser = await updateUser({ id, ...userInput })
+		if (newUser instanceof Error) {
+			console.log(newUser)
+			setUpdateError(newUser.message)
 			setLoading(false)
 			return null
 		}
 		setUpdateError('')
-		setCurrentDriver(newDriver)
+		setCurrentUser(newUser)
 		setVisibleEditButton(true)
 		setLoading(false)
-		clearDriverInput()
-		return newDriver
+		clearUserInput()
+		return newUser
 	}
-	const isActiveHandler = () => {
-		setIsActive(!isActive)
-		setDriverInput({ isActive: !isActive })
-	}
-	const rolesList = [
-		...roles.map((role, key) => {
-			return {
-				key,
-				title: localizedRoleName(role),
-				containerStyle: { backgroundColor: 'white' },
-				titleStyle: { color: 'black' },
-				onPress: async () => {
-					setDriverInput({ role })
-					setIsVisibleBS(false)
-				},
-			}
-		}),
-		{
-			title: 'Отмена',
-			containerStyle: { backgroundColor: 'red' },
-			titleStyle: { color: 'white' },
-			onPress: () => {
-				setIsVisibleBS(false)
-				setVisibleEditButton(true)
-			},
-		},
-	]
-	if (!currentDriver) return <Text>Что-то пошло не так.</Text>
+	if (!currentUser) return <Text>Что-то пошло не так.</Text>
 	if (!visibleEditButton)
 		return (
 			<>
 				<Card>
 					<Card.Title>
-						{`${currentDriver.name}` +
-							(currentDriver.nickname ? `, ${currentDriver.nickname}` : '')}
+						{`${currentUser.name}` + (currentUser.nickname ? `, ${currentUser.nickname}` : '')}
 					</Card.Title>
 					<Card.Divider />
 					<View>
@@ -109,8 +74,8 @@ export const DriverCard = observer(({ navigation }: Props) => {
 							<ListItem.Title>Телефон:</ListItem.Title>
 							<ListItem.Input
 								placeholder='00000000000'
-								value={driverInput.phone}
-								onChangeText={(text) => setDriverInput({ phone: text })}
+								value={userInput.phone}
+								onChangeText={(text) => setUserInput({ phone: text })}
 								disabled={loading}
 								style={{ textAlign: 'left' }}
 							/>
@@ -132,8 +97,8 @@ export const DriverCard = observer(({ navigation }: Props) => {
 								valueField='value'
 								placeholder='Select item'
 								searchPlaceholder='Search...'
-								value={driverInput.role}
-								onChange={(role) => setDriverInput({ role: role.value })}
+								value={userInput.role}
+								onChange={(role) => setUserInput({ role: role.value })}
 								renderLeftIcon={() => {
 									return <AntDesign style={styles.icon} color='black' name='Safety' size={20} />
 								}}
@@ -141,7 +106,7 @@ export const DriverCard = observer(({ navigation }: Props) => {
 									return (
 										<View style={styles.item}>
 											<Text style={styles.textItem}>{item.label}</Text>
-											{item.value === driverInput.role && (
+											{item.value === userInput.role && (
 												<AntDesign style={styles.icon} color='black' name='Safety' size={20} />
 											)}
 										</View>
@@ -154,8 +119,8 @@ export const DriverCard = observer(({ navigation }: Props) => {
 							<ListItem.Title>Комментарий:</ListItem.Title>
 							<ListItem.Input
 								placeholder='Комментарии'
-								value={driverInput.comment}
-								onChangeText={(text) => setDriverInput({ comment: text })}
+								value={userInput.comment}
+								onChangeText={(text) => setUserInput({ comment: text })}
 								disabled={loading}
 								style={{ textAlign: 'left' }}
 							/>
@@ -170,14 +135,14 @@ export const DriverCard = observer(({ navigation }: Props) => {
 				</Card>
 				<FAB
 					visible={!visibleEditButton || !loading}
-					onPress={() => editDriverSubmit(driverId)}
+					onPress={() => editUserSubmit(userId)}
 					placement='left'
 					icon={{ name: 'check', color: 'white' }}
 					color='green'
 				/>
 				<FAB
 					visible={!visibleEditButton || !loading}
-					onPress={editDriverHandler}
+					onPress={editUserHandler}
 					placement='right'
 					icon={{ name: 'cancel', color: 'white' }}
 					color='red'
@@ -188,29 +153,29 @@ export const DriverCard = observer(({ navigation }: Props) => {
 		<>
 			<Card>
 				<Card.Title>
-					{`${currentDriver.name}` + (currentDriver.nickname ? `, ${currentDriver.nickname}` : '')}
+					{`${currentUser.name}` + (currentUser.nickname ? `, ${currentUser.nickname}` : '')}
 				</Card.Title>
 				<Card.Divider />
 				<View>
 					<ListItem>
 						<ListItem.Title>Телефон:</ListItem.Title>
-						<ListItem.Subtitle>{`${currentDriver.phone}`}</ListItem.Subtitle>
+						<ListItem.Subtitle>{`${currentUser.phone}`}</ListItem.Subtitle>
 					</ListItem>
 					<ListItem>
 						<ListItem.Title>Роль: </ListItem.Title>
-						<ListItem.Subtitle>{`${roleName(currentDriver.role)}`}</ListItem.Subtitle>
+						<ListItem.Subtitle>{`${roleName(currentUser.role)}`}</ListItem.Subtitle>
 					</ListItem>
 					<ListItem>
 						<ListItem.Title>Комментарий:</ListItem.Title>
 						<ListItem.Subtitle>{`${
-							currentDriver.comment ? currentDriver.comment : ''
+							currentUser.comment ? currentUser.comment : ''
 						}`}</ListItem.Subtitle>
 					</ListItem>
 				</View>
 			</Card>
 			<FAB
 				visible={visibleEditButton}
-				onPress={editDriverHandler}
+				onPress={editUserHandler}
 				placement='right'
 				icon={{ name: 'edit', color: 'white' }}
 				color='green'
