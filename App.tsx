@@ -28,6 +28,7 @@ import {
 	MachineNew,
 	ScheduleScreen,
 	ContrAgentEdit,
+	ContrAgentNew,
 } from './src/components'
 import { UserCard, UserEdit, UserNew } from './src/components/UsersScreen'
 import * as Device from 'expo-device'
