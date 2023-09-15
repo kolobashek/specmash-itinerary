@@ -10,7 +10,7 @@ class MachinesStore {
 		type: '',
 		name: '',
 		dimensions: '',
-		weight: 0,
+		weight: '',
 		licensePlate: '',
 		nickname: '',
 	}
@@ -67,7 +67,7 @@ class MachinesStore {
 		this.machineData.type = type ?? this.machineData.type ?? ''
 		this.machineData.name = name ?? this.machineData.name ?? ''
 		this.machineData.dimensions = dimensions ?? this.machineData.dimensions ?? ''
-		this.machineData.weight = weight ?? this.machineData.weight ?? 0
+		this.machineData.weight = weight ?? this.machineData.weight ?? ''
 		this.machineData.licensePlate = licensePlate ?? this.machineData.licensePlate ?? ''
 		this.machineData.nickname = nickname ?? this.machineData.nickname ?? ''
 	}
@@ -76,16 +76,17 @@ class MachinesStore {
 			type: this.currentMachine?.type ?? '',
 			name: this.currentMachine?.name ?? '',
 			dimensions: this.currentMachine?.dimensions ?? '',
-			weight: this.currentMachine?.weight ?? 0,
+			weight: this.currentMachine?.weight?.toString() ?? '',
 			licensePlate: this.currentMachine?.licensePlate ?? '',
 			nickname: this.currentMachine?.nickname ?? '',
 		}
 	}
-	createMachine = async () => {
+	createMachine = async (input: IMachineData) => {
+		const { weight, ...other } = input
 		try {
-			const response = (await graphqlRequest(Queries.createMachine, this.machineData)) as
-				| ICreateMachineResponse
-				| Error
+			const response = (await graphqlRequest(Queries.createMachine, {
+				input: { weight: Number(weight), ...other },
+			})) as ICreateMachineResponse | Error
 			if (response instanceof Error) {
 				return response
 			}
@@ -95,10 +96,11 @@ class MachinesStore {
 		}
 	}
 	updateMachine = async (input: IMachine) => {
+		const { weight, ...other } = input
 		try {
-			const response = (await graphqlRequest(Queries.updateMachine, { input })) as
-				| UpdateMachineResponse
-				| Error
+			const response = (await graphqlRequest(Queries.updateMachine, {
+				input: { weight: Number(weight), ...other },
+			})) as UpdateMachineResponse | Error
 			if (response instanceof Error) {
 				return response
 			}
@@ -116,7 +118,7 @@ export interface IMachine {
 	type: string
 	name: string
 	dimensions?: string
-	weight?: number
+	weight?: string
 	licensePlate?: string
 	nickname?: string
 }
@@ -135,15 +137,15 @@ interface UpdateMachineResponse {
 interface TypesResponse {
 	getEquipmentTypes: MachineType[]
 }
-interface MachineType {
+export interface MachineType {
 	id: number
 	name: string
 }
-interface IMachineData {
+export interface IMachineData {
 	type?: string
 	name?: string
 	dimensions?: string
-	weight?: number
+	weight?: string
 	licensePlate?: string
 	nickname?: string
 }
@@ -151,7 +153,7 @@ interface IMachineDataStore {
 	type: string
 	name: string
 	dimensions: string
-	weight: number
+	weight: string
 	licensePlate: string
 	nickname: string
 }

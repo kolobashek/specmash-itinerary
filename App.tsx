@@ -24,6 +24,9 @@ import {
 	ContrAgentCard,
 	MachinesList,
 	MachineCard,
+	MachineEdit,
+	MachineNew,
+	ScheduleScreen,
 } from './src/components'
 import { DriverCard } from './src/components/DriversScreen'
 import * as Device from 'expo-device'
@@ -39,16 +42,6 @@ const ObjectsTab = createBottomTabNavigator<WorkPlacesTabParamList>()
 const MachinesStack = createStackNavigator<MachinesStackParamList>()
 const prefix = Linking.createURL('/')
 
-// const Screen = {
-// 	REGISTER_SCREEN: 'register',
-// 	LOGIN_SCREEN: 'login',
-// 	INFO_SCREEN: 'info',
-// 	CONTRAGENTS_SCREEN: 'contragents',
-// 	SHIFTS_SCREEN: 'shifts',
-// 	MACHINES_SCREEN: 'machines',
-// 	DRIVERS_SCREEN: 'drivers',
-// 	WORK_PLACES_SCREEN: 'workplaces',
-// }
 const REGISTER_SCREEN = 'register'
 const LOGIN_SCREEN = 'login'
 const INFO_SCREEN = 'info'
@@ -59,17 +52,14 @@ const DRIVERS_SCREEN = 'drivers'
 const WORK_PLACES_SCREEN = 'workplaces'
 const OBJECTS_SCREEN = 'objects'
 const AUTH_SCREEN = 'auth'
+const SCHEDULE_SCREEN = 'schedule'
 
 const App = observer(() => {
 	const url = Linking.useURL()
 	let pathname = null
-	if (Device.DeviceType[Device.deviceType || 0] === 'DESKTOP') {
-		pathname = url && new URL(url).pathname.toLowerCase()
-	}
 	const [loading, setLoading] = useState(false)
 	const linking: LinkingOptions<RootStackParamList> = {
 		prefixes: [prefix],
-		// prefixes: [Linking.createURL('/'), 'https://app.example.com'],
 		config: {
 			screens: {
 				Спецмаш: {
@@ -91,8 +81,12 @@ const App = observer(() => {
 							path: MACHINES_SCREEN,
 							screens: {
 								MachinesList: '',
+								MachineNew: 'new',
 								MachineDetails: {
 									path: '/:id',
+								},
+								MachineEdit: {
+									path: '/:id/edit',
 								},
 							},
 						},
@@ -128,6 +122,7 @@ const App = observer(() => {
 								},
 							},
 						},
+						schedule: SCHEDULE_SCREEN,
 						info: 'info',
 					},
 				},
@@ -202,6 +197,11 @@ const Home = observer(() => {
 					options={{ drawerLabel: 'Объекты', title: 'Объекты' }}
 				/>
 			)}
+			<Drawer.Screen
+				name={SCHEDULE_SCREEN}
+				component={ScheduleScreen}
+				options={{ drawerLabel: 'График', title: 'График' }}
+			/>
 			<Drawer.Screen
 				name={INFO_SCREEN}
 				component={InfoScreen}
@@ -299,6 +299,16 @@ const Machines = () => {
 				component={MachineCard}
 				options={{ headerShown: false }}
 			/>
+			<MachinesStack.Screen
+				name='MachineEdit'
+				component={MachineEdit}
+				options={{ headerShown: false }}
+			/>
+			<MachinesStack.Screen
+				name='MachineNew'
+				component={MachineNew}
+				options={{ headerShown: false }}
+			/>
 		</MachinesStack.Navigator>
 	)
 }
@@ -314,6 +324,7 @@ export type HomeDrawerParamList = {
 	machines: NavigatorScreenParams<MachinesStackParamList>
 	drivers: NavigatorScreenParams<DriversStackParamList>
 	workplaces: NavigatorScreenParams<WorkPlacesTabParamList>
+	schedule: undefined
 	info: undefined
 }
 export type DriversStackParamList = {
@@ -331,6 +342,8 @@ export type ObjectStackParamList = {
 export type MachinesStackParamList = {
 	MachinesList: undefined
 	MachineDetails: { id: string }
+	MachineEdit: { id: string }
+	MachineNew: undefined
 }
 export type WorkPlacesTabParamList = {
 	objects: NavigatorScreenParams<ObjectStackParamList>

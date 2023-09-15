@@ -26,7 +26,6 @@ export const TableScreen = observer(({ navigation }: any) => {
 			addEmptyShifts()
 		}
 	}
-	navigation.openDrawer()
 	return (
 		<>
 			<ScrollView horizontal={true}>

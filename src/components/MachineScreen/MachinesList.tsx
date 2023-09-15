@@ -4,7 +4,7 @@ import { FAB, Input, BottomSheet, Button, ListItem } from '@rneui/themed'
 import DateTimePicker from '@react-native-community/datetimepicker'
 import store from '../../store'
 import { observer } from 'mobx-react-lite'
-import { Link } from '@react-navigation/native'
+import { Link, useLinkTo } from '@react-navigation/native'
 import * as Device from 'expo-device'
 
 export const MachinesList = observer(() => {
@@ -17,6 +17,7 @@ export const MachinesList = observer(() => {
 		clearMachineData,
 		getMachines,
 	} = store.machines
+	const linkTo = useLinkTo()
 	useEffect(() => {
 		getMachines()
 	}, [])
@@ -29,7 +30,7 @@ export const MachinesList = observer(() => {
 	}
 	const addMachineSubmit = async () => {
 		setLoading(true)
-		const newMachine = await createMachine()
+		const newMachine = await createMachine(machineData)
 		if (newMachine instanceof Error) {
 			console.log(newMachine)
 			setLoading(false)
@@ -133,7 +134,7 @@ export const MachinesList = observer(() => {
 									<Input
 										placeholder='Масса, кг'
 										value={machineData.weight.toString()}
-										onChangeText={(e) => setMachineData({ weight: Number(e) })}
+										onChangeText={(e) => setMachineData({ weight: e })}
 										disabled={loading}
 									/>
 								</View>
@@ -176,7 +177,7 @@ export const MachinesList = observer(() => {
 			</ScrollView>
 			<FAB
 				visible={visibleAddButton}
-				onPress={addMachineHandler}
+				onPress={() => linkTo('/machines/new')}
 				placement='right'
 				icon={{ name: 'add', color: 'white' }}
 				color='green'
