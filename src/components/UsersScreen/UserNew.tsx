@@ -6,21 +6,35 @@ import store from '../../store'
 import { observer } from 'mobx-react-lite'
 import { StickyHeader } from '../UIkit'
 import { localizedRoleName } from '../../utils'
-import { IMachine } from '../../store/machinesStore'
+import { IUser } from '../../store/usersStore'
 import { useLinkTo } from '@react-navigation/native'
 import { StackScreenProps } from '@react-navigation/stack'
-import { MachinesStackParamList } from '../../../App'
+import { UsersStackParamList } from '../../../App'
 import * as Device from 'expo-device'
 import { get } from 'http'
 import { Dropdown } from 'react-native-element-dropdown'
 import { AntDesign } from '@expo/vector-icons'
-import { MachineForm } from './MachineForm'
+import { UserForm } from './UserForm'
 
-type Props = StackScreenProps<MachinesStackParamList, 'MachineNew'>
+type Props = StackScreenProps<UsersStackParamList, 'UserNew'>
 
-export const MachineNew = observer(({ navigation }: Props) => {
+export const UserNew = observer(({ navigation }: Props) => {
+	const rolesFormatter = (roles: string[]) =>
+		roles.map((role) => ({ label: roleName(role), value: role }))
 	const linkTo = useLinkTo()
-	const { createMachine, clearMachineData, setMachineData, types, machineData } = store.machines
+	const { createUser, clearUserData, setUserData, roles, getRoles, userData, roleName } =
+		store.users
+	const [formattedRoles, setFormattedRoles] = useState(rolesFormatter(roles))
+	useEffect(() => {
+		const Roles = async () => {
+			const rolesFromApi = await getRoles()
+			if (rolesFromApi instanceof Error) {
+				return rolesFromApi
+			}
+			setFormattedRoles(rolesFormatter(rolesFromApi))
+		}
+		Roles()
+	}, [])
 
 	const [loading, setLoading] = useState(false)
 	const [updateError, setCreateError] = useState('')
@@ -29,34 +43,34 @@ export const MachineNew = observer(({ navigation }: Props) => {
 		e.preventDefault()
 		navigation.goBack()
 	}
-	const createMachineSubmit = async (e: any) => {
+	const createUserSubmit = async (e: any) => {
 		e.preventDefault()
 		setLoading(true)
-		const createdMachine = await createMachine(machineData)
-		if (createdMachine instanceof Error) {
-			console.log(createdMachine)
-			setCreateError(createdMachine.message)
+		const createdUser = await createUser(userData)
+		if (createdUser instanceof Error) {
+			console.log(createdUser)
+			setCreateError(createdUser.message)
 			setLoading(false)
-			return createdMachine
+			return createdUser
 		}
-		clearMachineData()
+		clearUserData()
 		setCreateError('')
 		setLoading(false)
-		return linkTo(`/machines/${createdMachine.id}`)
+		return linkTo(`/users/${createdUser.id}`)
 	}
 	if (loading) return <Text>Loading...</Text>
 	return (
 		<>
-			<MachineForm
-				machineData={machineData}
-				setMachineData={setMachineData}
-				types={types}
+			<UserForm
+				userData={userData}
+				setUserData={setUserData}
+				roles={formattedRoles}
 				error={updateError}
 				loading={loading}
 			/>
 			<FAB
 				visible={!loading}
-				onPress={createMachineSubmit}
+				onPress={createUserSubmit}
 				placement='left'
 				icon={{ name: 'check', color: 'white' }}
 				color='green'

@@ -7,6 +7,7 @@ import { StackScreenProps } from '@react-navigation/stack'
 import { UsersStackParamList } from '../../../App'
 import { Dropdown } from 'react-native-element-dropdown'
 import { AntDesign } from '@expo/vector-icons'
+import { useLinkTo } from '@react-navigation/native'
 
 type Props = StackScreenProps<UsersStackParamList, 'UserDetails'>
 
@@ -17,12 +18,13 @@ export const UserCard = observer(({ navigation }: Props) => {
 		getUserById,
 		getUsers,
 		updateUser,
-		clearUserInput,
-		setUserInput,
+		clearUserData,
+		setUserData,
 		roles,
-		userInput,
+		userData,
 		roleName,
 	} = store.users
+	const linkTo = useLinkTo()
 	const userId = Number(
 		navigation.getState().routes.find((r) => r.name === 'UserDetails')?.params?.id
 	)
@@ -32,7 +34,7 @@ export const UserCard = observer(({ navigation }: Props) => {
 			if (input instanceof Error) {
 				return new Error('Unable to fetch user')
 			}
-			setUserInput(input)
+			setUserData(input)
 		}
 		user()
 	}, [])
@@ -42,11 +44,11 @@ export const UserCard = observer(({ navigation }: Props) => {
 	const [updateError, setUpdateError] = useState('')
 
 	const editUserHandler = () => {
-		setVisibleEditButton(!visibleEditButton)
+		linkTo(`/users/${userId}/edit`)
 	}
 	const editUserSubmit = async (id: number) => {
 		setLoading(true)
-		const newUser = await updateUser({ id, ...userInput })
+		const newUser = await updateUser({ id, ...userData })
 		if (newUser instanceof Error) {
 			console.log(newUser)
 			setUpdateError(newUser.message)
@@ -57,98 +59,98 @@ export const UserCard = observer(({ navigation }: Props) => {
 		setCurrentUser(newUser)
 		setVisibleEditButton(true)
 		setLoading(false)
-		clearUserInput()
+		clearUserData()
 		return newUser
 	}
 	if (!currentUser) return <Text>Что-то пошло не так.</Text>
-	if (!visibleEditButton)
-		return (
-			<>
-				<Card>
-					<Card.Title>
-						{`${currentUser.name}` + (currentUser.nickname ? `, ${currentUser.nickname}` : '')}
-					</Card.Title>
-					<Card.Divider />
-					<View>
-						<ListItem>
-							<ListItem.Title>Телефон:</ListItem.Title>
-							<ListItem.Input
-								placeholder='00000000000'
-								value={userInput.phone}
-								onChangeText={(text) => setUserInput({ phone: text })}
-								disabled={loading}
-								style={{ textAlign: 'left' }}
-							/>
-						</ListItem>
-						<ListItem>
-							<ListItem.Title>Роль: </ListItem.Title>
-							<Dropdown
-								style={styles.dropdown}
-								placeholderStyle={styles.placeholderStyle}
-								selectedTextStyle={styles.selectedTextStyle}
-								inputSearchStyle={styles.inputSearchStyle}
-								iconStyle={styles.iconStyle}
-								data={roles.map((role) => {
-									return { label: roleName(role), value: role }
-								})}
-								search
-								maxHeight={300}
-								labelField='label'
-								valueField='value'
-								placeholder='Select item'
-								searchPlaceholder='Search...'
-								value={userInput.role}
-								onChange={(role) => setUserInput({ role: role.value })}
-								renderLeftIcon={() => {
-									return <AntDesign style={styles.icon} color='black' name='Safety' size={20} />
-								}}
-								renderItem={(item) => {
-									return (
-										<View style={styles.item}>
-											<Text style={styles.textItem}>{item.label}</Text>
-											{item.value === userInput.role && (
-												<AntDesign style={styles.icon} color='black' name='Safety' size={20} />
-											)}
-										</View>
-									)
-								}}
-								disable={loading}
-							/>
-						</ListItem>
-						<ListItem>
-							<ListItem.Title>Комментарий:</ListItem.Title>
-							<ListItem.Input
-								placeholder='Комментарии'
-								value={userInput.comment}
-								onChangeText={(text) => setUserInput({ comment: text })}
-								disabled={loading}
-								style={{ textAlign: 'left' }}
-							/>
-						</ListItem>
-					</View>
-					{updateError && (
-						<>
-							<Card.Divider />
-							<Text style={{ color: 'red' }}>{updateError}</Text>
-						</>
-					)}
-				</Card>
-				<FAB
-					visible={!visibleEditButton || !loading}
-					onPress={() => editUserSubmit(userId)}
-					placement='left'
-					icon={{ name: 'check', color: 'white' }}
-					color='green'
-				/>
-				<FAB
-					visible={!visibleEditButton || !loading}
-					onPress={editUserHandler}
-					placement='right'
-					icon={{ name: 'cancel', color: 'white' }}
-					color='red'
-				/>
-			</>
-		)
+	// if (!visibleEditButton)
+	// 	return (
+	// 		<>
+	// 			<Card>
+	// 				<Card.Title>
+	// 					{`${currentUser.name}` + (currentUser.nickname ? `, ${currentUser.nickname}` : '')}
+	// 				</Card.Title>
+	// 				<Card.Divider />
+	// 				<View>
+	// 					<ListItem>
+	// 						<ListItem.Title>Телефон:</ListItem.Title>
+	// 						<ListItem.Data
+	// 							placeholder='00000000000'
+	// 							value={userData.phone}
+	// 							onChangeText={(text) => setUserData({ phone: text })}
+	// 							disabled={loading}
+	// 							style={{ textAlign: 'left' }}
+	// 						/>
+	// 					</ListItem>
+	// 					<ListItem>
+	// 						<ListItem.Title>Роль: </ListItem.Title>
+	// 						<Dropdown
+	// 							style={styles.dropdown}
+	// 							placeholderStyle={styles.placeholderStyle}
+	// 							selectedTextStyle={styles.selectedTextStyle}
+	// 							inputSearchStyle={styles.inputSearchStyle}
+	// 							iconStyle={styles.iconStyle}
+	// 							data={roles.map((role) => {
+	// 								return { label: roleName(role), value: role }
+	// 							})}
+	// 							search
+	// 							maxHeight={300}
+	// 							labelField='label'
+	// 							valueField='value'
+	// 							placeholder='Select item'
+	// 							searchPlaceholder='Search...'
+	// 							value={userData.role}
+	// 							onChange={(role) => setUserData({ role: role.value })}
+	// 							renderLeftIcon={() => {
+	// 								return <AntDesign style={styles.icon} color='black' name='Safety' size={20} />
+	// 							}}
+	// 							renderItem={(item) => {
+	// 								return (
+	// 									<View style={styles.item}>
+	// 										<Text style={styles.textItem}>{item.label}</Text>
+	// 										{item.value === userData.role && (
+	// 											<AntDesign style={styles.icon} color='black' name='Safety' size={20} />
+	// 										)}
+	// 									</View>
+	// 								)
+	// 							}}
+	// 							disable={loading}
+	// 						/>
+	// 					</ListItem>
+	// 					<ListItem>
+	// 						<ListItem.Title>Комментарий:</ListItem.Title>
+	// 						<ListItem.Data
+	// 							placeholder='Комментарии'
+	// 							value={userData.comment}
+	// 							onChangeText={(text) => setUserData({ comment: text })}
+	// 							disabled={loading}
+	// 							style={{ textAlign: 'left' }}
+	// 						/>
+	// 					</ListItem>
+	// 				</View>
+	// 				{updateError && (
+	// 					<>
+	// 						<Card.Divider />
+	// 						<Text style={{ color: 'red' }}>{updateError}</Text>
+	// 					</>
+	// 				)}
+	// 			</Card>
+	// 			<FAB
+	// 				visible={!visibleEditButton || !loading}
+	// 				onPress={() => editUserSubmit(userId)}
+	// 				placement='left'
+	// 				icon={{ name: 'check', color: 'white' }}
+	// 				color='green'
+	// 			/>
+	// 			<FAB
+	// 				visible={!visibleEditButton || !loading}
+	// 				onPress={editUserHandler}
+	// 				placement='right'
+	// 				icon={{ name: 'cancel', color: 'white' }}
+	// 				color='red'
+	// 			/>
+	// 		</>
+	// 	)
 	return (
 		<>
 			<Card>
@@ -174,7 +176,7 @@ export const UserCard = observer(({ navigation }: Props) => {
 				</View>
 			</Card>
 			<FAB
-				visible={visibleEditButton}
+				// visible={visibleEditButton}
 				onPress={editUserHandler}
 				placement='right'
 				icon={{ name: 'edit', color: 'white' }}

@@ -20,7 +20,7 @@ type Props = {
 	setMachineData: (machine: IMachineData) => void
 	types: MachineType[]
 	loading?: boolean
-	error: string
+	error?: string
 }
 
 export const MachineForm = ({ machineData, setMachineData, types, loading, error }: Props) => {

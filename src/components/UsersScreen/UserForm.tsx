@@ -6,52 +6,52 @@ import store from '../../store'
 import { observer } from 'mobx-react-lite'
 import { StickyHeader } from '../UIkit'
 import { localizedRoleName } from '../../utils'
-import { IMachineData, MachineType } from '../../store/machinesStore'
 import { useLinkTo } from '@react-navigation/native'
 import { StackScreenProps } from '@react-navigation/stack'
-import { MachinesStackParamList } from '../../../App'
+import { UsersStackParamList } from '../../../App'
 import * as Device from 'expo-device'
 import { get } from 'http'
 import { Dropdown } from 'react-native-element-dropdown'
 import { AntDesign } from '@expo/vector-icons'
+import { IUserData } from '../../store/usersStore'
 
 type Props = {
-	machineData: IMachineData
-	setMachineData: (machine: IMachineData) => void
-	types: MachineType[]
+	userData: IUserData
+	setUserData: (user: IUserData) => void
+	roles: { label: string; value: string }[]
 	loading?: boolean
-	error: string
+	error?: string
 }
 
-export const MachineForm = ({ machineData, setMachineData, types, loading, error }: Props) => {
-	const [name, setMachineName] = useState(machineData.name)
-	const [type, setMachineType] = useState(machineData.type)
-	const [weight, setMachineWeight] = useState(machineData.weight)
-	const [nickname, setMachineNickname] = useState(machineData.nickname)
-	const [licensePlate, setMachineLicensePlate] = useState(machineData.licensePlate)
+export const UserForm = ({ userData, setUserData, roles, loading, error }: Props) => {
+	const [name, setUserName] = useState(userData.name)
+	const [role, setUserRole] = useState(userData.role)
+	const [phone, setUserPhone] = useState(userData.phone)
+	const [nickname, setUserNickname] = useState(userData.nickname)
+	const [comment, setUserComment] = useState(userData.comment)
 	useEffect(() => {
-		setMachineData({
-			...machineData,
+		setUserData({
+			...userData,
 			name,
-			type,
-			weight,
+			role,
+			phone,
 			nickname,
-			licensePlate,
+			comment,
 		})
-	}, [name, type, weight, nickname, licensePlate])
+	}, [name, role, phone, nickname, comment])
 	return (
 		<Card>
 			<Card.Title>
-				{`${machineData.name}` + (machineData.nickname ? `, ${machineData.nickname}` : '')}
+				{`${userData.name}` + (userData.nickname ? `, ${userData.nickname}` : '')}
 			</Card.Title>
 			<Card.Divider />
 			<View>
 				<ListItem>
 					<ListItem.Title>Наименование:</ListItem.Title>
 					<ListItem.Input
-						placeholder={machineData.name || 'Наименование'}
+						placeholder={userData.name || 'Наименование'}
 						value={name}
-						onChangeText={setMachineName}
+						onChangeText={setUserName}
 						disabled={loading}
 						style={{ textAlign: 'left' }}
 					/>
@@ -61,17 +61,17 @@ export const MachineForm = ({ machineData, setMachineData, types, loading, error
 					<ListItem.Input
 						placeholder={nickname || 'Позывной'}
 						value={nickname}
-						onChangeText={setMachineNickname}
+						onChangeText={setUserNickname}
 						disabled={loading}
 						style={{ textAlign: 'left' }}
 					/>
 				</ListItem>
 				<ListItem>
-					<ListItem.Title>Вес, кг:</ListItem.Title>
+					<ListItem.Title>Телефон:</ListItem.Title>
 					<ListItem.Input
-						placeholder='12000'
-						value={weight}
-						onChangeText={setMachineWeight}
+						placeholder='80000000000'
+						value={phone}
+						onChangeText={setUserPhone}
 						disabled={loading}
 						style={{ textAlign: 'left' }}
 					/>
@@ -84,17 +84,15 @@ export const MachineForm = ({ machineData, setMachineData, types, loading, error
 						selectedTextStyle={styles.selectedTextStyle}
 						inputSearchStyle={styles.inputSearchStyle}
 						iconStyle={styles.iconStyle}
-						data={types.map((type) => {
-							return { label: type.name, value: type.id }
-						})}
+						data={roles}
 						search
 						maxHeight={300}
 						labelField='label'
 						valueField='value'
-						placeholder={type || 'Выберите тип'}
+						placeholder={role || 'Выберите тип'}
 						searchPlaceholder='Search...'
-						value={machineData.type}
-						onChange={(type) => setMachineType(type.label)}
+						value={userData.role}
+						onChange={(role) => setUserRole(role.label)}
 						renderLeftIcon={() => {
 							return <AntDesign style={styles.icon} color='black' name='Safety' size={20} />
 						}}
@@ -102,7 +100,7 @@ export const MachineForm = ({ machineData, setMachineData, types, loading, error
 							return (
 								<View style={styles.item}>
 									<Text style={styles.textItem}>{item.label}</Text>
-									{item.label === machineData.type && (
+									{item.label === userData.role && (
 										<AntDesign style={styles.icon} color='black' name='Safety' size={20} />
 									)}
 								</View>
@@ -115,8 +113,8 @@ export const MachineForm = ({ machineData, setMachineData, types, loading, error
 					<ListItem.Title>Гос. номер:</ListItem.Title>
 					<ListItem.Input
 						placeholder='А 000 АА 000'
-						value={licensePlate}
-						onChangeText={setMachineLicensePlate}
+						value={comment}
+						onChangeText={setUserComment}
 						disabled={loading}
 						style={{ textAlign: 'left' }}
 					/>

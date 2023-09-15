@@ -4,7 +4,7 @@ import { graphqlRequest } from '../services/api/graphql'
 
 class UsersStore {
 	list: IUser[] | [] = []
-	userInput: IUserInputStore = {
+	userData: IUserData = {
 		phone: '',
 		name: '',
 		nickname: '',
@@ -62,27 +62,27 @@ class UsersStore {
 			return new Error(error as string)
 		}
 	}
-	setUserInput = ({ phone, name, nickname, comment, role, isActive }: IUserInput) => {
+	setUserData = ({ phone, name, nickname, comment, role, isActive }: IUserData) => {
 		console.log(comment)
-		phone = phone ?? this.userInput.phone ?? ''
-		name = name ?? this.userInput.name ?? ''
-		nickname = nickname ?? this.userInput.nickname ?? ''
-		comment = comment ?? this.userInput.comment ?? ''
-		role = role ?? this.userInput.role ?? ''
-		isActive = isActive ?? this.userInput.isActive ?? false
+		phone = phone ?? this.userData.phone ?? ''
+		name = name ?? this.userData.name ?? ''
+		nickname = nickname ?? this.userData.nickname ?? ''
+		comment = comment ?? this.userData.comment ?? ''
+		role = role ?? this.userData.role ?? ''
+		isActive = isActive ?? this.userData.isActive ?? false
 
-		this.userInput.phone = phone
-		this.userInput.name = name
-		this.userInput.nickname = nickname
-		this.userInput.comment = comment
-		this.userInput.role = role
-		this.userInput.isActive = isActive
+		this.userData.phone = phone
+		this.userData.name = name
+		this.userData.nickname = nickname
+		this.userData.comment = comment
+		this.userData.role = role
+		this.userData.isActive = isActive
 	}
 	setCurrentUser(user: IUser | null) {
 		this.currentUser = user
 	}
-	clearUserInput = () => {
-		this.userInput = {
+	clearUserData = () => {
+		this.userData = {
 			phone: '',
 			name: '',
 			nickname: '',
@@ -91,9 +91,9 @@ class UsersStore {
 			isActive: false,
 		}
 	}
-	createUser = async () => {
+	createUser = async (userData: IUserData) => {
 		try {
-			const response = (await graphqlRequest(Queries.createUser, this.userInput)) as
+			const response = (await graphqlRequest(Queries.createUser, userData)) as
 				| ICreateUserResponse
 				| Error
 			if (response instanceof Error) {
@@ -121,7 +121,7 @@ class UsersStore {
 
 export default new UsersStore()
 
-export interface IUser extends IUserInput {
+export interface IUser extends IUserData {
 	id: number
 }
 interface UsersResponse {
@@ -139,19 +139,11 @@ interface ICreateUserResponse {
 interface RolesResponse {
 	roles: string[]
 }
-export interface IUserInput {
+export interface IUserData {
 	phone?: string
 	name?: string
 	nickname?: string
 	comment?: string
 	role?: string
 	isActive?: boolean
-}
-interface IUserInputStore {
-	phone: string
-	name: string
-	nickname: string
-	comment: string
-	role: string
-	isActive: boolean
 }

@@ -6,69 +6,69 @@ import store from '../../store'
 import { observer } from 'mobx-react-lite'
 import { StickyHeader } from '../UIkit'
 import { localizedRoleName } from '../../utils'
-import { IMachine } from '../../store/machinesStore'
+import { IUser } from '../../store/usersStore'
 import { useLinkTo } from '@react-navigation/native'
 import { StackScreenProps } from '@react-navigation/stack'
-import { MachinesStackParamList } from '../../../App'
+import { UsersStackParamList } from '../../../App'
 import * as Device from 'expo-device'
 import { get } from 'http'
 import { Dropdown } from 'react-native-element-dropdown'
 import { AntDesign } from '@expo/vector-icons'
-import { MachineForm } from './MachineForm'
+import { UserForm } from './UserForm'
 
-type Props = StackScreenProps<MachinesStackParamList, 'MachineEdit'>
+type Props = StackScreenProps<UsersStackParamList, 'UserEdit'>
 
-export const MachineEdit = observer(({ navigation }: Props) => {
+export const UserEdit = observer(({ navigation }: Props) => {
+	const rolesFormatter = (roles: string[]) =>
+		roles.map((role) => ({ label: roleName(role), value: role }))
 	const linkTo = useLinkTo()
-	const {
-		createMachine,
-		clearMachineData,
-		setMachineData,
-		types,
-		machineData,
-		getMachineById,
-		setCurrentMachine,
-		updateMachine,
-	} = store.machines
-	const machineId = Number(
-		navigation.getState().routes.find((r) => r.name === 'MachineEdit')?.params?.id
-	)
-	console.log(navigation.getState().routes)
+	const { updateUser, setCurrentUser, setUserData, roles, getRoles, userData, roleName } =
+		store.users
+	const userId = Number(navigation.getState().routes.find((r) => r.name === 'UserEdit')?.params?.id)
+	const [formattedRoles, setFormattedRoles] = useState(rolesFormatter(roles))
+	useEffect(() => {
+		const Roles = async () => {
+			const rolesFromApi = await getRoles()
+			if (rolesFromApi instanceof Error) {
+				return rolesFromApi
+			}
+			setFormattedRoles(rolesFormatter(rolesFromApi))
+		}
+		Roles()
+	}, [])
 	const [loading, setLoading] = useState(false)
 	const [updateError, setCreateError] = useState('')
 
-	const cancelHandler = (e: any) => {
-		e.preventDefault()
-		linkTo(`/machines/${machineId}`)
+	const cancelHandler = () => {
+		linkTo(`/users/${userId}`)
 	}
-	const createMachineSubmit = async (e: any) => {
-		e.preventDefault()
+	const createUserSubmit = async () => {
 		setLoading(true)
-		const updatedMachine = await updateMachine({ id: machineId, ...machineData })
-		if (updatedMachine instanceof Error) {
-			console.log(updatedMachine)
-			setCreateError(updatedMachine.message)
+		const updatedUser = await updateUser({ id: userId, ...userData })
+		if (updatedUser instanceof Error) {
+			console.log(updatedUser)
+			setCreateError(updatedUser.message)
 			setLoading(false)
-			return updatedMachine
+			return updatedUser
 		}
 		setCreateError('')
-		setCurrentMachine(updatedMachine)
+		setCurrentUser(updatedUser)
 		setLoading(false)
-		return linkTo(`/machines/${updatedMachine.id}`)
+		return linkTo(`/users/${updatedUser.id}`)
 	}
 	if (loading) return <Text>Loading...</Text>
 	return (
 		<>
-			<MachineForm
-				machineData={machineData}
-				setMachineData={setMachineData}
-				types={types}
+			<UserForm
+				userData={userData}
+				setUserData={setUserData}
+				roles={formattedRoles}
 				error={updateError}
 				loading={loading}
 			/>
 			<FAB
 				visible={!loading}
-				onPress={createMachineSubmit}
+				onPress={createUserSubmit}
 				placement='left'
 				icon={{ name: 'check', color: 'white' }}
 				color='green'

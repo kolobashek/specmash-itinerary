@@ -9,13 +9,14 @@ import { StickyHeader } from '../UIkit'
 import { UsersStackParamList } from '../../../App'
 import { UserCard } from './UserCard'
 import { StackScreenProps } from '@react-navigation/stack'
-import { Link } from '@react-navigation/native'
 import * as Device from 'expo-device'
+import { Link, useLinkTo } from '@react-navigation/native'
 
 type Props = StackScreenProps<UsersStackParamList, 'UsersList'>
 
 export const UsersList = observer(({ navigation }: Props) => {
-	const { list, userInput, roles, setUserInput, createUser, clearUserInput, getUsers } = store.users
+	const { list, userData, roles, setUserData, createUser, clearUserData, getUsers } = store.users
+	const linkTo = useLinkTo()
 	useEffect(() => {
 		getUsers()
 	}, [])
@@ -25,26 +26,26 @@ export const UsersList = observer(({ navigation }: Props) => {
 	const [isVisibleBS, setIsVisibleBS] = useState(false)
 	const [isActive, setIsActive] = useState(false)
 	const addUserHandler = async () => {
-		setVisibleAddButton(false)
+		linkTo('/users/new')
 	}
-	const addUserSubmit = async () => {
-		setLoading(true)
-		const newUser = await createUser()
-		if (newUser instanceof Error) {
-			console.log(newUser)
-			setLoading(false)
-		}
-		setVisibleAddButton(true)
-		setLoading(false)
-		clearUserInput()
-		getUsers()
-	}
+	// const addUserSubmit = async () => {
+	// 		setLoading(true)
+	// 		const newUser = await createUser()
+	// 		if (newUser instanceof Error) {
+	// 			console.log(newUser)
+	// 			setLoading(false)
+	// 		}
+	// 		setVisibleAddButton(true)
+	// 		setLoading(false)
+	// 		clearUserInput()
+	// 		getUsers()
+	// }
 	const cancelHandler = () => {
 		setVisibleAddButton(true)
 	}
 	const isActiveHandler = () => {
 		setIsActive(!isActive)
-		setUserInput({ isActive: !isActive })
+		setUserData({ isActive: !isActive })
 	}
 	const memoizedRoleName = React.useMemo(() => {
 		return (role: string | undefined) => {
@@ -63,7 +64,7 @@ export const UsersList = observer(({ navigation }: Props) => {
 				containerStyle: { backgroundColor: 'white' },
 				titleStyle: { color: 'black' },
 				onPress: async () => {
-					setUserInput({ role })
+					setUserData({ role })
 					setIsVisibleBS(false)
 				},
 			}
@@ -109,24 +110,24 @@ export const UsersList = observer(({ navigation }: Props) => {
 							</Link>
 						)
 					})}
-					{!visibleAddButton && (
+					{/* {!visibleAddButton && (
 						<>
 							<View style={[styles.row]}>
 								<View style={styles.inputsCell}>
 									<Input
 										placeholder='ФИО'
-										value={userInput.name}
-										onChangeText={(e) => setUserInput({ name: e })}
+										value={userData.name}
+										onChangeText={(e) => setUserData({ name: e })}
 										disabled={loading}
 									/>
 								</View>
 								<View style={styles.inputsCell}>
 									<Input
 										placeholder='Телефон'
-										value={userInput.phone}
+										value={userData.phone}
 										onChangeText={(e) => {
 											console.log(e)
-											setUserInput({ phone: e })
+											setUserData({ phone: e })
 										}}
 										disabled={loading}
 									/>
@@ -134,22 +135,22 @@ export const UsersList = observer(({ navigation }: Props) => {
 								<View style={styles.inputsCell}>
 									<Input
 										placeholder='Псевдоним'
-										value={userInput.nickname}
-										onChangeText={(e) => setUserInput({ nickname: e })}
+										value={userData.nickname}
+										onChangeText={(e) => setUserData({ nickname: e })}
 										disabled={loading}
 									/>
 								</View>
 								<View style={styles.inputsCell}>
 									<Input
 										placeholder='Комментарий'
-										value={userInput.comment}
-										onChangeText={(e) => setUserInput({ comment: e })}
+										value={userData.comment}
+										onChangeText={(e) => setUserData({ comment: e })}
 										disabled={loading}
 									/>
 								</View>
 								<View style={styles.inputsCell}>
 									<Button
-										title={userInput.role || 'Роль'}
+										title={userData.role || 'Роль'}
 										onPress={() => setIsVisibleBS(true)}
 										disabled={loading}
 									/>
@@ -179,7 +180,7 @@ export const UsersList = observer(({ navigation }: Props) => {
 									// style={styles.row}
 									color={'green'}
 									icon={{ name: 'check', color: 'white' }}
-									disabled={!userInput.name || !userInput.role || loading}
+									disabled={!userData.name || !userData.role || loading}
 									onPress={addUserSubmit}
 									loading={loading}
 								/>
@@ -191,7 +192,7 @@ export const UsersList = observer(({ navigation }: Props) => {
 								/>
 							</View>
 						</>
-					)}
+					)} */}
 				</View>
 			</ScrollView>
 			<FAB

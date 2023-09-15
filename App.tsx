@@ -28,7 +28,7 @@ import {
 	MachineNew,
 	ScheduleScreen,
 } from './src/components'
-import { UserCard } from './src/components/UsersScreen'
+import { UserCard, UserEdit, UserNew } from './src/components/UsersScreen'
 import * as Device from 'expo-device'
 import { ObjectCard, ObjectsList } from './src/components/ObjectsScreen'
 
@@ -94,8 +94,12 @@ const App = observer(() => {
 							path: USERS_SCREEN,
 							screens: {
 								UsersList: '',
+								UserNew: 'new',
 								UserDetails: {
 									path: '/:id',
+								},
+								UserEdit: {
+									path: '/:id/edit',
 								},
 							},
 						},
@@ -227,6 +231,8 @@ const Users = () => {
 		<UsersStack.Navigator>
 			<UsersStack.Screen name='UsersList' component={UsersList} options={{ headerShown: false }} />
 			<UsersStack.Screen name='UserDetails' component={UserCard} options={{ headerShown: false }} />
+			<UsersStack.Screen name='UserEdit' component={UserEdit} options={{ headerShown: false }} />
+			<UsersStack.Screen name='UserNew' component={UserNew} options={{ headerShown: false }} />
 		</UsersStack.Navigator>
 	)
 }
@@ -322,6 +328,8 @@ export type HomeDrawerParamList = {
 export type UsersStackParamList = {
 	UsersList: undefined
 	UserDetails: { id: string }
+	UserEdit: { id: string }
+	UserNew: undefined
 }
 export type ContrAgentsStackParamList = {
 	ContrAgentsList: undefined
