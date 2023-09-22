@@ -6,19 +6,19 @@ import store from '../../store'
 import { observer } from 'mobx-react-lite'
 import { StickyHeader } from '../UIkit'
 import { localizedRoleName } from '../../utils'
-import { IContrAgentData, ContrAgentType } from '../../store/contrAgentStore'
+import { IContrAgentData } from '../../store/contrAgentStore'
 import { useLinkTo } from '@react-navigation/native'
 import { StackScreenProps } from '@react-navigation/stack'
 import { ContrAgentsStackParamList } from '../../../App'
 import * as Device from 'expo-device'
-import { get } from 'http'
-import { Dropdown } from 'react-native-element-dropdown'
+import { MultiSelect } from 'react-native-element-dropdown'
 import { AntDesign } from '@expo/vector-icons'
+import { IObject } from '../../store/objectStore'
 
 type Props = {
 	contrAgentData: IContrAgentData
 	setContrAgentData: (contrAgent: IContrAgentData) => void
-	types: ContrAgentType[]
+	objectVariants: IObject[]
 	loading?: boolean
 	error?: string
 }
@@ -26,29 +26,29 @@ type Props = {
 export const ContrAgentForm = ({
 	contrAgentData,
 	setContrAgentData,
-	types,
 	loading,
 	error,
+	objectVariants,
 }: Props) => {
 	const [name, setContrAgentName] = useState(contrAgentData.name)
-	const [type, setContrAgentType] = useState(contrAgentData.type)
-	const [weight, setContrAgentWeight] = useState(contrAgentData.weight)
-	const [nickname, setContrAgentNickname] = useState(contrAgentData.nickname)
-	const [licensePlate, setContrAgentLicensePlate] = useState(contrAgentData.licensePlate)
+	const [contacts, setContrAgentContacts] = useState(contrAgentData.contacts)
+	const [address, setContrAgentAddress] = useState(contrAgentData.address)
+	const [comment, setContrAgentComment] = useState(contrAgentData.comment)
+	const [objects, setContrAgentObjects] = useState(contrAgentData.objects || [])
 	useEffect(() => {
 		setContrAgentData({
 			...contrAgentData,
 			name,
-			type,
-			weight,
-			nickname,
-			licensePlate,
+			contacts,
+			address,
+			comment,
+			objects,
 		})
-	}, [name, type, weight, nickname, licensePlate])
+	}, [name, contacts, address, comment, objects])
 	return (
 		<Card>
 			<Card.Title>
-				{`${contrAgentData.name}` + (contrAgentData.nickname ? `, ${contrAgentData.nickname}` : '')}
+				{`${contrAgentData.name}` + (contrAgentData.comment ? `, ${contrAgentData.comment}` : '')}
 			</Card.Title>
 			<Card.Divider />
 			<View>
@@ -63,52 +63,54 @@ export const ContrAgentForm = ({
 					/>
 				</ListItem>
 				<ListItem>
-					<ListItem.Title>Позывной:</ListItem.Title>
+					<ListItem.Title>Адрес:</ListItem.Title>
 					<ListItem.Input
-						placeholder={nickname || 'Позывной'}
-						value={nickname}
-						onChangeText={setContrAgentNickname}
+						placeholder='Введите адрес - физический или юридический'
+						value={address}
+						onChangeText={setContrAgentAddress}
 						disabled={loading}
 						style={{ textAlign: 'left' }}
 					/>
 				</ListItem>
 				<ListItem>
-					<ListItem.Title>Вес, кг:</ListItem.Title>
+					<ListItem.Title>Контакты:</ListItem.Title>
 					<ListItem.Input
-						placeholder='12000'
-						value={weight}
-						onChangeText={setContrAgentWeight}
+						placeholder='телефон, email, ФИО, должность'
+						value={contacts}
+						onChangeText={setContrAgentContacts}
 						disabled={loading}
 						style={{ textAlign: 'left' }}
 					/>
 				</ListItem>
 				<ListItem>
 					<ListItem.Title>Тип: </ListItem.Title>
-					<Dropdown
+					<MultiSelect
 						style={styles.dropdown}
 						placeholderStyle={styles.placeholderStyle}
 						selectedTextStyle={styles.selectedTextStyle}
 						inputSearchStyle={styles.inputSearchStyle}
 						iconStyle={styles.iconStyle}
-						data={types.map((type) => {
-							return { label: type.name, value: type.id }
-						})}
+						data={objectVariants}
 						search
+						searchField='name'
 						maxHeight={300}
-						labelField='label'
-						valueField='value'
-						placeholder={type || 'Выберите тип'}
-						searchPlaceholder='Search...'
-						value={contrAgentData.type}
-						onChange={(type) => setContrAgentType(type.label)}
+						labelField={'name'}
+						valueField={'id'}
+						placeholder={'Выберите объекты'}
+						searchPlaceholder='Найти...'
+						value={objects.map((obj) => obj.name || '')}
+						onChange={(value: IObject[]) => {
+							console.log(value)
+							setContrAgentObjects(value)
+						}}
 						renderLeftIcon={() => {
 							return <AntDesign style={styles.icon} color='black' name='Safety' size={20} />
 						}}
 						renderItem={(item) => {
 							return (
 								<View style={styles.item}>
-									<Text style={styles.textItem}>{item.label}</Text>
-									{item.label === contrAgentData.type && (
+									<Text style={styles.textItem}>{item.name}</Text>
+									{item.id === contrAgentData.objects?.find((obj) => obj.id === item.id)?.id && (
 										<AntDesign style={styles.icon} color='black' name='Safety' size={20} />
 									)}
 								</View>
@@ -118,11 +120,11 @@ export const ContrAgentForm = ({
 					/>
 				</ListItem>
 				<ListItem>
-					<ListItem.Title>Гос. номер:</ListItem.Title>
+					<ListItem.Title>Комментарий:</ListItem.Title>
 					<ListItem.Input
-						placeholder='А 000 АА 000'
-						value={licensePlate}
-						onChangeText={setContrAgentLicensePlate}
+						placeholder={comment || 'Комментарий'}
+						value={comment}
+						onChangeText={setContrAgentComment}
 						disabled={loading}
 						style={{ textAlign: 'left' }}
 					/>

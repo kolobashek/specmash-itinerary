@@ -5,7 +5,7 @@ import { IObject } from './objectStore'
 
 class ContrAgentStore {
 	list: IContrAgent[] | [] = []
-	contrAgentInput: IContrAgentInputStore = {
+	contrAgentData: IContrAgentDataStore = {
 		name: '',
 		contacts: '',
 		address: '',
@@ -59,25 +59,25 @@ class ContrAgentStore {
 	// 		return new Error(error as string)
 	// 	}
 	// }
-	setContrAgentInput = ({ name, contacts, address, comment, objects }: IContrAgentInput) => {
+	setContrAgentData = ({ name, contacts, address, comment, objects }: IContrAgentData) => {
 		console.log(comment)
-		name = name ?? this.contrAgentInput.name ?? ''
-		contacts = contacts ?? this.contrAgentInput.contacts ?? ''
-		address = address ?? this.contrAgentInput.address ?? ''
-		comment = comment ?? this.contrAgentInput.comment ?? ''
-		objects = objects ?? this.contrAgentInput.objects ?? false
+		name = name ?? this.contrAgentData.name ?? ''
+		contacts = contacts ?? this.contrAgentData.contacts ?? ''
+		address = address ?? this.contrAgentData.address ?? ''
+		comment = comment ?? this.contrAgentData.comment ?? ''
+		objects = objects ?? this.contrAgentData.objects ?? false
 
-		this.contrAgentInput.name = name
-		this.contrAgentInput.contacts = contacts
-		this.contrAgentInput.comment = comment
-		this.contrAgentInput.comment = comment
-		this.contrAgentInput.objects = objects
+		this.contrAgentData.name = name
+		this.contrAgentData.contacts = contacts
+		this.contrAgentData.comment = comment
+		this.contrAgentData.comment = comment
+		this.contrAgentData.objects = objects
 	}
 	setCurrentContrAgent(contrAgent: IContrAgent | null) {
 		this.currentContrAgent = contrAgent
 	}
-	clearContrAgentInput = () => {
-		this.contrAgentInput = {
+	clearContrAgentData = () => {
+		this.contrAgentData = {
 			name: '',
 			contacts: '',
 			address: '',
@@ -85,9 +85,9 @@ class ContrAgentStore {
 			objects: [],
 		}
 	}
-	createContrAgent = async () => {
+	createContrAgent = async (input: IContrAgentData) => {
 		try {
-			const response = (await graphqlRequest(Queries.createContrAgent, this.contrAgentInput)) as
+			const response = (await graphqlRequest(Queries.createContrAgent, { input })) as
 				| ICreateContrAgentResponse
 				| Error
 			if (response instanceof Error) {
@@ -115,7 +115,7 @@ class ContrAgentStore {
 
 export default new ContrAgentStore()
 
-export interface IContrAgent extends IContrAgentInput {
+export interface IContrAgent extends IContrAgentData {
 	id: number
 }
 interface ContrAgentsResponse {
@@ -133,14 +133,14 @@ interface ICreateContrAgentResponse {
 // interface ObjectsResponse {
 // 	objects: IObject[]
 // }
-interface IContrAgentInput {
+export interface IContrAgentData {
 	name?: string
 	contacts?: string
 	address?: string
 	comment?: string
 	objects?: IObject[]
 }
-interface IContrAgentInputStore {
+interface IContrAgentDataStore {
 	name: string
 	contacts: string
 	address: string

@@ -31,19 +31,20 @@ import { StickyHeader } from '../UIkit'
 // import { DrawerScreenProps } from '@react-navigation/drawer'
 import { ContrAgentsStackParamList } from '../../../App'
 import { StackScreenProps } from '@react-navigation/stack'
-import { Link } from '@react-navigation/native'
+import { Link, useLinkTo } from '@react-navigation/native'
 import * as Device from 'expo-device'
 import { ContrAgentCard } from './ContrAgentCard'
 
 type Props = StackScreenProps<ContrAgentsStackParamList, 'ContrAgentsList'>
 
 export const ContrAgentsList = observer(({ navigation }: Props) => {
+	const linkTo = useLinkTo()
 	const {
 		list,
-		contrAgentInput,
-		setContrAgentInput,
+		contrAgentData,
+		setContrAgentData,
 		createContrAgent,
-		clearContrAgentInput,
+		clearContrAgentData,
 		getContrAgents,
 	} = store.contrAgents
 	useEffect(() => {
@@ -59,14 +60,14 @@ export const ContrAgentsList = observer(({ navigation }: Props) => {
 	}
 	const addContrAgentSubmit = async () => {
 		setLoading(true)
-		const newDriver = await createContrAgent()
+		const newDriver = await createContrAgent(contrAgentData)
 		if (newDriver instanceof Error) {
 			console.log(newDriver)
 			setLoading(false)
 		}
 		setVisibleAddButton(true)
 		setLoading(false)
-		clearContrAgentInput()
+		clearContrAgentData()
 		getContrAgents()
 	}
 	const cancelHandler = () => {
@@ -146,18 +147,18 @@ export const ContrAgentsList = observer(({ navigation }: Props) => {
 								<View style={styles.inputsCell}>
 									<Input
 										placeholder='Наименование'
-										value={contrAgentInput.name}
-										onChangeText={(e) => setContrAgentInput({ name: e })}
+										value={contrAgentData.name}
+										onChangeText={(e) => setContrAgentData({ name: e })}
 										disabled={loading}
 									/>
 								</View>
 								<View style={styles.inputsCell}>
 									<Input
 										placeholder='Контакты'
-										value={contrAgentInput.contacts}
+										value={contrAgentData.contacts}
 										onChangeText={(e) => {
 											console.log(e)
-											setContrAgentInput({ contacts: e })
+											setContrAgentData({ contacts: e })
 										}}
 										disabled={loading}
 									/>
@@ -165,16 +166,16 @@ export const ContrAgentsList = observer(({ navigation }: Props) => {
 								<View style={styles.inputsCell}>
 									<Input
 										placeholder='Адрес'
-										value={contrAgentInput.address}
-										onChangeText={(e) => setContrAgentInput({ address: e })}
+										value={contrAgentData.address}
+										onChangeText={(e) => setContrAgentData({ address: e })}
 										disabled={loading}
 									/>
 								</View>
 								<View style={styles.inputsCell}>
 									<Input
 										placeholder='Комментарий'
-										value={contrAgentInput.comment}
-										onChangeText={(e) => setContrAgentInput({ comment: e })}
+										value={contrAgentData.comment}
+										onChangeText={(e) => setContrAgentData({ comment: e })}
 										disabled={loading}
 									/>
 								</View>
@@ -210,7 +211,7 @@ export const ContrAgentsList = observer(({ navigation }: Props) => {
 									// style={styles.row}
 									color={'green'}
 									icon={{ name: 'check', color: 'white' }}
-									disabled={!contrAgentInput.name || loading}
+									disabled={!contrAgentData.name || loading}
 									onPress={addContrAgentSubmit}
 									loading={loading}
 								/>
@@ -227,7 +228,7 @@ export const ContrAgentsList = observer(({ navigation }: Props) => {
 			</ScrollView>
 			<FAB
 				visible={visibleAddButton}
-				onPress={addContrAgentHandler}
+				onPress={() => linkTo('/workplaces/contragents/new')}
 				placement='right'
 				icon={{ name: 'add', color: 'white' }}
 				color='green'

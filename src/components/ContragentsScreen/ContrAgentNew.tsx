@@ -15,14 +15,26 @@ import { get } from 'http'
 import { Dropdown } from 'react-native-element-dropdown'
 import { AntDesign } from '@expo/vector-icons'
 import { ContrAgentForm } from './ContrAgentForm'
+import { IObject } from '../../store/objectStore'
 
 type Props = StackScreenProps<ContrAgentsStackParamList, 'ContrAgentNew'>
 
 export const ContrAgentNew = observer(({ navigation }: Props) => {
 	const linkTo = useLinkTo()
-	const { createContrAgent, clearContrAgentData, setContrAgentData, types, contrAgentData } =
+	const { createContrAgent, clearContrAgentData, setContrAgentData, contrAgentData } =
 		store.contrAgents
-
+	const [allObjects, setAllObjects] = useState([] as IObject[])
+	const { getObjects } = store.objects
+	useEffect(() => {
+		const start = async () => {
+			const objectsFromApi = await getObjects()
+			if (objectsFromApi instanceof Error) {
+				return
+			}
+			setAllObjects(objectsFromApi)
+		}
+		start()
+	}, [])
 	const [loading, setLoading] = useState(false)
 	const [updateError, setCreateError] = useState('')
 
@@ -51,9 +63,9 @@ export const ContrAgentNew = observer(({ navigation }: Props) => {
 			<ContrAgentForm
 				contrAgentData={contrAgentData}
 				setContrAgentData={setContrAgentData}
-				types={types}
 				error={updateError}
 				loading={loading}
+				objectVariants={allObjects}
 			/>
 			<FAB
 				visible={!loading}
