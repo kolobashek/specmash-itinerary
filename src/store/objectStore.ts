@@ -5,11 +5,11 @@ import { IContrAgent } from './contrAgentStore'
 
 class ObjectStore {
 	list: IObject[] | [] = []
-	objectInput: IObjectInputStore = {
+	objectData: IObjectDataStore = {
 		name: '',
 		contacts: '',
 		address: '',
-		comment: '',
+		// comment: '',
 		contrAgents: [],
 	}
 	currentObject: IObject | null = null
@@ -42,67 +42,54 @@ class ObjectStore {
 			return new Error(error as string)
 		}
 	}
-	// getObjects = async () => {
-	// 	try {
-	// 		const objects = (await graphqlRequest(Queries.getObjects)) as ObjectsResponse | Error
-	// 		// console.log(types)
-	// 		if (objects instanceof Error) {
-	// 			return objects
-	// 		}
-	// 		this.objects = objects.objects
-	// 		return objects.objects
-	// 	} catch (error) {
-	// 		return new Error(error as string)
-	// 	}
-	// }
-	setObjectInput = ({ name, contacts, address, comment, contrAgents }: IObjectInput) => {
-		console.log(comment)
-		name = name ?? this.objectInput.name ?? ''
-		contacts = contacts ?? this.objectInput.contacts ?? ''
-		address = address ?? this.objectInput.address ?? ''
-		comment = comment ?? this.objectInput.comment ?? ''
-		contrAgents = contrAgents ?? this.objectInput.contrAgents ?? false
+	setObjectData = ({ name, contacts, address, contrAgents }: IObjectData) => {
+		name = name ?? this.objectData.name ?? ''
+		contacts = contacts ?? this.objectData.contacts ?? ''
+		address = address ?? this.objectData.address ?? ''
+		contrAgents = contrAgents ?? this.objectData.contrAgents ?? []
 
-		this.objectInput.name = name
-		this.objectInput.contacts = contacts
-		this.objectInput.comment = comment
-		this.objectInput.comment = comment
-		this.objectInput.contrAgents = contrAgents
+		this.objectData.name = name
+		this.objectData.contacts = contacts
+		this.objectData.contrAgents = contrAgents
 	}
 	setCurrentObject(object: IObject | null) {
 		this.currentObject = object
 	}
-	clearObjectInput = () => {
-		this.objectInput = {
+	clearObjectData = () => {
+		this.objectData = {
 			name: '',
 			contacts: '',
 			address: '',
-			comment: '',
+			// comment: '',
 			contrAgents: [],
 		}
 	}
-	createObject = async () => {
+	createObject = async (objectData: IObjectData) => {
+		const { contrAgents, ...payload } = objectData
+		const input = { contrAgents: contrAgents?.map((agent) => Number(agent.id)) ?? [], ...payload }
 		try {
-			const response = (await graphqlRequest(Queries.createObject, this.objectInput)) as
+			const response = (await graphqlRequest(Queries.createObject, { input })) as
 				| ICreateObjectResponse
 				| Error
 			if (response instanceof Error) {
 				return response
 			}
-			return response.createUser
+			return response.createObject
 		} catch (error) {
 			return new Error(error as string)
 		}
 	}
-	updateObject = async (input: IObject) => {
+	updateObject = async (objectData: IObject) => {
+		const { contrAgents, ...payload } = objectData
+		const input = { contrAgents: contrAgents?.map((agent) => Number(agent.id)) ?? [], ...payload }
 		try {
-			const response = (await graphqlRequest(Queries.updateUser, { input })) as
+			const response = (await graphqlRequest(Queries.updateObject, { input })) as
 				| UpdateObjectResponse
 				| Error
 			if (response instanceof Error) {
 				return response
 			}
-			return response.updateUser
+			return response.updateObject
 		} catch (error) {
 			return new Error(error as string)
 		}
@@ -111,7 +98,7 @@ class ObjectStore {
 
 export default new ObjectStore()
 
-export interface IObject extends IObjectInput {
+export interface IObject extends IObjectData {
 	id: number
 }
 interface ObjectsResponse {
@@ -121,25 +108,20 @@ interface ObjectResponse {
 	object: IObject
 }
 interface UpdateObjectResponse {
-	updateUser: IObject
+	updateObject: IObject
 }
 interface ICreateObjectResponse {
-	createUser: IObject
+	createObject: IObject
 }
-// interface ObjectsResponse {
-// 	objects: Object[]
-// }
-interface IObjectInput {
+export interface IObjectData {
 	name?: string
 	contacts?: string
 	address?: string
-	comment?: string
 	contrAgents?: IContrAgent[]
 }
-interface IObjectInputStore {
+interface IObjectDataStore {
 	name: string
 	contacts: string
 	address: string
-	comment: string
 	contrAgents: IContrAgent[]
 }

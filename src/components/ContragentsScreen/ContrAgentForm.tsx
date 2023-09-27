@@ -16,39 +16,67 @@ import { AntDesign } from '@expo/vector-icons'
 import { IObject } from '../../store/objectStore'
 
 type Props = {
-	contrAgentData: IContrAgentData
-	setContrAgentData: (contrAgent: IContrAgentData) => void
-	objectVariants: IObject[]
-	loading?: boolean
-	error?: string
+	contrAgentId?: number
+	loading: boolean
+	error: string
 }
 
-export const ContrAgentForm = ({
-	contrAgentData,
-	setContrAgentData,
-	loading,
-	error,
-	objectVariants,
-}: Props) => {
-	const [name, setContrAgentName] = useState(contrAgentData.name)
-	const [contacts, setContrAgentContacts] = useState(contrAgentData.contacts)
-	const [address, setContrAgentAddress] = useState(contrAgentData.address)
-	const [comment, setContrAgentComment] = useState(contrAgentData.comment)
-	const [objects, setContrAgentObjects] = useState(contrAgentData.objects || [])
-	useEffect(() => {
+export const ContrAgentForm = observer(({ contrAgentId, loading, error }: Props) => {
+	const {
+		createContrAgent,
+		clearContrAgentData,
+		setContrAgentData,
+		contrAgentData,
+		getContrAgentById,
+		setCurrentContrAgent,
+		updateContrAgent,
+	} = store.contrAgents
+	const { getObjects } = store.objects
+	const [allObjects, setAllObjects] = useState([] as IObject[])
+	const { name, contacts, address, comments, objects } = contrAgentData
+	const inputChange = (input: Partial<IContrAgentData>) => {
 		setContrAgentData({
 			...contrAgentData,
-			name,
-			contacts,
-			address,
-			comment,
-			objects,
+			...input,
 		})
-	}, [name, contacts, address, comment, objects])
+	}
+	useEffect(() => {
+		const start = async () => {
+			const objectsFromApi = await getObjects()
+			if (objectsFromApi instanceof Error) {
+				return
+			}
+			setAllObjects(objectsFromApi)
+			if (contrAgentId) {
+				const initialData = await getContrAgentById(contrAgentId)
+				setContrAgentData(initialData)
+			}
+		}
+		start()
+	}, [])
+	// const [name, setContrAgentName] = useState(contrAgentData.name)
+	// const [contacts, setContrAgentContacts] = useState(contrAgentData.contacts)
+	// const [address, setContrAgentAddress] = useState(contrAgentData.address)
+	// const [comments, setContrAgentComment] = useState(contrAgentData.comments)
+	// const [objects, setContrAgentObjects] = useState(contrAgentData.objects || [])
+	// useEffect(() => {
+	// 	setContrAgentData({
+	// 		...contrAgentData,
+	// 		name,
+	// 		contacts,
+	// 		address,
+	// 		comments,
+	// 		objects,
+	// 	})
+	// }, [name, contacts, address, comments, objects])
+	console.log(contrAgentData)
 	return (
 		<Card>
 			<Card.Title>
-				{`${contrAgentData.name}` + (contrAgentData.comment ? `, ${contrAgentData.comment}` : '')}
+				{`${contrAgentData.name}` +
+					(contrAgentData.objects?.length
+						? ` //${contrAgentData.objects.map((obj) => obj.name).join(', ')}`
+						: '')}
 			</Card.Title>
 			<Card.Divider />
 			<View>
@@ -57,7 +85,7 @@ export const ContrAgentForm = ({
 					<ListItem.Input
 						placeholder={contrAgentData.name || 'Наименование'}
 						value={name}
-						onChangeText={setContrAgentName}
+						onChangeText={(e) => inputChange({ name: e })}
 						disabled={loading}
 						style={{ textAlign: 'left' }}
 					/>
@@ -67,7 +95,7 @@ export const ContrAgentForm = ({
 					<ListItem.Input
 						placeholder='Введите адрес - физический или юридический'
 						value={address}
-						onChangeText={setContrAgentAddress}
+						onChangeText={(e) => inputChange({ address: e })}
 						disabled={loading}
 						style={{ textAlign: 'left' }}
 					/>
@@ -77,7 +105,9 @@ export const ContrAgentForm = ({
 					<ListItem.Input
 						placeholder='телефон, email, ФИО, должность'
 						value={contacts}
-						onChangeText={setContrAgentContacts}
+						onChangeText={(e) => {
+							inputChange({ contacts: e })
+						}}
 						disabled={loading}
 						style={{ textAlign: 'left' }}
 					/>
@@ -90,18 +120,22 @@ export const ContrAgentForm = ({
 						selectedTextStyle={styles.selectedTextStyle}
 						inputSearchStyle={styles.inputSearchStyle}
 						iconStyle={styles.iconStyle}
-						data={objectVariants}
+						data={allObjects}
 						search
 						searchField='name'
 						maxHeight={300}
 						labelField={'name'}
 						valueField={'id'}
-						placeholder={'Выберите объекты'}
+						placeholder={objects.map((obj) => obj.name).join(', ') || 'Выберите объекты'}
 						searchPlaceholder='Найти...'
-						value={objects.map((obj) => obj.name || '')}
-						onChange={(value: IObject[]) => {
-							console.log(value)
-							setContrAgentObjects(value)
+						value={objects?.map((obj) => obj.name || '')}
+						onChange={(value: string[]) => {
+							const selectedObjects = allObjects.filter((ca) => value.includes(String(ca.id)))
+							if (selectedObjects.length > 0) {
+								inputChange({ objects: selectedObjects })
+							} else {
+								inputChange({ objects: [] })
+							}
 						}}
 						renderLeftIcon={() => {
 							return <AntDesign style={styles.icon} color='black' name='Safety' size={20} />
@@ -122,9 +156,11 @@ export const ContrAgentForm = ({
 				<ListItem>
 					<ListItem.Title>Комментарий:</ListItem.Title>
 					<ListItem.Input
-						placeholder={comment || 'Комментарий'}
-						value={comment}
-						onChangeText={setContrAgentComment}
+						placeholder={comments || 'Комментарий'}
+						value={comments}
+						onChangeText={(e) => {
+							inputChange({ comments: e })
+						}}
 						disabled={loading}
 						style={{ textAlign: 'left' }}
 					/>
@@ -138,7 +174,7 @@ export const ContrAgentForm = ({
 			)}
 		</Card>
 	)
-}
+})
 
 const styles = StyleSheet.create({
 	container: {

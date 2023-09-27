@@ -15,22 +15,21 @@ import { get } from 'http'
 import { Dropdown } from 'react-native-element-dropdown'
 import { AntDesign } from '@expo/vector-icons'
 import { ObjectForm } from './ObjectForm'
+import { IContrAgent } from '../../store/contrAgentStore'
 
 type Props = StackScreenProps<ObjectStackParamList, 'ObjectNew'>
 
 export const ObjectNew = observer(({ navigation }: Props) => {
 	const linkTo = useLinkTo()
-	const { createObject, clearObjectData, setObjectData, types, objectData } = store.objects
+	const { createObject, clearObjectData, objectData } = store.objects
 
 	const [loading, setLoading] = useState(false)
 	const [updateError, setCreateError] = useState('')
 
-	const cancelHandler = (e: any) => {
-		e.preventDefault()
+	const cancelHandler = () => {
 		navigation.goBack()
 	}
-	const createObjectSubmit = async (e: any) => {
-		e.preventDefault()
+	const createObjectSubmit = async () => {
 		setLoading(true)
 		const createdObject = await createObject(objectData)
 		if (createdObject instanceof Error) {
@@ -47,13 +46,7 @@ export const ObjectNew = observer(({ navigation }: Props) => {
 	if (loading) return <Text>Loading...</Text>
 	return (
 		<>
-			<ObjectForm
-				objectData={objectData}
-				setObjectData={setObjectData}
-				types={types}
-				error={updateError}
-				loading={loading}
-			/>
+			<ObjectForm error={updateError} loading={loading} />
 			<FAB
 				visible={!loading}
 				onPress={createObjectSubmit}

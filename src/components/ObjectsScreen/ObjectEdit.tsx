@@ -15,6 +15,7 @@ import { get } from 'http'
 import { Dropdown } from 'react-native-element-dropdown'
 import { AntDesign } from '@expo/vector-icons'
 import { ObjectForm } from './ObjectForm'
+import { IContrAgent } from '../../store/contrAgentStore'
 
 type Props = StackScreenProps<ObjectStackParamList, 'ObjectEdit'>
 
@@ -24,7 +25,6 @@ export const ObjectEdit = observer(({ navigation }: Props) => {
 		createObject,
 		clearObjectData,
 		setObjectData,
-		types,
 		objectData,
 		getObjectById,
 		setCurrentObject,
@@ -36,6 +36,24 @@ export const ObjectEdit = observer(({ navigation }: Props) => {
 	console.log(navigation.getState().routes)
 	const [loading, setLoading] = useState(false)
 	const [updateError, setCreateError] = useState('')
+	const [allContAgents, setAllContAgents] = useState([] as IContrAgent[])
+	const { getContrAgents } = store.contrAgents
+
+	useEffect(() => {
+		const start = async () => {
+			const objFromApi = await getObjectById(objectId)
+			if (objFromApi instanceof Error) {
+				return linkTo(`/workplaces/objects/${objectId}`)
+			}
+			const contrAgentsFromApi = await getContrAgents()
+			if (contrAgentsFromApi instanceof Error) {
+				return
+			}
+			setAllContAgents(contrAgentsFromApi)
+			setObjectData(objFromApi)
+		}
+		start()
+	}, [])
 
 	const cancelHandler = (e: any) => {
 		e.preventDefault()
@@ -59,13 +77,7 @@ export const ObjectEdit = observer(({ navigation }: Props) => {
 	if (loading) return <Text>Loading...</Text>
 	return (
 		<>
-			<ObjectForm
-				objectData={objectData}
-				setObjectData={setObjectData}
-				types={types}
-				error={updateError}
-				loading={loading}
-			/>
+			<ObjectForm objectId={objectId} error={updateError} loading={loading} />
 			<FAB
 				visible={!loading}
 				onPress={createObjectSubmit}

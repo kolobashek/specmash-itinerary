@@ -120,8 +120,8 @@ export const ContrAgentsList = observer(({ navigation }: Props) => {
 							<Link
 								to={
 									device === 'DESKTOP'
-										? `/drivers/${contrAgent.id}`
-										: { screen: 'DriverDetails', params: { id: contrAgent.id } }
+										? `/workplaces/contragents/${contrAgent.id}`
+										: { screen: 'ContrAgentDetails', params: { id: contrAgent.id } }
 								}
 								key={contrAgent.id}
 								style={[styles.link]}
@@ -171,21 +171,21 @@ export const ContrAgentsList = observer(({ navigation }: Props) => {
 										disabled={loading}
 									/>
 								</View>
-								<View style={styles.inputsCell}>
+								{/* <View style={styles.inputsCell}>
 									<Input
 										placeholder='Комментарий'
 										value={contrAgentData.comment}
 										onChangeText={(e) => setContrAgentData({ comment: e })}
 										disabled={loading}
 									/>
-								</View>
-								<View style={styles.inputsCell}>
-									{/* <Button
+								</View> */}
+								{/* <View style={styles.inputsCell}> */}
+								{/* <Button
 										title={contrAgentInput.role || 'Роль'}
 										onPress={() => setIsVisibleBS(true)}
 										disabled={loading}
 									/> */}
-									{/* <Button
+								{/* <Button
 										color={isActive ? 'gray' : 'warning'}
 										icon={
 											isActive
@@ -195,7 +195,7 @@ export const ContrAgentsList = observer(({ navigation }: Props) => {
 										onPress={isActiveHandler}
 										disabled={loading}
 									/> */}
-									{/* <BottomSheet modalProps={{}} isVisible={isVisibleBS}>
+								{/* <BottomSheet modalProps={{}} isVisible={isVisibleBS}>
 										{rolesList.map((l, i) => (
 											<ListItem key={i} containerStyle={l.containerStyle} onPress={l.onPress}>
 												<ListItem.Content>
@@ -204,7 +204,7 @@ export const ContrAgentsList = observer(({ navigation }: Props) => {
 											</ListItem>
 										))}
 									</BottomSheet> */}
-								</View>
+								{/* </View> */}
 							</View>
 							<View style={styles.inputsSubmitRow}>
 								<Button

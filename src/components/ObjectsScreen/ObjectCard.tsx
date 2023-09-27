@@ -12,30 +12,38 @@ import { ObjectStackParamList } from '../../../App'
 import { get } from 'http'
 import { Dropdown } from 'react-native-element-dropdown'
 import { AntDesign } from '@expo/vector-icons'
+import { useLinkTo } from '@react-navigation/native'
+import * as Device from 'expo-device'
 
 type Props = StackScreenProps<ObjectStackParamList, 'ObjectDetails'>
 
 export const ObjectCard = observer(({ navigation }: Props) => {
+	const linkTo = useLinkTo()
+	const device = Device.DeviceType[Device.deviceType || 0]
 	const {
 		currentObject,
 		setCurrentObject,
 		getObjectById,
 		getObjects,
 		updateObject,
-		clearObjectInput,
-		setObjectInput,
-		objectInput,
+		clearObjectData,
+		setObjectData,
+		objectData,
 	} = store.objects
 	const objectId = Number(
 		navigation.getState().routes.find((r) => r.name === 'ObjectDetails')?.params?.id
 	)
+	const link =
+		device === 'DESKTOP'
+			? `/workplaces/objects/${objectId}`
+			: { screen: 'ObjectDetails', params: { id: objectId } }
 	useEffect(() => {
 		const user = async () => {
 			const input = await getObjectById(objectId)
 			if (input instanceof Error) {
 				return new Error('Unable to fetch user')
 			}
-			setObjectInput(input)
+			setObjectData(input)
 		}
 		user()
 	}, [])
@@ -47,11 +55,11 @@ export const ObjectCard = observer(({ navigation }: Props) => {
 	const [updateError, setUpdateError] = useState('')
 
 	const editObjectHandler = () => {
-		setVisibleEditButton(!visibleEditButton)
+		linkTo(`/workplaces/objects/${objectId}/edit`)
 	}
 	const editObjectSubmit = async (id: number) => {
 		setLoading(true)
-		const newObject = await updateObject({ id, ...objectInput })
+		const newObject = await updateObject({ id, ...objectData })
 		if (newObject instanceof Error) {
 			console.log(newObject)
 			setUpdateError(newObject.message)
@@ -62,7 +70,7 @@ export const ObjectCard = observer(({ navigation }: Props) => {
 		setCurrentObject(newObject)
 		setVisibleEditButton(true)
 		setLoading(false)
-		clearObjectInput()
+		clearObjectData()
 		return newObject
 	}
 	// const isActiveHandler = () => {
@@ -81,8 +89,8 @@ export const ObjectCard = observer(({ navigation }: Props) => {
 							<ListItem.Title>Контакты:</ListItem.Title>
 							<ListItem.Input
 								placeholder='Контакты'
-								value={objectInput.contacts}
-								onChangeText={(text) => setObjectInput({ contacts: text })}
+								value={objectData.contacts}
+								onChangeText={(text) => setObjectData({ contacts: text })}
 								disabled={loading}
 								style={{ textAlign: 'left' }}
 							/>
@@ -124,13 +132,13 @@ export const ObjectCard = observer(({ navigation }: Props) => {
 							<ListItem.Title>Адрес:</ListItem.Title>
 							<ListItem.Input
 								placeholder='Адрес'
-								value={objectInput.address}
-								onChangeText={(text) => setObjectInput({ address: text })}
+								value={objectData.address}
+								onChangeText={(text) => setObjectData({ address: text })}
 								disabled={loading}
 								style={{ textAlign: 'left' }}
 							/>
 						</ListItem>
-						<ListItem>
+						{/* <ListItem>
 							<ListItem.Title>Комментарий:</ListItem.Title>
 							<ListItem.Input
 								placeholder='Комментарии'
@@ -139,7 +147,7 @@ export const ObjectCard = observer(({ navigation }: Props) => {
 								disabled={loading}
 								style={{ textAlign: 'left' }}
 							/>
-						</ListItem>
+						</ListItem> */}
 					</View>
 					{updateError && (
 						<>
@@ -178,12 +186,12 @@ export const ObjectCard = observer(({ navigation }: Props) => {
 						<ListItem.Title>Адрес: </ListItem.Title>
 						<ListItem.Subtitle>{currentObject.address}</ListItem.Subtitle>
 					</ListItem>
-					<ListItem>
+					{/* <ListItem>
 						<ListItem.Title>Комментарий:</ListItem.Title>
 						<ListItem.Subtitle>{`${
 							currentObject.comment ? currentObject.comment : ''
 						}`}</ListItem.Subtitle>
-					</ListItem>
+					</ListItem> */}
 				</View>
 			</Card>
 			<FAB

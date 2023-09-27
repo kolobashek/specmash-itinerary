@@ -14,28 +14,50 @@ export const contrAgents = {
 			}
 		}
 	`,
-
-	createContrAgent: /* GraphQL */ `
-		mutation createContrAgent(
-			$name: String!
-			$contacts: String
-			$address: String
-			$comment: String
-			$objects: [Int!]
-		) {
-			createEquipment(
-				name: $name
-				contacts: $contacts
-				address: $address
-				comment: $comment
-				objects: $objects
-			) {
+	getContrAgentById: /* GraphQL */ `
+		query contrAgent($id: ID!) {
+			contrAgent(id: $id) {
 				id
 				name
 				contacts
 				address
-				comment
-				objects
+				comments
+				objects {
+					id
+					name
+				}
+			}
+		}
+	`,
+
+	createContrAgent: /* GraphQL */ `
+		mutation createContrAgent($input: CreateContrAgentInput!) {
+			createContrAgent(input: $input) {
+				id
+				name
+				contacts
+				address
+				comments
+				objects {
+					id
+					name
+				}
+			}
+		}
+	`,
+
+	updateContrAgent: /* GraphQL */ `
+		mutation updateContrAgent($input: UpdateContrAgentInput!) {
+			updateContrAgent(input: $input) {
+				id
+				name
+				contacts
+				address
+				comments
+				objects {
+					id
+					name
+				}
 			}
 		}
 	`,

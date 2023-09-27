@@ -30,26 +30,31 @@ export const objects = {
 	`,
 
 	createObject: /* GraphQL */ `
-		mutation createObject(
-			$name: String!
-			$contacts: String
-			$address: String
-			$comment: String
-			$contrAgents: [Int!]
-		) {
-			createObject(
-				name: $name
-				contacts: $contacts
-				address: $address
-				comment: $comment
-				contrAgents: $contrAgents
-			) {
+		mutation createObject($input: CreateObjectInput!) {
+			createObject(input: $input) {
 				id
 				name
 				contacts
 				address
-				comment
-				contrAgents
+				contrAgents {
+					id
+					name
+				}
+			}
+		}
+	`,
+
+	updateObject: /* GraphQL */ `
+		mutation updateObject($input: UpdateObjectInput!) {
+			updateObject(input: $input) {
+				id
+				name
+				contacts
+				address
+				contrAgents {
+					id
+					name
+				}
 			}
 		}
 	`,

@@ -1,71 +1,45 @@
 import React, { useEffect, useState } from 'react'
 import { StyleSheet, View, ScrollView } from 'react-native'
-import { FAB, Input, BottomSheet, Button, ListItem, Text, Card } from '@rneui/themed'
-import DateTimePicker from '@react-native-community/datetimepicker'
+import { FAB, Text } from '@rneui/themed'
 import store from '../../store'
 import { observer } from 'mobx-react-lite'
-import { StickyHeader } from '../UIkit'
-import { localizedRoleName } from '../../utils'
-import { IContrAgent } from '../../store/contrAgentStore'
 import { useLinkTo } from '@react-navigation/native'
 import { StackScreenProps } from '@react-navigation/stack'
 import { ContrAgentsStackParamList } from '../../../App'
-import * as Device from 'expo-device'
-import { get } from 'http'
-import { Dropdown } from 'react-native-element-dropdown'
-import { AntDesign } from '@expo/vector-icons'
 import { ContrAgentForm } from './ContrAgentForm'
 
 type Props = StackScreenProps<ContrAgentsStackParamList, 'ContrAgentEdit'>
 
 export const ContrAgentEdit = observer(({ navigation }: Props) => {
-	const linkTo = useLinkTo()
-	const {
-		createContrAgent,
-		clearContrAgentData,
-		setContrAgentData,
-		types,
-		contrAgentData,
-		getContrAgentById,
-		setCurrentContrAgent,
-		updateContrAgent,
-	} = store.contrAgents
 	const contrAgentId = Number(
 		navigation.getState().routes.find((r) => r.name === 'ContrAgentEdit')?.params?.id
 	)
-	console.log(navigation.getState().routes)
+	const linkTo = useLinkTo()
+	const { setCurrentContrAgent, updateContrAgent, contrAgentData } = store.contrAgents
 	const [loading, setLoading] = useState(false)
-	const [updateError, setCreateError] = useState('')
+	const [updateError, setUpdateError] = useState('')
 
-	const cancelHandler = (e: any) => {
-		e.preventDefault()
-		linkTo(`/contrAgents/${contrAgentId}`)
-	}
-	const createContrAgentSubmit = async (e: any) => {
-		e.preventDefault()
+	const createContrAgentSubmit = async () => {
 		setLoading(true)
 		const updatedContrAgent = await updateContrAgent({ id: contrAgentId, ...contrAgentData })
 		if (updatedContrAgent instanceof Error) {
 			console.log(updatedContrAgent)
-			setCreateError(updatedContrAgent.message)
+			setUpdateError(updatedContrAgent.message)
 			setLoading(false)
 			return updatedContrAgent
 		}
-		setCreateError('')
+		setUpdateError('')
 		setCurrentContrAgent(updatedContrAgent)
 		setLoading(false)
 		return linkTo(`/contrAgents/${updatedContrAgent.id}`)
 	}
+	const cancelHandler = () => {
+		linkTo(`/workplaces/contragents/${contrAgentId}`)
+	}
 	if (loading) return <Text>Loading...</Text>
 	return (
 		<>
-			<ContrAgentForm
-				contrAgentData={contrAgentData}
-				setContrAgentData={setContrAgentData}
-				types={types}
-				error={updateError}
-				loading={loading}
-			/>
+			<ContrAgentForm contrAgentId={contrAgentId} error={updateError} loading={loading} />
 			<FAB
 				visible={!loading}
 				onPress={createContrAgentSubmit}

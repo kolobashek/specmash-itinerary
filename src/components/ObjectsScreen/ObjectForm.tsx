@@ -6,43 +6,60 @@ import store from '../../store'
 import { observer } from 'mobx-react-lite'
 import { StickyHeader } from '../UIkit'
 import { localizedRoleName } from '../../utils'
-import { IObjectData, ObjectType } from '../../store/objectStore'
+import { IObjectData } from '../../store/objectStore'
 import { useLinkTo } from '@react-navigation/native'
 import { StackScreenProps } from '@react-navigation/stack'
 import { ObjectStackParamList } from '../../../App'
 import * as Device from 'expo-device'
-import { get } from 'http'
-import { Dropdown } from 'react-native-element-dropdown'
+import { MultiSelect } from 'react-native-element-dropdown'
 import { AntDesign } from '@expo/vector-icons'
+import { IObject } from '../../store/objectStore'
+import { IContrAgent } from '../../store/contrAgentStore'
 
 type Props = {
-	objectData: IObjectData
-	setObjectData: (object: IObjectData) => void
-	types: ObjectType[]
+	objectId?: number
+	// setObjectData: (object: IObjectData) => void
+	// contrAgentVariants: IContrAgent[]
 	loading?: boolean
 	error?: string
 }
 
-export const ObjectForm = ({ objectData, setObjectData, types, loading, error }: Props) => {
-	const [name, setObjectName] = useState(objectData.name)
-	const [type, setObjectType] = useState(objectData.type)
-	const [weight, setObjectWeight] = useState(objectData.weight)
-	const [nickname, setObjectNickname] = useState(objectData.nickname)
-	const [licensePlate, setObjectLicensePlate] = useState(objectData.licensePlate)
-	useEffect(() => {
+export const ObjectForm = observer(({ objectId, loading, error }: Props) => {
+	const { setObjectData, objectData, getObjectById } = store.objects
+	const { getContrAgents } = store.contrAgents
+	// const [name, setObjectName] = useState(objectData.name)
+	// const [contacts, setObjectContacts] = useState(objectData.contacts)
+	// const [address, setObjectAddress] = useState(objectData.address)
+	// // const [comment, setObjectComment] = useState(objectData.comment)
+	// const [contrAgents, setObjectContragents] = useState(objectData.contrAgents || [])
+	const { name, contacts, address, contrAgents } = objectData
+	const [allContrAgents, setAllContrAgents] = useState([] as IContrAgent[])
+	const inputChange = (input: Partial<IObjectData>) => {
 		setObjectData({
 			...objectData,
-			name,
-			type,
-			weight,
-			nickname,
-			licensePlate,
+			...input,
 		})
-	}, [name, type, weight, nickname, licensePlate])
+	}
+	useEffect(() => {
+		const start = async () => {
+			const cAFromApi = await getContrAgents()
+			if (cAFromApi instanceof Error) {
+				return
+			}
+			setAllContrAgents(cAFromApi)
+			if (objectId) {
+				const initialData = await getObjectById(objectId)
+				setObjectData(initialData)
+			}
+		}
+	}, [])
 	return (
 		<Card>
 			<Card.Title>
-				{`${objectData.name}` + (objectData.nickname ? `, ${objectData.nickname}` : '')}
+				{`${objectData.name}` +
+					(objectData.contrAgents?.length
+						? ` //${objectData.contrAgents.map((ca) => ca.name).join(', ')}`
+						: '')}
 			</Card.Title>
 			<Card.Divider />
 			<View>
@@ -51,58 +68,68 @@ export const ObjectForm = ({ objectData, setObjectData, types, loading, error }:
 					<ListItem.Input
 						placeholder={objectData.name || 'Наименование'}
 						value={name}
-						onChangeText={setObjectName}
+						onChangeText={(e) => inputChange({ name: e })}
 						disabled={loading}
 						style={{ textAlign: 'left' }}
 					/>
 				</ListItem>
 				<ListItem>
-					<ListItem.Title>Позывной:</ListItem.Title>
+					<ListItem.Title>Адрес:</ListItem.Title>
 					<ListItem.Input
-						placeholder={nickname || 'Позывной'}
-						value={nickname}
-						onChangeText={setObjectNickname}
+						placeholder='Введите адрес'
+						value={address}
+						onChangeText={(e) => {
+							inputChange({ address: e })
+						}}
 						disabled={loading}
 						style={{ textAlign: 'left' }}
 					/>
 				</ListItem>
 				<ListItem>
-					<ListItem.Title>Вес, кг:</ListItem.Title>
+					<ListItem.Title>Контакты:</ListItem.Title>
 					<ListItem.Input
-						placeholder='12000'
-						value={weight}
-						onChangeText={setObjectWeight}
+						placeholder='телефон, email, ФИО, должность'
+						value={contacts}
+						onChangeText={(e) => {
+							inputChange({ contacts: e })
+						}}
 						disabled={loading}
 						style={{ textAlign: 'left' }}
 					/>
 				</ListItem>
 				<ListItem>
-					<ListItem.Title>Тип: </ListItem.Title>
-					<Dropdown
+					<ListItem.Title>Контрагенты:</ListItem.Title>
+					<MultiSelect
 						style={styles.dropdown}
 						placeholderStyle={styles.placeholderStyle}
 						selectedTextStyle={styles.selectedTextStyle}
 						inputSearchStyle={styles.inputSearchStyle}
 						iconStyle={styles.iconStyle}
-						data={types.map((type) => {
-							return { label: type.name, value: type.id }
-						})}
+						data={allContrAgents}
 						search
+						searchField='name'
 						maxHeight={300}
-						labelField='label'
-						valueField='value'
-						placeholder={type || 'Выберите тип'}
-						searchPlaceholder='Search...'
-						value={objectData.type}
-						onChange={(type) => setObjectType(type.label)}
+						labelField={'name'}
+						valueField={'id'}
+						placeholder={contrAgents.map((obj) => obj.name).join(', ') || 'Выберите контрагентов'}
+						searchPlaceholder='Найти...'
+						value={contrAgents.map((obj) => obj.name)}
+						onChange={(value: string[]) => {
+							const selectedCAs = allContrAgents.filter((ca) => value.includes(String(ca.id)))
+							if (selectedCAs.length > 0) {
+								inputChange({ contrAgents: selectedCAs })
+							} else {
+								inputChange({ contrAgents: [] })
+							}
+						}}
 						renderLeftIcon={() => {
 							return <AntDesign style={styles.icon} color='black' name='Safety' size={20} />
 						}}
 						renderItem={(item) => {
 							return (
 								<View style={styles.item}>
-									<Text style={styles.textItem}>{item.label}</Text>
-									{item.label === objectData.type && (
+									<Text style={styles.textItem}>{item.name}</Text>
+									{item.id === objectData.contrAgents?.find((obj) => obj.id === item.id)?.id && (
 										<AntDesign style={styles.icon} color='black' name='Safety' size={20} />
 									)}
 								</View>
@@ -111,16 +138,16 @@ export const ObjectForm = ({ objectData, setObjectData, types, loading, error }:
 						disable={loading}
 					/>
 				</ListItem>
-				<ListItem>
-					<ListItem.Title>Гос. номер:</ListItem.Title>
+				{/* <ListItem>
+					<ListItem.Title>Комментарий:</ListItem.Title>
 					<ListItem.Input
-						placeholder='А 000 АА 000'
-						value={licensePlate}
-						onChangeText={setObjectLicensePlate}
+						placeholder={comment || 'Комментарий'}
+						value={comment}
+						onChangeText={setObjectComment}
 						disabled={loading}
 						style={{ textAlign: 'left' }}
 					/>
-				</ListItem>
+				</ListItem> */}
 			</View>
 			{error && (
 				<>
@@ -130,7 +157,7 @@ export const ObjectForm = ({ objectData, setObjectData, types, loading, error }:
 			)}
 		</Card>
 	)
-}
+})
 
 const styles = StyleSheet.create({
 	container: {

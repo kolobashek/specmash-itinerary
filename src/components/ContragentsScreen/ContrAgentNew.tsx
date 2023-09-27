@@ -1,19 +1,11 @@
 import React, { useEffect, useState } from 'react'
-import { StyleSheet, View, ScrollView } from 'react-native'
-import { FAB, Input, BottomSheet, Button, ListItem, Text, Card } from '@rneui/themed'
-import DateTimePicker from '@react-native-community/datetimepicker'
+import { StyleSheet } from 'react-native'
+import { FAB, Text } from '@rneui/themed'
 import store from '../../store'
 import { observer } from 'mobx-react-lite'
-import { StickyHeader } from '../UIkit'
-import { localizedRoleName } from '../../utils'
-import { IContrAgent } from '../../store/contrAgentStore'
 import { useLinkTo } from '@react-navigation/native'
 import { StackScreenProps } from '@react-navigation/stack'
 import { ContrAgentsStackParamList } from '../../../App'
-import * as Device from 'expo-device'
-import { get } from 'http'
-import { Dropdown } from 'react-native-element-dropdown'
-import { AntDesign } from '@expo/vector-icons'
 import { ContrAgentForm } from './ContrAgentForm'
 import { IObject } from '../../store/objectStore'
 
@@ -21,29 +13,14 @@ type Props = StackScreenProps<ContrAgentsStackParamList, 'ContrAgentNew'>
 
 export const ContrAgentNew = observer(({ navigation }: Props) => {
 	const linkTo = useLinkTo()
-	const { createContrAgent, clearContrAgentData, setContrAgentData, contrAgentData } =
-		store.contrAgents
-	const [allObjects, setAllObjects] = useState([] as IObject[])
-	const { getObjects } = store.objects
-	useEffect(() => {
-		const start = async () => {
-			const objectsFromApi = await getObjects()
-			if (objectsFromApi instanceof Error) {
-				return
-			}
-			setAllObjects(objectsFromApi)
-		}
-		start()
-	}, [])
+	const { createContrAgent, clearContrAgentData, contrAgentData } = store.contrAgents
 	const [loading, setLoading] = useState(false)
 	const [updateError, setCreateError] = useState('')
 
 	const cancelHandler = (e: any) => {
-		e.preventDefault()
 		navigation.goBack()
 	}
 	const createContrAgentSubmit = async (e: any) => {
-		e.preventDefault()
 		setLoading(true)
 		const createdContrAgent = await createContrAgent(contrAgentData)
 		if (createdContrAgent instanceof Error) {
@@ -55,18 +32,12 @@ export const ContrAgentNew = observer(({ navigation }: Props) => {
 		clearContrAgentData()
 		setCreateError('')
 		setLoading(false)
-		return linkTo(`/contrAgents/${createdContrAgent.id}`)
+		return linkTo(`/workplaces/contragents/${createdContrAgent.id}`)
 	}
 	if (loading) return <Text>Loading...</Text>
 	return (
 		<>
-			<ContrAgentForm
-				contrAgentData={contrAgentData}
-				setContrAgentData={setContrAgentData}
-				error={updateError}
-				loading={loading}
-				objectVariants={allObjects}
-			/>
+			<ContrAgentForm error={updateError} loading={loading} />
 			<FAB
 				visible={!loading}
 				onPress={createContrAgentSubmit}

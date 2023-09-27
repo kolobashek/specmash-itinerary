@@ -9,14 +9,13 @@ class ContrAgentStore {
 		name: '',
 		contacts: '',
 		address: '',
-		comment: '',
+		comments: '',
 		objects: [],
 	}
 	currentContrAgent: IContrAgent | null = null
 
 	constructor() {
 		makeAutoObservable(this)
-		// this.getObjects()
 	}
 	getContrAgents = async () => {
 		try {
@@ -34,7 +33,7 @@ class ContrAgentStore {
 	}
 	getContrAgentById = async (id: number) => {
 		try {
-			const contrAgent = (await graphqlRequest(Queries.getUserById, { id })) as
+			const contrAgent = (await graphqlRequest(Queries.getContrAgentById, { id })) as
 				| ContrAgentResponse
 				| Error
 			if (contrAgent instanceof Error) {
@@ -46,31 +45,24 @@ class ContrAgentStore {
 			return new Error(error as string)
 		}
 	}
-	// getObjects = async () => {
-	// 	try {
-	// 		const objects = (await graphqlRequest(Queries.getObjects)) as ObjectsResponse | Error
-	// 		// console.log(types)
-	// 		if (objects instanceof Error) {
-	// 			return objects
-	// 		}
-	// 		this.objects = objects.objects
-	// 		return objects.objects
-	// 	} catch (error) {
-	// 		return new Error(error as string)
-	// 	}
-	// }
-	setContrAgentData = ({ name, contacts, address, comment, objects }: IContrAgentData) => {
-		console.log(comment)
+	setContrAgentData = ({
+		name = this.contrAgentData.name,
+		contacts,
+		address,
+		comments,
+		objects,
+	}: IContrAgentData) => {
+		console.log(comments)
 		name = name ?? this.contrAgentData.name ?? ''
 		contacts = contacts ?? this.contrAgentData.contacts ?? ''
 		address = address ?? this.contrAgentData.address ?? ''
-		comment = comment ?? this.contrAgentData.comment ?? ''
+		comments = comments ?? this.contrAgentData.comments ?? ''
 		objects = objects ?? this.contrAgentData.objects ?? false
 
 		this.contrAgentData.name = name
 		this.contrAgentData.contacts = contacts
-		this.contrAgentData.comment = comment
-		this.contrAgentData.comment = comment
+		this.contrAgentData.comments = comments
+		this.contrAgentData.comments = comments
 		this.contrAgentData.objects = objects
 	}
 	setCurrentContrAgent(contrAgent: IContrAgent | null) {
@@ -81,7 +73,7 @@ class ContrAgentStore {
 			name: '',
 			contacts: '',
 			address: '',
-			comment: '',
+			comments: '',
 			objects: [],
 		}
 	}
@@ -115,8 +107,13 @@ class ContrAgentStore {
 
 export default new ContrAgentStore()
 
-export interface IContrAgent extends IContrAgentData {
+export interface IContrAgent {
 	id: number
+	name: string
+	contacts?: string
+	address?: string
+	comments?: string
+	objects?: IObject[]
 }
 interface ContrAgentsResponse {
 	contrAgents: IContrAgent[]
@@ -137,13 +134,13 @@ export interface IContrAgentData {
 	name?: string
 	contacts?: string
 	address?: string
-	comment?: string
+	comments?: string
 	objects?: IObject[]
 }
 interface IContrAgentDataStore {
 	name: string
 	contacts: string
 	address: string
-	comment: string
+	comments: string
 	objects: IObject[]
 }

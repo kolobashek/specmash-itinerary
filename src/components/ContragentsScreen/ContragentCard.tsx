@@ -6,40 +6,40 @@ import store from '../../store'
 import { observer } from 'mobx-react-lite'
 import { StickyHeader } from '../UIkit'
 import { localizedRoleName } from '../../utils'
-import { IDriver } from '../../store/usersStore'
+import { IContrAgent } from '../../store/contrAgentStore'
 import { StackScreenProps } from '@react-navigation/stack'
 import { ContrAgentsStackParamList } from '../../../App'
 import { get } from 'http'
 import { Dropdown } from 'react-native-element-dropdown'
 import { AntDesign } from '@expo/vector-icons'
+import { useLinkTo } from '@react-navigation/native'
 
 type Props = StackScreenProps<ContrAgentsStackParamList, 'ContrAgentDetails'>
 
 export const ContrAgentCard = observer(({ navigation }: Props) => {
+	const linkTo = useLinkTo()
 	const {
-		currentDriver,
-		setCurrentDriver,
-		getUserById,
-		getDrivers,
-		updateDriver,
-		clearDriverInput,
-		setDriverInput,
-		roles,
-		driverInput,
-		roleName,
-	} = store.drivers
-	const driverId = Number(
+		currentContrAgent,
+		setCurrentContrAgent,
+		getContrAgentById,
+		getContrAgents,
+		updateContrAgent,
+		clearContrAgentData,
+		setContrAgentData,
+		contrAgentData,
+	} = store.contrAgents
+	const contrAgentId = Number(
 		navigation.getState().routes.find((r) => r.name === 'ContrAgentDetails')?.params?.id
 	)
 	useEffect(() => {
-		const user = async () => {
-			const input = await getUserById(driverId)
+		const contrAgent = async () => {
+			const input = await getContrAgentById(contrAgentId)
 			if (input instanceof Error) {
 				return new Error('Unable to fetch user')
 			}
-			setDriverInput(input)
+			setContrAgentData(input)
 		}
-		user()
+		contrAgent()
 	}, [])
 
 	const [visibleEditButton, setVisibleEditButton] = useState(true)
@@ -48,74 +48,53 @@ export const ContrAgentCard = observer(({ navigation }: Props) => {
 	const [isActive, setIsActive] = useState(false)
 	const [updateError, setUpdateError] = useState('')
 
-	const editDriverHandler = () => {
-		setVisibleEditButton(!visibleEditButton)
+	const editContrAgentHandler = () => {
+		linkTo(`/workplaces/contragents/${contrAgentId}/edit`)
 	}
-	const editDriverSubmit = async (id: number) => {
+	const editContrAgentSubmit = async (id: number) => {
 		setLoading(true)
-		const newDriver = await updateDriver({ id, ...driverInput })
-		if (newDriver instanceof Error) {
-			console.log(newDriver)
-			setUpdateError(newDriver.message)
+		const newContrAgent = await updateContrAgent({ id, ...contrAgentData })
+		if (newContrAgent instanceof Error) {
+			console.log(newContrAgent)
+			setUpdateError(newContrAgent.message)
 			setLoading(false)
 			return null
 		}
 		setUpdateError('')
-		setCurrentDriver(newDriver)
+		setCurrentContrAgent(newContrAgent)
 		setVisibleEditButton(true)
 		setLoading(false)
-		clearDriverInput()
-		return newDriver
+		clearContrAgentData()
+		return newContrAgent
 	}
-	const isActiveHandler = () => {
-		setIsActive(!isActive)
-		setDriverInput({ isActive: !isActive })
-	}
-	const rolesList = [
-		...roles.map((role, key) => {
-			return {
-				key,
-				title: localizedRoleName(role),
-				containerStyle: { backgroundColor: 'white' },
-				titleStyle: { color: 'black' },
-				onPress: async () => {
-					setDriverInput({ role })
-					setIsVisibleBS(false)
-				},
-			}
-		}),
-		{
-			title: 'Отмена',
-			containerStyle: { backgroundColor: 'red' },
-			titleStyle: { color: 'white' },
-			onPress: () => {
-				setIsVisibleBS(false)
-				setVisibleEditButton(true)
-			},
-		},
-	]
-	if (!currentDriver) return <Text>Что-то пошло не так.</Text>
+	// const isActiveHandler = () => {
+	// 	setIsActive(!isActive)
+	// 	setContrAgentData({ isActive: !isActive })
+	// }
+	if (!currentContrAgent) return <Text>Что-то пошло не так.</Text>
 	if (!visibleEditButton)
 		return (
 			<>
 				<Card>
 					<Card.Title>
-						{`${currentDriver.name}` +
-							(currentDriver.nickname ? `, ${currentDriver.nickname}` : '')}
+						{`${contrAgentData.name}` +
+							(contrAgentData.objects
+								? `, //${contrAgentData.objects.map((obj) => obj.name).join(', ')}`
+								: '')}
 					</Card.Title>
 					<Card.Divider />
 					<View>
-						<ListItem>
+						{/* <ListItem>
 							<ListItem.Title>Телефон:</ListItem.Title>
 							<ListItem.Input
 								placeholder='00000000000'
-								value={driverInput.phone}
-								onChangeText={(text) => setDriverInput({ phone: text })}
+								value={contrAgentData.phone}
+								onChangeText={(text) => setContrAgentData({ phone: text })}
 								disabled={loading}
 								style={{ textAlign: 'left' }}
 							/>
-						</ListItem>
-						<ListItem>
+						</ListItem> */}
+						{/* <ListItem>
 							<ListItem.Title>Роль: </ListItem.Title>
 							<Dropdown
 								style={styles.dropdown}
@@ -132,8 +111,8 @@ export const ContrAgentCard = observer(({ navigation }: Props) => {
 								valueField='value'
 								placeholder='Select item'
 								searchPlaceholder='Search...'
-								value={driverInput.role}
-								onChange={(role) => setDriverInput({ role: role.value })}
+								value={contrAgentInput.role}
+								onChange={(role) => setContrAgentInput({ role: role.value })}
 								renderLeftIcon={() => {
 									return <AntDesign style={styles.icon} color='black' name='Safety' size={20} />
 								}}
@@ -141,7 +120,7 @@ export const ContrAgentCard = observer(({ navigation }: Props) => {
 									return (
 										<View style={styles.item}>
 											<Text style={styles.textItem}>{item.label}</Text>
-											{item.value === driverInput.role && (
+											{item.value === contrAgentInput.role && (
 												<AntDesign style={styles.icon} color='black' name='Safety' size={20} />
 											)}
 										</View>
@@ -149,13 +128,13 @@ export const ContrAgentCard = observer(({ navigation }: Props) => {
 								}}
 								disable={loading}
 							/>
-						</ListItem>
+						</ListItem> */}
 						<ListItem>
-							<ListItem.Title>Комментарий:</ListItem.Title>
+							<ListItem.Title>Адрес:</ListItem.Title>
 							<ListItem.Input
-								placeholder='Комментарии'
-								value={driverInput.comment}
-								onChangeText={(text) => setDriverInput({ comment: text })}
+								placeholder='Адрес'
+								value={contrAgentData.address}
+								onChangeText={(text) => setContrAgentData({ address: text })}
 								disabled={loading}
 								style={{ textAlign: 'left' }}
 							/>
@@ -170,14 +149,14 @@ export const ContrAgentCard = observer(({ navigation }: Props) => {
 				</Card>
 				<FAB
 					visible={!visibleEditButton || !loading}
-					onPress={() => editDriverSubmit(driverId)}
+					onPress={() => editContrAgentSubmit(contrAgentId)}
 					placement='left'
 					icon={{ name: 'check', color: 'white' }}
 					color='green'
 				/>
 				<FAB
 					visible={!visibleEditButton || !loading}
-					onPress={editDriverHandler}
+					onPress={editContrAgentHandler}
 					placement='right'
 					icon={{ name: 'cancel', color: 'white' }}
 					color='red'
@@ -187,30 +166,28 @@ export const ContrAgentCard = observer(({ navigation }: Props) => {
 	return (
 		<>
 			<Card>
-				<Card.Title>
-					{`${currentDriver.name}` + (currentDriver.nickname ? `, ${currentDriver.nickname}` : '')}
-				</Card.Title>
+				<Card.Title>{`${currentContrAgent.name}`}</Card.Title>
 				<Card.Divider />
 				<View>
-					<ListItem>
+					{/* <ListItem>
 						<ListItem.Title>Телефон:</ListItem.Title>
-						<ListItem.Subtitle>{`${currentDriver.phone}`}</ListItem.Subtitle>
-					</ListItem>
-					<ListItem>
+						<ListItem.Subtitle>{`${currentContrAgent.phone}`}</ListItem.Subtitle>
+					</ListItem> */}
+					{/* <ListItem>
 						<ListItem.Title>Роль: </ListItem.Title>
-						<ListItem.Subtitle>{`${roleName(currentDriver.role)}`}</ListItem.Subtitle>
-					</ListItem>
+						<ListItem.Subtitle>{`${roleName(currentContrAgent.role)}`}</ListItem.Subtitle>
+					</ListItem> */}
 					<ListItem>
-						<ListItem.Title>Комментарий:</ListItem.Title>
+						<ListItem.Title>Адрес:</ListItem.Title>
 						<ListItem.Subtitle>{`${
-							currentDriver.comment ? currentDriver.comment : ''
+							currentContrAgent.address ? currentContrAgent.address : ''
 						}`}</ListItem.Subtitle>
 					</ListItem>
 				</View>
 			</Card>
 			<FAB
 				visible={visibleEditButton}
-				onPress={editDriverHandler}
+				onPress={editContrAgentHandler}
 				placement='right'
 				icon={{ name: 'edit', color: 'white' }}
 				color='green'

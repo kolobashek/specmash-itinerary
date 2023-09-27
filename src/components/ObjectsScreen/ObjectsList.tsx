@@ -8,14 +8,15 @@ import { StickyHeader } from '../UIkit'
 // import { DrawerScreenProps } from '@react-navigation/drawer'
 import { ObjectStackParamList } from '../../../App'
 import { StackScreenProps } from '@react-navigation/stack'
-import { Link } from '@react-navigation/native'
+import { Link, useLinkTo } from '@react-navigation/native'
 import * as Device from 'expo-device'
 import { ObjectCard } from './ObjectCard'
 
 type Props = StackScreenProps<ObjectStackParamList, 'ObjectsList'>
 
 export const ObjectsList = observer(({ navigation }: Props) => {
-	const { list, objectInput, setObjectInput, createObject, clearObjectInput, getObjects } =
+	const linkTo = useLinkTo()
+	const { list, objectData, setObjectData, createObject, clearObjectData, getObjects } =
 		store.objects
 	useEffect(() => {
 		getObjects()
@@ -30,14 +31,14 @@ export const ObjectsList = observer(({ navigation }: Props) => {
 	}
 	const addObjectSubmit = async () => {
 		setLoading(true)
-		const newDriver = await createObject()
-		if (newDriver instanceof Error) {
-			console.log(newDriver)
+		const newObject = await createObject(objectData)
+		if (newObject instanceof Error) {
+			console.log(newObject)
 			setLoading(false)
 		}
 		setVisibleAddButton(true)
 		setLoading(false)
-		clearObjectInput()
+		clearObjectData()
 		getObjects()
 	}
 	const cancelHandler = () => {
@@ -45,7 +46,7 @@ export const ObjectsList = observer(({ navigation }: Props) => {
 	}
 	const isActiveHandler = () => {
 		setIsActive(!isActive)
-		// setObjectInput({ isActive: !isActive })
+		// setObjectData({ isActive: !isActive })
 	}
 	const device = Device.DeviceType[Device.deviceType || 0]
 	return (
@@ -84,18 +85,18 @@ export const ObjectsList = observer(({ navigation }: Props) => {
 								<View style={styles.inputsCell}>
 									<Input
 										placeholder='Наименование'
-										value={objectInput.name}
-										onChangeText={(e) => setObjectInput({ name: e })}
+										value={objectData.name}
+										onChangeText={(e) => setObjectData({ name: e })}
 										disabled={loading}
 									/>
 								</View>
 								<View style={styles.inputsCell}>
 									<Input
 										placeholder='Контакты'
-										value={objectInput.contacts}
+										value={objectData.contacts}
 										onChangeText={(e) => {
 											console.log(e)
-											setObjectInput({ contacts: e })
+											setObjectData({ contacts: e })
 										}}
 										disabled={loading}
 									/>
@@ -103,19 +104,19 @@ export const ObjectsList = observer(({ navigation }: Props) => {
 								<View style={styles.inputsCell}>
 									<Input
 										placeholder='Адрес'
-										value={objectInput.address}
-										onChangeText={(e) => setObjectInput({ address: e })}
+										value={objectData.address}
+										onChangeText={(e) => setObjectData({ address: e })}
 										disabled={loading}
 									/>
 								</View>
-								<View style={styles.inputsCell}>
+								{/* <View style={styles.inputsCell}>
 									<Input
 										placeholder='Комментарий'
-										value={objectInput.comment}
-										onChangeText={(e) => setObjectInput({ comment: e })}
+										value={objectData.comment}
+										onChangeText={(e) => setObjectData({ comment: e })}
 										disabled={loading}
 									/>
-								</View>
+								</View> */}
 								<View style={styles.inputsCell}></View>
 							</View>
 							<View style={styles.inputsSubmitRow}>
@@ -123,7 +124,7 @@ export const ObjectsList = observer(({ navigation }: Props) => {
 									// style={styles.row}
 									color={'green'}
 									icon={{ name: 'check', color: 'white' }}
-									disabled={!objectInput.name || loading}
+									disabled={!objectData.name || loading}
 									onPress={addObjectSubmit}
 									loading={loading}
 								/>
@@ -140,7 +141,7 @@ export const ObjectsList = observer(({ navigation }: Props) => {
 			</ScrollView>
 			<FAB
 				visible={visibleAddButton}
-				onPress={addObjectHandler}
+				onPress={() => linkTo('/workplaces/objects/new')}
 				placement='right'
 				icon={{ name: 'add', color: 'white' }}
 				color='green'
