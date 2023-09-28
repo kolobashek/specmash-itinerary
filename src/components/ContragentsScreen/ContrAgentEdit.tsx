@@ -15,7 +15,7 @@ export const ContrAgentEdit = observer(({ navigation }: Props) => {
 		navigation.getState().routes.find((r) => r.name === 'ContrAgentEdit')?.params?.id
 	)
 	const linkTo = useLinkTo()
-	const { setCurrentContrAgent, updateContrAgent, contrAgentData } = store.contrAgents
+	const { updateContrAgent, contrAgentData } = store.contrAgents
 	const [loading, setLoading] = useState(false)
 	const [updateError, setUpdateError] = useState('')
 
@@ -29,9 +29,9 @@ export const ContrAgentEdit = observer(({ navigation }: Props) => {
 			return updatedContrAgent
 		}
 		setUpdateError('')
-		setCurrentContrAgent(updatedContrAgent)
+		// setCurrentContrAgent(updatedContrAgent)
 		setLoading(false)
-		return linkTo(`/contrAgents/${updatedContrAgent.id}`)
+		return linkTo(`/workplaces/contragents/${updatedContrAgent.id}`)
 	}
 	const cancelHandler = () => {
 		linkTo(`/workplaces/contragents/${contrAgentId}`)

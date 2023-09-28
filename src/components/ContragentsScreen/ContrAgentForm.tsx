@@ -28,7 +28,7 @@ export const ContrAgentForm = observer(({ contrAgentId, loading, error }: Props)
 		setContrAgentData,
 		contrAgentData,
 		getContrAgentById,
-		setCurrentContrAgent,
+		// setCurrentContrAgent,
 		updateContrAgent,
 	} = store.contrAgents
 	const { getObjects } = store.objects

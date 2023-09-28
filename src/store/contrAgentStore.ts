@@ -12,7 +12,7 @@ class ContrAgentStore {
 		comments: '',
 		objects: [],
 	}
-	currentContrAgent: IContrAgent | null = null
+	// currentContrAgent: IContrAgent | null = null
 
 	constructor() {
 		makeAutoObservable(this)
@@ -39,7 +39,7 @@ class ContrAgentStore {
 			if (contrAgent instanceof Error) {
 				return contrAgent
 			}
-			this.currentContrAgent = contrAgent.contrAgent
+			// this.currentContrAgent = contrAgent.contrAgent
 			return contrAgent.contrAgent
 		} catch (error) {
 			return new Error(error as string)
@@ -65,9 +65,9 @@ class ContrAgentStore {
 		this.contrAgentData.comments = comments
 		this.contrAgentData.objects = objects
 	}
-	setCurrentContrAgent(contrAgent: IContrAgent | null) {
-		this.currentContrAgent = contrAgent
-	}
+	// setCurrentContrAgent(contrAgent: IContrAgent | null) {
+	// 	this.currentContrAgent = contrAgent
+	// }
 	clearContrAgentData = () => {
 		this.contrAgentData = {
 			name: '',

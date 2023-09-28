@@ -55,12 +55,10 @@ export const ObjectEdit = observer(({ navigation }: Props) => {
 		start()
 	}, [])
 
-	const cancelHandler = (e: any) => {
-		e.preventDefault()
-		linkTo(`/objects/${objectId}`)
+	const cancelHandler = () => {
+		linkTo(`/workplaces/objects/${objectId}`)
 	}
-	const createObjectSubmit = async (e: any) => {
-		e.preventDefault()
+	const createObjectSubmit = async () => {
 		setLoading(true)
 		const updatedObject = await updateObject({ id: objectId, ...objectData })
 		if (updatedObject instanceof Error) {

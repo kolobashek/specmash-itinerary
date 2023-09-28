@@ -19,8 +19,8 @@ type Props = StackScreenProps<ContrAgentsStackParamList, 'ContrAgentDetails'>
 export const ContrAgentCard = observer(({ navigation }: Props) => {
 	const linkTo = useLinkTo()
 	const {
-		currentContrAgent,
-		setCurrentContrAgent,
+		// currentContrAgent,
+		// setCurrentContrAgent,
 		getContrAgentById,
 		getContrAgents,
 		updateContrAgent,
@@ -44,8 +44,6 @@ export const ContrAgentCard = observer(({ navigation }: Props) => {
 
 	const [visibleEditButton, setVisibleEditButton] = useState(true)
 	const [loading, setLoading] = useState(false)
-	const [isVisibleBS, setIsVisibleBS] = useState(false)
-	const [isActive, setIsActive] = useState(false)
 	const [updateError, setUpdateError] = useState('')
 
 	const editContrAgentHandler = () => {
@@ -61,17 +59,13 @@ export const ContrAgentCard = observer(({ navigation }: Props) => {
 			return null
 		}
 		setUpdateError('')
-		setCurrentContrAgent(newContrAgent)
+		// setCurrentContrAgent(newContrAgent)
 		setVisibleEditButton(true)
 		setLoading(false)
 		clearContrAgentData()
 		return newContrAgent
 	}
-	// const isActiveHandler = () => {
-	// 	setIsActive(!isActive)
-	// 	setContrAgentData({ isActive: !isActive })
-	// }
-	if (!currentContrAgent) return <Text>Что-то пошло не так.</Text>
+	// if (!currentContrAgent) return <Text>Что-то пошло не так.</Text>
 	if (!visibleEditButton)
 		return (
 			<>
@@ -84,51 +78,6 @@ export const ContrAgentCard = observer(({ navigation }: Props) => {
 					</Card.Title>
 					<Card.Divider />
 					<View>
-						{/* <ListItem>
-							<ListItem.Title>Телефон:</ListItem.Title>
-							<ListItem.Input
-								placeholder='00000000000'
-								value={contrAgentData.phone}
-								onChangeText={(text) => setContrAgentData({ phone: text })}
-								disabled={loading}
-								style={{ textAlign: 'left' }}
-							/>
-						</ListItem> */}
-						{/* <ListItem>
-							<ListItem.Title>Роль: </ListItem.Title>
-							<Dropdown
-								style={styles.dropdown}
-								placeholderStyle={styles.placeholderStyle}
-								selectedTextStyle={styles.selectedTextStyle}
-								inputSearchStyle={styles.inputSearchStyle}
-								iconStyle={styles.iconStyle}
-								data={roles.map((role) => {
-									return { label: roleName(role), value: role }
-								})}
-								search
-								maxHeight={300}
-								labelField='label'
-								valueField='value'
-								placeholder='Select item'
-								searchPlaceholder='Search...'
-								value={contrAgentInput.role}
-								onChange={(role) => setContrAgentInput({ role: role.value })}
-								renderLeftIcon={() => {
-									return <AntDesign style={styles.icon} color='black' name='Safety' size={20} />
-								}}
-								renderItem={(item) => {
-									return (
-										<View style={styles.item}>
-											<Text style={styles.textItem}>{item.label}</Text>
-											{item.value === contrAgentInput.role && (
-												<AntDesign style={styles.icon} color='black' name='Safety' size={20} />
-											)}
-										</View>
-									)
-								}}
-								disable={loading}
-							/>
-						</ListItem> */}
 						<ListItem>
 							<ListItem.Title>Адрес:</ListItem.Title>
 							<ListItem.Input
@@ -166,21 +115,13 @@ export const ContrAgentCard = observer(({ navigation }: Props) => {
 	return (
 		<>
 			<Card>
-				<Card.Title>{`${currentContrAgent.name}`}</Card.Title>
+				<Card.Title>{`${contrAgentData.name}`}</Card.Title>
 				<Card.Divider />
 				<View>
-					{/* <ListItem>
-						<ListItem.Title>Телефон:</ListItem.Title>
-						<ListItem.Subtitle>{`${currentContrAgent.phone}`}</ListItem.Subtitle>
-					</ListItem> */}
-					{/* <ListItem>
-						<ListItem.Title>Роль: </ListItem.Title>
-						<ListItem.Subtitle>{`${roleName(currentContrAgent.role)}`}</ListItem.Subtitle>
-					</ListItem> */}
 					<ListItem>
 						<ListItem.Title>Адрес:</ListItem.Title>
 						<ListItem.Subtitle>{`${
-							currentContrAgent.address ? currentContrAgent.address : ''
+							contrAgentData.address ? contrAgentData.address : ''
 						}`}</ListItem.Subtitle>
 					</ListItem>
 				</View>

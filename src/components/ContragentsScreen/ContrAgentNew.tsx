@@ -18,7 +18,7 @@ export const ContrAgentNew = observer(({ navigation }: Props) => {
 	const [updateError, setCreateError] = useState('')
 
 	const cancelHandler = (e: any) => {
-		navigation.goBack()
+		linkTo(`/workplaces/contragents`)
 	}
 	const createContrAgentSubmit = async (e: any) => {
 		setLoading(true)

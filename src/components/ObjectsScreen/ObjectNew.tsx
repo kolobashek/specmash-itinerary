@@ -27,7 +27,7 @@ export const ObjectNew = observer(({ navigation }: Props) => {
 	const [updateError, setCreateError] = useState('')
 
 	const cancelHandler = () => {
-		navigation.goBack()
+		linkTo(`/workplaces/objects`)
 	}
 	const createObjectSubmit = async () => {
 		setLoading(true)
@@ -41,7 +41,7 @@ export const ObjectNew = observer(({ navigation }: Props) => {
 		clearObjectData()
 		setCreateError('')
 		setLoading(false)
-		return linkTo(`/objects/${createdObject.id}`)
+		return linkTo(`/workplaces/objects/${createdObject.id}`)
 	}
 	if (loading) return <Text>Loading...</Text>
 	return (
