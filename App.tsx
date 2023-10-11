@@ -17,7 +17,7 @@ import store from './src/store'
 import {
 	RegisterScreen,
 	LoginScreen,
-	TableScreen,
+	ShiftScreen,
 	InfoScreen,
 	ContrAgentsList,
 	UsersList,
@@ -35,6 +35,9 @@ import * as Device from 'expo-device'
 import { ObjectCard, ObjectsList } from './src/components/ObjectsScreen'
 import { ObjectEdit } from './src/components/ObjectsScreen/ObjectEdit'
 import { ObjectNew } from './src/components/ObjectsScreen/ObjectNew'
+import { ShiftNew } from './src/components/TableScreen/ShiftNew'
+import { ShiftEdit } from './src/components/TableScreen/ShiftEdit'
+import { ShiftCard } from './src/components/TableScreen/ShiftCard'
 
 const Stack = createStackNavigator<RootStackParamList>()
 const AuthStack = createStackNavigator<AuthStackParamList>()
@@ -44,6 +47,7 @@ const ContrAgentsStack = createStackNavigator<ContrAgentsStackParamList>()
 const ObjectStack = createStackNavigator<ObjectStackParamList>()
 const ObjectsTab = createBottomTabNavigator<WorkPlacesTabParamList>()
 const MachinesStack = createStackNavigator<MachinesStackParamList>()
+const ShiftStack = createStackNavigator<ShiftStackParamList>()
 const prefix = Linking.createURL('/')
 
 const REGISTER_SCREEN = 'register'
@@ -60,7 +64,7 @@ const SCHEDULE_SCREEN = 'schedule'
 
 const App = observer(() => {
 	const url = Linking.useURL()
-	let pathname = null
+	const pathname = null
 	const [loading, setLoading] = useState(false)
 	const linking: LinkingOptions<RootStackParamList> = {
 		prefixes: [prefix],
@@ -80,7 +84,19 @@ const App = observer(() => {
 							: SHIFTS_SCREEN,
 					path: '/',
 					screens: {
-						shifts: SHIFTS_SCREEN,
+						shifts: {
+							path: SHIFTS_SCREEN,
+							screens: {
+								ShiftScreen: '',
+								ShiftNew: 'new',
+								ShiftDetails: {
+									path: '/:id',
+								},
+								ShiftEdit: {
+									path: '/:id/edit',
+								},
+							},
+						},
 						machines: {
 							path: MACHINES_SCREEN,
 							screens: {
@@ -189,7 +205,7 @@ const Home = observer(() => {
 		<Drawer.Navigator>
 			<Drawer.Screen
 				name={SHIFTS_SCREEN}
-				component={TableScreen}
+				component={Shifts}
 				options={{ drawerLabel: 'Путевые', title: 'Путевые' }}
 			/>
 			{(userRole === 'admin' || userRole === 'manager') && (
@@ -338,6 +354,24 @@ const Machines = () => {
 		</MachinesStack.Navigator>
 	)
 }
+const Shifts = () => {
+	return (
+		<ShiftStack.Navigator>
+			<ShiftStack.Screen
+				name='ShiftScreen'
+				component={ShiftScreen}
+				options={{ headerShown: false }}
+			/>
+			<ShiftStack.Screen
+				name='ShiftDetails'
+				component={ShiftCard}
+				options={{ headerShown: false }}
+			/>
+			<ShiftStack.Screen name='ShiftEdit' component={ShiftEdit} options={{ headerShown: false }} />
+			<ShiftStack.Screen name='ShiftNew' component={ShiftNew} options={{ headerShown: false }} />
+		</ShiftStack.Navigator>
+	)
+}
 
 export default App
 
@@ -380,6 +414,12 @@ export type MachinesStackParamList = {
 export type WorkPlacesTabParamList = {
 	objects: NavigatorScreenParams<ObjectStackParamList>
 	contragents: NavigatorScreenParams<ContrAgentsStackParamList>
+}
+export type ShiftStackParamList = {
+	ShiftScreen: undefined
+	ShiftDetails: { id: string }
+	ShiftEdit: { id: string }
+	ShiftNew: undefined
 }
 type AuthStackParamList = {
 	login: undefined

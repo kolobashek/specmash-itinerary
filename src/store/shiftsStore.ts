@@ -1,80 +1,79 @@
+import { objects } from './../services/api/queries/objects'
 import { makeAutoObservable } from 'mobx'
 import Queries from '../services/api/queries'
+import _ from 'lodash'
 import authStore from './authStore'
 import { graphqlRequest } from '../services/api/graphql'
 
 class ShiftsStore {
 	auth = authStore
 	shiftsTableFilter = {
-		dateStart: date.dateToString(new Date()),
-		dateEnd: date.dateToString(new Date(Date.now() + 3 * (24 * 60 * 60 * 1000))),
-		shiftNumber: '',
-		objects: [],
-		equipments: [],
-		drivers: [],
+		dateStart: localPrkDate.dateToString(new Date()),
+		dateEnd: localPrkDate.dateToString(new Date(Date.now() + 3 * (24 * 60 * 60 * 1000))),
+		shiftNumber: null, // фильтр по номеру смены
+		objects: [], // фильтр по объектам
+		equipments: [], // фильтр по оборудованию
+		drivers: [], // фильтр по водителям
 		hours: '', // должно быть три вида фильтра: заполнено, не заполнено, не имеет значения
 		breaks: '', // аналогично hours
 		comments: '', // аналогично hours
-		onlyFull: true, // показывать только заполненные смены
+		contrAgents: '', // фильтр по контрагентам
+		deleted: '', // фильтр по удаленным записям
+		hoursWorkedStart: '', // фильтр по количеству отработанных часов 'От'
+		hoursWorkedEnd: '', // фильтр по количеству отработанных часов 'До'
+		sortBy: '', // имя поля для сортировки
+		sortDirection: '', // ASC or DESC
+		page: '', // текущая страница
+		limit: '', // количество элементов на странице
+		onlyFull: [], // показывать только заполненные смены
+		onlyEmpty: [], // показывать только незаполненные смены
 	}
+	currentShift = {} as IShift
 	shiftsTableSortBy = 'date'
-	shifts: IShift[] = [
-		{
-			id: 1,
-			date: '14.08.2023',
-			shiftNumber: 1,
-			object: 'Object 1',
-			equipment: 'Car 1',
-			driver: 'Ivanov I.I.',
-			hours: 8,
-			breaks: 1,
-			comment: 'Comment',
-		},
-		{
-			id: 2,
-			date: '14.08.2023',
-			shiftNumber: 2,
-			object: 'Object 2',
-			equipment: 'Truck 2',
-			driver: 'Petrov P.P.',
-			hours: 6,
-			breaks: 0.5,
-			comment: 'No comment',
-		},
-		{
-			id: 3,
-			date: '15.08.2023',
-			shiftNumber: 3,
-			object: 'Object 3',
-			equipment: 'Car 3',
-			driver: 'Sidorov S.S.',
-			hours: 4,
-			breaks: 0.25,
-			comment: '',
-		},
-		{
-			id: 4,
-			date: '21.08.2023',
-			shiftNumber: 4,
-			object: 'Object 4',
-			equipment: 'Truck 4',
-			driver: 'Ivanova I.I.',
-			hours: 10,
-			breaks: 1.5,
-			comment: 'Long shift',
-		},
-	]
+	shifts: IShift[] = []
+	shiftData: Partial<IShift> = {}
 
 	constructor() {
 		makeAutoObservable(this)
 	}
-
+	createShift = async () => {
+		const { contrAgent, object, driver, equipment, shiftNumber, ...shiftData } = this.shiftData
+		const payload = {
+			...shiftData,
+			contrAgent: Number(contrAgent?.id),
+			object: Number(object?.id),
+			driver: Number(driver?.id),
+			equipment: Number(equipment?.id),
+			shiftNumber: Number(shiftNumber),
+		}
+		try {
+			const response = (await graphqlRequest(Queries.createShift, {
+				input: payload,
+			})) as CreateShiftResponse
+			if (response.createShift) {
+				this.shifts.push(response.createShift)
+				return response.createShift
+			}
+			return response.createShift
+		} catch (error) {
+			console.error(error)
+			return new Error('Что-то пошло не так')
+		}
+	}
 	setShiftsTableSortBy(sortBy: string) {
 		switch (sortBy) {
 			case 'date':
 				this.shifts.sort((a, b) => {
-					if (date.stringToDate(a.date).getTime() < date.stringToDate(b.date).getTime()) return -1
-					if (date.stringToDate(a.date).getTime() > date.stringToDate(b.date).getTime()) return 1
+					if (
+						localPrkDate.stringToDate(a.date).getTime() <
+						localPrkDate.stringToDate(b.date).getTime()
+					)
+						return -1
+					if (
+						localPrkDate.stringToDate(a.date).getTime() >
+						localPrkDate.stringToDate(b.date).getTime()
+					)
+						return 1
 					return 0
 				})
 				break
@@ -92,10 +91,10 @@ class ShiftsStore {
 				break
 		}
 	}
-	setShiftsFilterOnlyFull(onlyFull: boolean) {
-		console.log(this)
-		this.shiftsTableFilter.onlyFull = onlyFull
-	}
+	// setShiftsFilterOnlyFull(onlyFull: boolean) {
+	// 	console.log(this)
+	// 	this.shiftsTableFilter.onlyFull = onlyFull
+	// }
 
 	addEmptyShifts = () => {
 		// Получаем даты начала и конца
@@ -103,10 +102,12 @@ class ShiftsStore {
 		const { dateEnd } = this.shiftsTableFilter
 
 		// Проходим по датам от начала до конца
-		let currentDate = date.stringToDate(dateStart)
-		while (currentDate != date.stringToDate(dateEnd)) {
+		let currentDate = localPrkDate.stringToDate(dateStart)
+		while (currentDate != localPrkDate.stringToDate(dateEnd)) {
 			// Проверяем, есть ли уже смены на эту дату
-			const shiftsForDate = this.shifts.filter((s) => date.stringToDate(s.date) === currentDate)
+			const shiftsForDate = this.shifts.filter(
+				(s) => localPrkDate.stringToDate(s.date) === currentDate
+			)
 
 			// Если смен меньше 2 - добавляем недостающие
 			if (shiftsForDate.length < 2) {
@@ -114,11 +115,11 @@ class ShiftsStore {
 				for (let i = 0; i < numToAdd; i++) {
 					this.shifts.push({
 						id: this.shifts.length + 1,
-						date: date.dateToString(currentDate),
+						date: localPrkDate.dateToString(currentDate),
 						shiftNumber: numToAdd,
-						object: '',
-						equipment: '',
-						driver: '',
+						object: undefined,
+						equipment: undefined,
+						driver: undefined,
 						hours: 0,
 						breaks: 0,
 						comment: '',
@@ -127,7 +128,7 @@ class ShiftsStore {
 			}
 
 			// Переходим к следующей дате
-			currentDate = date.addDays(currentDate, 1)
+			currentDate = localPrkDate.addDays(currentDate, 1)
 		}
 	}
 	removeEmptyShifts = () => {
@@ -142,6 +143,23 @@ class ShiftsStore {
 				shift.comment
 			)
 		})
+	}
+	updateShift = async (data: Partial<IShift>) => {
+		try {
+			const shiftIndex = this.shifts.findIndex((s) => s.id === data.id)
+			if (shiftIndex !== -1) {
+				this.shifts[shiftIndex] = { ...this.shifts[shiftIndex], ...data }
+				const response = (await graphqlRequest(Queries.updateShift, {
+					input: data,
+				})) as UpdateShiftResponse
+				this.shifts[shiftIndex] = response.updateShift
+				return response.updateShift
+			}
+			return new Error('Что-то пошло не так')
+		} catch (error) {
+			console.error(error)
+			return new Error('Что-то пошло не так')
+		}
 	}
 
 	removeShift = (id: number) => {
@@ -174,9 +192,29 @@ class ShiftsStore {
 			return new Error(error as string)
 		}
 	}
+	setShiftData = async (shift: Partial<IShift>) => {
+		_.assign(this.shiftData, shift)
+		// Object.entries(shift).forEach(([key, value]) => {
+		// 	this.shiftData[key as keyof IShift] = value as IShift[typeof key]
+		// })
+	}
+	setCurrentShift = (shift: Partial<IShift>) => {
+		_.assign(this.currentShift, shift)
+	}
+	clearShiftData = () => {
+		this.shiftData = {}
+	}
+	getShiftById = async (id: number) => {
+		try {
+			const shift = (await graphqlRequest(Queries.getShiftById, { id: id })) as IShiftResponse
+			return shift.travelLog
+		} catch (error) {
+			return new Error(error as string)
+		}
+	}
 }
 
-const date = {
+export const localPrkDate = {
 	stringToDate: (dateString: string) => {
 		const [day, month, year] = dateString.split('.')
 		return new Date(Number(year), Number(month) - 1, Number(day))
@@ -188,6 +226,22 @@ const date = {
 		date.setDate(date.getDate() + days)
 		return date
 	},
+	msToDate: (milliseconds: number) => {
+		return new Date(milliseconds)
+	},
+	msToString: (milliseconds: number) => {
+		return localPrkDate.dateToString(localPrkDate.msToDate(milliseconds))
+	},
+	dateToMs: (date: Date) => {
+		return date.getTime()
+	},
+	msToDateString: (milliseconds: number) => {
+		return localPrkDate.dateToString(new Date(milliseconds))
+	},
+	dateStringToMs: (dateString: string) => {
+		const date = localPrkDate.stringToDate(dateString)
+		return date.getTime()
+	},
 }
 
 export default new ShiftsStore()
@@ -196,14 +250,30 @@ export interface IShift {
 	id: number
 	date: string
 	shiftNumber: number
-	object?: string
-	equipment?: string
-	driver?: string
+	object?: innerChildren
+	contrAgent?: innerChildren
+	equipment?: innerChildren
+	driver?: innerChildren
 	hours?: number
 	breaks?: number
-	comment?: string
+	comments?: string
+
+	[key: string]: string | number | undefined | innerChildren
 }
 
 interface IShiftsResponse {
 	travelLogs: IShift[]
+}
+interface CreateShiftResponse {
+	createShift: IShift
+}
+interface IShiftResponse {
+	travelLog: IShift
+}
+interface UpdateShiftResponse {
+	updateShift: IShift
+}
+interface innerChildren {
+	id: number
+	name: string
 }

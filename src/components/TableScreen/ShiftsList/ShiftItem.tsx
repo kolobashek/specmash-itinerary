@@ -2,19 +2,17 @@ import React from 'react' // импорт React
 import { StyleSheet, View, Text, ScrollView } from 'react-native' // импорт компонентов из React Native
 import { FAB } from '@rneui/themed' // импорт FAB компонента
 import DateTimePicker from '@react-native-community/datetimepicker' // импорт компонента DateTimePicker
-import store from '../../store' // импорт хранилища
+import store from '../../../store' // импорт хранилища
 import { observer } from 'mobx-react-lite' // импорт observer из mobx-react-lite
-import { IShift } from '../../store/shiftsStore' // импорт интерфейса IShift
-import { ShiftForm } from './ShiftForm'
-import { ShiftsList } from './ShiftsList'
-import { ShiftStackParamList } from '../../../App'
-import { StackScreenProps } from '@react-navigation/stack'
-import { useLinkTo } from '@react-navigation/native'
+import { IShift } from '../../../store/shiftsStore' // импорт интерфейса IShift
 
-type Props = StackScreenProps<ShiftStackParamList, 'ShiftScreen'>
-export const ShiftScreen = observer(({ navigation }: Props) => {
-	// экспорт компонента TableScreen как observer
-	const linkTo = useLinkTo()
+interface Props {
+	item: IShift
+}
+
+export const ShiftItem = observer(({ item }: Props) => {
+	const { id, date, shiftNumber, object, equipment, driver, hours, breaks, comments } = item
+	const [visible, setVisible] = React.useState(true) // состояние для видимости компонента
 
 	const {
 		// деструктуризация нужных методов из store
@@ -26,34 +24,19 @@ export const ShiftScreen = observer(({ navigation }: Props) => {
 		addEmptyShifts,
 		removeEmptyShifts,
 	} = store.shifts
-	console.log('shift screen')
 
 	// Отрисовка компонента
 	return (
-		<>
-			{/* Компонент для горизонтальной прокрутки списка смен */}
-			<ScrollView horizontal={true}>
-				<View>
-					<ShiftsList shiftsList={shifts} />
-					{/* Кнопка фильтров */}
-					{/* <FAB
-						visible={shiftsTableFilter.onlyFull}
-						onPress={showSchedule}
-						placement='left'
-						title='Показать все'
-						icon={{ name: 'visibility', color: 'white' }}
-						color='grey'
-					/> */}
-				</View>
-			</ScrollView>
-			<FAB
-				visible={true}
-				onPress={() => linkTo('/shifts/new')}
-				placement='right'
-				icon={{ name: 'add', color: 'white' }}
-				color='green'
-			/>
-		</>
+		<View style={styles.row} key={id}>
+			<Text style={styles.cell}>{date || '--'}</Text>
+			<Text style={styles.cell}>{shiftNumber || '--'}</Text>
+			<Text style={styles.cell}>{object?.name || '--'}</Text>
+			<Text style={styles.cell}>{equipment?.name || '--'}</Text>
+			<Text style={styles.cell}>{driver?.name || '--'}</Text>
+			<Text style={styles.cell}>{hours || '--'}</Text>
+			<Text style={styles.cell}>{breaks || '--'}</Text>
+			<Text style={styles.cell}>{comments || '--'}</Text>
+		</View>
 	)
 })
 

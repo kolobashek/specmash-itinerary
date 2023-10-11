@@ -19,9 +19,11 @@ class UsersStore {
 		makeAutoObservable(this)
 		this.getRoles()
 	}
-	getUsers = async () => {
+	getUsers = async (payload: GetUsersPayloadInput = {}) => {
 		try {
-			const users = (await graphqlRequest(Queries.getUsers)) as UsersResponse | Error
+			const users = (await graphqlRequest(Queries.getUsers, { input: payload })) as
+				| UsersResponse
+				| Error
 			if (users instanceof Error) {
 				return users
 			}
@@ -123,6 +125,8 @@ export default new UsersStore()
 
 export interface IUser extends IUserData {
 	id: number
+	phone: string
+	name: string
 }
 interface UsersResponse {
 	users: IUser[]
@@ -146,4 +150,11 @@ export interface IUserData {
 	comment?: string
 	role?: string
 	isActive?: boolean
+}
+interface GetUsersPayload {
+	input: GetUsersPayloadInput
+}
+interface GetUsersPayloadInput extends Partial<IUser> {
+	limit?: number
+	offset?: number
 }

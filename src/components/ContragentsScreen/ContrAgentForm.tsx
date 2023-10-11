@@ -54,21 +54,6 @@ export const ContrAgentForm = observer(({ contrAgentId, loading, error }: Props)
 		}
 		start()
 	}, [])
-	// const [name, setContrAgentName] = useState(contrAgentData.name)
-	// const [contacts, setContrAgentContacts] = useState(contrAgentData.contacts)
-	// const [address, setContrAgentAddress] = useState(contrAgentData.address)
-	// const [comments, setContrAgentComment] = useState(contrAgentData.comments)
-	// const [objects, setContrAgentObjects] = useState(contrAgentData.objects || [])
-	// useEffect(() => {
-	// 	setContrAgentData({
-	// 		...contrAgentData,
-	// 		name,
-	// 		contacts,
-	// 		address,
-	// 		comments,
-	// 		objects,
-	// 	})
-	// }, [name, contacts, address, comments, objects])
 	console.log(contrAgentData)
 	return (
 		<Card>

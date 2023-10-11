@@ -35,8 +35,8 @@ export const users = {
 	`,
 
 	getUsers: /* GraphQL */ `
-		query users {
-			users {
+		query users($input: UsersFilterInput) {
+			users(input: $input) {
 				id
 				phone
 				name

@@ -100,6 +100,7 @@ export default new ObjectStore()
 
 export interface IObject extends IObjectData {
 	id: number
+	name: string
 }
 interface ObjectsResponse {
 	objects: IObject[]

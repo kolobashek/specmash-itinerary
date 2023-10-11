@@ -2,19 +2,20 @@ import React from 'react' // импорт React
 import { StyleSheet, View, Text, ScrollView } from 'react-native' // импорт компонентов из React Native
 import { FAB } from '@rneui/themed' // импорт FAB компонента
 import DateTimePicker from '@react-native-community/datetimepicker' // импорт компонента DateTimePicker
-import store from '../../store' // импорт хранилища
+import store from '../../../store' // импорт хранилища
 import { observer } from 'mobx-react-lite' // импорт observer из mobx-react-lite
-import { IShift } from '../../store/shiftsStore' // импорт интерфейса IShift
-import { ShiftForm } from './ShiftForm'
-import { ShiftsList } from './ShiftsList'
-import { ShiftStackParamList } from '../../../App'
-import { StackScreenProps } from '@react-navigation/stack'
+import { IShift } from '../../../store/shiftsStore' // импорт интерфейса IShift
+import { ShiftItem } from './ShiftItem'
 import { useLinkTo } from '@react-navigation/native'
 
-type Props = StackScreenProps<ShiftStackParamList, 'ShiftScreen'>
-export const ShiftScreen = observer(({ navigation }: Props) => {
+interface Props {
+	shiftsList: IShift[]
+}
+
+export const ShiftsList = ({ shiftsList }: Props) => {
 	// экспорт компонента TableScreen как observer
-	const linkTo = useLinkTo()
+
+	const [visible, setVisible] = React.useState(true) // состояние для видимости компонента
 
 	const {
 		// деструктуризация нужных методов из store
@@ -26,36 +27,31 @@ export const ShiftScreen = observer(({ navigation }: Props) => {
 		addEmptyShifts,
 		removeEmptyShifts,
 	} = store.shifts
-	console.log('shift screen')
 
+	// Функция для переключения отображения только заполненных или всех смен
+	const showSchedule = () => {
+		// Переключаем фильтр только заполненных смен
+		// setShiftsFilterOnlyFull(!shiftsTableFilter.onlyFull)
+		// Если ранее были только заполненные смены, убираем пустые
+		if (shiftsTableFilter.onlyFull) {
+			removeEmptyShifts()
+		} else {
+			// Иначе добавляем обратно пустые смены
+			addEmptyShifts()
+		}
+	}
 	// Отрисовка компонента
 	return (
 		<>
 			{/* Компонент для горизонтальной прокрутки списка смен */}
 			<ScrollView horizontal={true}>
-				<View>
-					<ShiftsList shiftsList={shifts} />
-					{/* Кнопка фильтров */}
-					{/* <FAB
-						visible={shiftsTableFilter.onlyFull}
-						onPress={showSchedule}
-						placement='left'
-						title='Показать все'
-						icon={{ name: 'visibility', color: 'white' }}
-						color='grey'
-					/> */}
-				</View>
+				{shiftsList.map((item) => {
+					return <ShiftItem item={item} key={item.id} />
+				})}
 			</ScrollView>
-			<FAB
-				visible={true}
-				onPress={() => linkTo('/shifts/new')}
-				placement='right'
-				icon={{ name: 'add', color: 'white' }}
-				color='green'
-			/>
 		</>
 	)
-})
+}
 
 const styles = StyleSheet.create({
 	container: {
