@@ -7,7 +7,10 @@ export const users = {
 
 	getRoles: /* GraphQL */ `
 		query getRoles {
-			roles
+			roles {
+				id
+				name
+			}
 		}
 	`,
 
@@ -17,7 +20,7 @@ export const users = {
 			$name: String!
 			$nickname: String
 			$comment: String
-			$role: String
+			$roles: [Int]
 			$isActive: String
 		) {
 			createEquipment(
@@ -26,7 +29,7 @@ export const users = {
 				nickname: $nickname
 				comment: $comment
 				isActive: $isActive
-				role: $role
+				roles: $roles
 			) {
 				id
 				password
@@ -42,7 +45,10 @@ export const users = {
 				name
 				nickname
 				comment
-				role
+				roles {
+					id
+					name
+				}
 				isActive
 			}
 		}
@@ -56,7 +62,10 @@ export const users = {
 				name
 				nickname
 				comment
-				role
+				roles {
+					id
+					name
+				}
 				isActive
 			}
 		}
@@ -69,7 +78,10 @@ export const users = {
 				name
 				nickname
 				comment
-				role
+				roles {
+					id
+					name
+				}
 				isActive
 			}
 		}

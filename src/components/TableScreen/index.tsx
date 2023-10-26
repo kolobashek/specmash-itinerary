@@ -26,7 +26,6 @@ export const ShiftScreen = observer(({ navigation }: Props) => {
 		addEmptyShifts,
 		removeEmptyShifts,
 	} = store.shifts
-	console.log('shift screen')
 
 	// Отрисовка компонента
 	return (

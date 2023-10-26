@@ -6,17 +6,9 @@ import { graphqlRequest, setAuthTokenHeader } from '../services/api/graphql'
 
 class AuthStore {
 	userAuthorized = false
-	userIsActive = false
-	userRole = ''
-	registrationMessage = ''
-	token = ''
-	currentUser = {
-		id: 0,
-		phone: '',
-		role: '',
-		isActive: false,
-		password: '',
-	}
+	declare registrationMessage: string
+	declare token: string
+	declare currentUser: IUser
 
 	constructor() {
 		makeAutoObservable(this)
@@ -34,8 +26,24 @@ class AuthStore {
 	// 	}
 	// 	return new Error('Токен не найден')
 	// }
-
-	getCurrentUser = async (): Promise<User | Error> => {
+	getUserByToken = async (token: string): Promise<IUser | Error> => {
+		try {
+			setAuthTokenHeader(token)
+			const request = (await graphqlRequest(Queries.me, {}, { token })) as UserResponse
+			const user = request.me
+			if (user) {
+				this.setCurrentUser(user)
+				this.setUserAuthorized(true)
+				return user
+			} else {
+				this.setUserAuthorized(false)
+				return new Error('Токен не действителен')
+			}
+		} catch (error) {
+			return new Error(error as string)
+		}
+	}
+	getUserByAsyncStorage = async (): Promise<IUser | Error> => {
 		if (this.userAuthorized) {
 			return this.currentUser
 		} else {
@@ -49,12 +57,11 @@ class AuthStore {
 					const request = (await graphqlRequest(Queries.me, {}, { token })) as UserResponse
 					const user = request.me
 					if (user) {
-						this.currentUser = user
-						this.userRole = user.role
-						this.userAuthorized = true
+						this.setCurrentUser(user)
+						this.setUserAuthorized(true)
 						return user
 					} else {
-						this.userAuthorized = false
+						this.setUserAuthorized(false)
 						return new Error('Токен не действителен')
 					}
 				}
@@ -71,50 +78,46 @@ class AuthStore {
 				password,
 			})) as Login
 			this.token = login.token
+			this.setCurrentUser(login.user)
 			await AsyncStorage.setItem('token', login.token)
-			await this.getCurrentUser()
-			return login.token
+			return login.user
 		} catch (error) {
 			return new Error('Неверный логин или пароль')
 		}
 	}
 
-	setUserAuthorized(authorized: boolean) {
+	setUserAuthorized = (authorized: boolean) => {
 		this.userAuthorized = authorized
 	}
 
-	getRegistrationMessage() {
+	getRegistrationMessage = () => {
 		return this.registrationMessage
 	}
 
-	setRegistrationMessage(message: string) {
+	setRegistrationMessage = (message: string) => {
 		this.registrationMessage = message
 	}
 
-	getUserIsActive() {
-		return this.userIsActive
-	}
-
-	setUserData(user: any) {
-		// get user data from API
+	setCurrentUser = (user: IUser) => {
 		this.currentUser = user
-		this.setUserRole(user.role.name)
-		this.setUserActive(user.isActive)
-		// set userIsActive
 	}
 
-	setUserRole(role: string) {
-		this.userRole = role
-	}
-
-	setUserActive(active: boolean) {
-		this.userIsActive = active
+	hasRoles = (...roleNames: string[]) => {
+		const roles = this.currentUser.roles
+		if (roles) {
+			for (const roleName of roleNames) {
+				if (roles.some((role) => role.name === roleName)) {
+					return true
+				}
+			}
+		}
+		return false
 	}
 }
 
 export default new AuthStore()
 
-interface User {
+interface IUser {
 	comment?: string
 	id: number
 	isActive: boolean
@@ -122,14 +125,19 @@ interface User {
 	nickname?: string
 	password: string
 	phone: string
-	role: string
+	roles: IRole[]
+}
+interface IRole {
+	id: number
+	name: string
 }
 interface UserResponse {
-	me: User
+	me: IUser
 }
 
 interface Login {
 	login: {
 		token: string
+		user: IUser
 	}
 }

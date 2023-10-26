@@ -31,7 +31,7 @@ import {
 	ContrAgentNew,
 } from './src/components'
 import { UserCard, UserEdit, UserNew } from './src/components/UsersScreen'
-import * as Device from 'expo-device'
+// import * as Device from 'expo-device'
 import { ObjectCard, ObjectsList } from './src/components/ObjectsScreen'
 import { ObjectEdit } from './src/components/ObjectsScreen/ObjectEdit'
 import { ObjectNew } from './src/components/ObjectsScreen/ObjectNew'
@@ -168,15 +168,14 @@ const App = observer(() => {
 			},
 		},
 	}
+	const { userAuthorized, getUserByAsyncStorage } = store.auth
 	useEffect(() => {
-		setLoading(true)
-		const checkAuth = async () => {
-			const user = await store.auth.getCurrentUser()
+		if (!userAuthorized) {
+			setLoading(true)
+			getUserByAsyncStorage()
 			setLoading(false)
 		}
-		checkAuth()
-	}, [store.auth.userAuthorized])
-	const { userAuthorized, userRole } = store.auth
+	}, [])
 	if (loading) {
 		return (
 			<View style={styles.fullContainer}>
@@ -200,7 +199,7 @@ const App = observer(() => {
 })
 
 const Home = observer(() => {
-	const { userRole } = store.auth
+	const { hasRoles } = store.auth
 	return (
 		<Drawer.Navigator>
 			<Drawer.Screen
@@ -208,32 +207,34 @@ const Home = observer(() => {
 				component={Shifts}
 				options={{ drawerLabel: 'Путевые', title: 'Путевые' }}
 			/>
-			{(userRole === 'admin' || userRole === 'manager') && (
+			{hasRoles('admin', 'manager') && (
 				<Drawer.Screen
 					name={MACHINES_SCREEN}
 					component={Machines}
 					options={{ drawerLabel: 'Техника', title: 'Техника' }}
 				/>
 			)}
-			{(userRole === 'admin' || userRole === 'manager') && (
+			{hasRoles('admin', 'manager') && (
 				<Drawer.Screen
 					name={USERS_SCREEN}
 					component={Users}
 					options={{ drawerLabel: 'Водители', title: 'Водители' }}
 				/>
 			)}
-			{(userRole === 'admin' || userRole === 'manager') && (
+			{hasRoles('admin', 'manager') && (
 				<Drawer.Screen
 					name={WORK_PLACES_SCREEN}
 					component={WorkPlaces}
 					options={{ drawerLabel: 'Объекты', title: 'Объекты' }}
 				/>
 			)}
-			<Drawer.Screen
-				name={SCHEDULE_SCREEN}
-				component={ScheduleScreen}
-				options={{ drawerLabel: 'График', title: 'График' }}
-			/>
+			{hasRoles('driver') && (
+				<Drawer.Screen
+					name={SCHEDULE_SCREEN}
+					component={ScheduleScreen}
+					options={{ drawerLabel: 'График', title: 'График' }}
+				/>
+			)}
 			<Drawer.Screen
 				name={INFO_SCREEN}
 				component={InfoScreen}

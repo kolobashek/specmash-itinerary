@@ -4,7 +4,7 @@ import { Button, Input, Card } from '@rneui/themed'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 import store from '../store'
 import { observer } from 'mobx-react-lite'
-import { RouteProp } from '@react-navigation/native'
+import { RouteProp, useLinkTo } from '@react-navigation/native'
 import { StackNavigationProp } from '@react-navigation/stack'
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -12,10 +12,13 @@ const LoginScreen = observer(({ navigation }: any) => {
 	const [phone, setPhone] = useState('')
 	const [password, setPassword] = useState('')
 	const [errorMessage, setErrorMessage] = useState('')
+	const linkTo = useLinkTo()
 
-	// useEffect(() => {
-	// 	navigation.navigate('Table')
-	// }, [store.auth.userAuthorized])
+	useEffect(() => {
+		if (store.auth.userAuthorized) {
+			linkTo('/info')
+		}
+	}, [store.auth.userAuthorized])
 
 	const handleLogin = async () => {
 		try {

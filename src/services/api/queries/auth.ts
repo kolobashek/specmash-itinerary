@@ -9,6 +9,19 @@ export const auth = {
 		mutation Login($phone: String!, $password: String!) {
 			login(phone: $phone, password: $password) {
 				token
+				user {
+					id
+					name
+					nickname
+					password
+					phone
+					roles {
+						id
+						name
+					}
+					isActive
+					comment
+				}
 			}
 		}
 	`,
@@ -16,14 +29,17 @@ export const auth = {
 	me: /* GraphQL */ `
 		query AboutUser {
 			me {
-				comment
 				id
-				isActive
 				name
 				nickname
 				password
 				phone
-				role
+				roles {
+					id
+					name
+				}
+				isActive
+				comment
 			}
 		}
 	`,

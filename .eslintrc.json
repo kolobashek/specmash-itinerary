@@ -25,7 +25,7 @@
 		"@typescript-eslint/no-unused-vars": "warn",
 		"no-mixed-spaces-and-tabs": ["error", "smart-tabs"]
 	},
-	"ignorePatterns": ["**/metro.config.js"],
+	"ignorePatterns": ["**/metro.config.js", "**/babel.config.js"],
 	"settings": {
 		"react": {
 			"version": "detect"
